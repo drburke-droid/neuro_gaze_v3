@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Manifold</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--a:#00ffcc;--ag:rgba(0,255,204,.2);--as:rgba(0,255,204,.08);--c:#0a0a0c;--s:rgba(255,255,255,.03);--s2:rgba(255,255,255,.06);--b:rgba(255,255,255,.06);--t1:rgba(255,255,255,.88);--t2:rgba(255,255,255,.4);--t3:rgba(255,255,255,.18);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 6px;flex-shrink:0}
+.brand{font-size:.9rem;font-weight:200;letter-spacing:-.3px;color:var(--t2)}
+.gear{width:30px;height:30px;border-radius:50%;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);font-size:13px}
+.tabs{display:flex;gap:3px;padding:0 20px;margin-bottom:10px;flex-shrink:0}
+.tab{flex:1;padding:7px 0;border-radius:9px;background:0;border:1px solid transparent;font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);cursor:pointer;text-align:center;transition:all .2s var(--ez)}
+.tab.on{background:var(--s2);border-color:var(--b);color:var(--a)}
+.prog{display:flex;justify-content:center;padding:2px 0 6px;flex-shrink:0}
+.ring{position:relative;width:48px;height:48px}
+.ring svg{width:48px;height:48px;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:var(--s2);stroke-width:2.5}
+.ring .fg{fill:none;stroke:var(--a);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.6rem;font-weight:400;color:var(--t2)}
+.resp{flex:1;display:flex;align-items:center;justify-content:center;padding:0 14px;overflow:hidden;position:relative}
+.prompt{text-align:center;font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3);animation:breathe 3s ease-in-out infinite;position:absolute}
+@keyframes breathe{0%,100%{opacity:.3}50%{opacity:.7}}
+.lpad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:min(88vw,340px)}
+.lb{aspect-ratio:1;border-radius:13px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;font-family:var(--m);font-size:1.15rem;font-weight:400;color:var(--t2)}
+.lb:active{transform:scale(.92);background:var(--as);border-color:var(--a);color:var(--a)}
+.dpad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:7px;width:min(68vw,240px);height:min(68vw,240px)}
+.db{border-radius:14px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;font-size:1.4rem;color:var(--t2)}
+.db:active{transform:scale(.92);background:var(--as);border-color:var(--a);color:var(--a)}
+.db[data-p="t"]{grid-column:2;grid-row:1}.db[data-p="l"]{grid-column:1;grid-row:2}
+.db[data-p="r"]{grid-column:3;grid-row:2}.db[data-p="b"]{grid-column:2;grid-row:3}
+.db[data-p="c"]{grid-column:2;grid-row:2;pointer-events:none;opacity:.08;font-size:.5rem;color:var(--t3)}
+.fl{animation:fl .3s ease-out}
+@keyframes fl{0%{background:var(--as);border-color:var(--a);color:var(--a);box-shadow:0 0 14px var(--ag)}100%{background:var(--s);border-color:var(--b);color:var(--t2);box-shadow:none}}
+.hid{display:none!important}
+.sbar{padding:10px 20px;text-align:center;flex-shrink:0}
+#st{font-family:var(--m);font-size:.45rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
+.sd{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.sd.ok{background:var(--a);animation:pls 2s ease-in-out infinite}.sd.er{background:var(--e)}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.3}}
+.rbtn{display:none;margin-top:10px;background:0;color:var(--t3);border:1px solid var(--b);padding:7px 18px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem}
+.rv{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:6px;padding:20px}
+.rv-ey{font-family:var(--m);font-size:.45rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3)}
+.rv-sc{font-family:var(--m);font-size:3.8rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 50px var(--ag)}
+.rv-rk{font-family:var(--f);font-size:.75rem;font-weight:200;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:2px}
+.rv-dt{font-family:var(--m);font-size:.45rem;color:var(--t3);margin-top:4px}
+.rv-ts{font-family:var(--m);font-size:.4rem;color:var(--t3);margin-top:8px;opacity:.5}
+.rv-divider{width:60px;height:1px;background:var(--b);margin:14px 0}
+.rv-actions{display:flex;gap:8px;margin-top:12px}
+.rv-btn{padding:10px 22px;border-radius:100px;border:1px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.75rem;font-weight:400;cursor:pointer;transition:all .2s var(--ez);display:flex;align-items:center;gap:6px}
+.rv-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
+.rv-btn.primary{background:var(--as);border-color:rgba(0,255,204,.2);color:var(--a)}
+.rv-copied{font-family:var(--m);font-size:.45rem;color:var(--a);letter-spacing:1px;opacity:0;transition:opacity .3s}
+.rv-copied.show{opacity:1}
+.sp{display:none;position:fixed;inset:0;background:var(--c);z-index:200;flex-direction:column;padding:20px;overflow-y:auto;animation:su .3s var(--ez)}
+.sp.open{display:flex}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sp .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.sp .st{font-size:1rem;font-weight:200}.sp .sc2{background:0;border:0;color:var(--a);font-size:.8rem;cursor:pointer;font-family:var(--f)}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--b)}
+.sr .sl{font-size:.8rem;color:var(--t2)}.sr .sv{font-family:var(--m);font-size:.7rem;color:var(--a)}
+.cbtn{width:100%;padding:13px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-family:var(--f);font-size:.8rem;cursor:pointer;margin-top:10px;text-align:center}
+/* Camera capture fullscreen */
+.cam-fs{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
+.cam-fs.open{display:flex}
+.cam-fs video{flex:1;object-fit:cover}
+.cam-fs .hud{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(transparent,rgba(0,0,0,.8));text-align:center}
+.cam-fs .inst{font-family:var(--m);font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin-bottom:12px}
+.cam-fs .cap{width:60px;height:60px;border-radius:50%;background:#fff;border:3px solid rgba(255,255,255,.3);cursor:pointer}
+.cam-fs .cap:active{transform:scale(.9)}
+.cam-fs .cx{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;z-index:1}
+.cam-fs .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80vw;height:50vw;border:2px dashed rgba(0,255,204,.3);border-radius:10px;pointer-events:none}
+.cam-fs .guide-label{position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-50% - 28vw));font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--a);opacity:.5}
+</style>
+</head>
+<body>
+
+<!-- Normal controller UI (hidden during cam-distance mode) -->
+<div id="controller-ui">
+<div class="hdr"><span class="brand">Manifold</span><div class="gear" onclick="toggleSettings()">⚙</div></div>
+<div class="tabs" id="tabs">
+<button class="tab on" data-m="sloan" onclick="setMode('sloan')">Sloan</button>
+<button class="tab" data-m="tumblingE" onclick="setMode('tumblingE')">Tumbling E</button>
+<button class="tab" data-m="gabor" onclick="setMode('gabor')">Gabor</button>
+</div>
+<div class="prog" id="prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
+<div class="resp" id="resp">
+<div class="prompt" id="prompt">Tap any response to begin</div>
+<div class="lpad" id="pad-s">
+<button class="lb" onclick="send('c')">C</button><button class="lb" onclick="send('d')">D</button>
+<button class="lb" onclick="send('h')">H</button><button class="lb" onclick="send('k')">K</button>
+<button class="lb" onclick="send('n')">N</button><button class="lb" onclick="send('o')">O</button>
+<button class="lb" onclick="send('r')">R</button><button class="lb" onclick="send('s')">S</button>
+<button class="lb" onclick="send('v')">V</button><button class="lb" onclick="send('z')">Z</button>
+</div>
+<div class="dpad hid" id="pad-d">
+<button class="db" data-p="t" onclick="send('up')">↑</button>
+<button class="db" data-p="l" onclick="send('left')">←</button>
+<button class="db" data-p="c">+</button>
+<button class="db" data-p="r" onclick="send('right')">→</button>
+<button class="db" data-p="b" onclick="send('down')">↓</button>
+</div>
+</div>
+<div class="sbar" id="sbar"><div id="st"><span class="sd" id="sd"></span>Connecting</div><button class="rbtn" id="rbtn" onclick="location.reload()">Retry</button></div>
+<div class="rv" id="rv">
+    <div class="rv-ey">Area Under Log CSF</div>
+    <div class="rv-sc" id="rsc">—</div><div class="rv-rk" id="rrk"></div><div class="rv-dt" id="rdt"></div>
+    <div class="rv-ts" id="rts"></div><div class="rv-divider"></div>
+    <div class="rv-actions">
+        <button class="rv-btn primary" onclick="shareResults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>
+        <button class="rv-btn" onclick="copyResults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    </div>
+    <div class="rv-copied" id="rv-copied">Copied to clipboard</div>
+</div>
+</div>
+
+<!-- Settings -->
+<div class="sp" id="sp">
+<div class="sh"><span class="st">Settings</span><button class="sc2" onclick="toggleSettings()">Done</button></div>
+<div class="sr"><span class="sl">Mode</span><span class="sv" id="sm">Sloan</span></div>
+<div class="sr"><span class="sl">Trials</span><span class="sv">50</span></div>
+<button class="cbtn" onclick="sendCmd('calibrate')">Calibration Wizard</button>
+<button class="cbtn" style="color:var(--e);border-color:rgba(255,69,58,.15)" onclick="sendCmd('restart')">Restart Test</button>
+</div>
+
+<!-- Camera capture fullscreen (for distance measurement) -->
+<div class="cam-fs" id="cam-fs">
+<button class="cx" onclick="cancelCamCapture()">✕</button>
+<video id="cam-video" autoplay playsinline></video>
+<div class="guide"></div>
+<div class="guide-label">Frame all 4 corner markers</div>
+<div class="hud">
+    <div class="inst" id="cam-inst">Point camera at the display — capture when all 4 markers visible</div>
+    <button class="cap" id="cam-cap-btn" onclick="captureFrame()"></button>
+</div>
+<canvas id="cam-canvas" style="display:none"></canvas>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// Route: normal controller vs camera-distance mode
+// ═══════════════════════════════════════════════════════════════
+const params = new URLSearchParams(location.search);
+const laneID = params.get('id');
+const camID  = params.get('cam');    // calibration PeerJS ID
+const diagMm = parseFloat(params.get('diagMm'));  // physical diagonal of markers in mm
+const screenW = parseFloat(params.get('sw'));
+const screenH = parseFloat(params.get('sh'));
+
+if (camID) {
+    // ── Camera Distance Mode ─────────────────────────────────
+    document.getElementById('controller-ui').style.display = 'none';
+    initCamDistMode();
+} else if (laneID) {
+    // ── Normal Controller Mode ───────────────────────────────
+    initControllerMode();
+} else {
+    showErr('No connection ID');
+    document.getElementById('rbtn').textContent = 'Back';
+    document.getElementById('rbtn').onclick = () => history.back();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Camera Distance Mode
+// ═══════════════════════════════════════════════════════════════
+let camStream = null, camConn = null;
+
+function initCamDistMode() {
+    // Open camera immediately
+    document.getElementById('cam-fs').classList.add('open');
+
+    navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+    })
+    .then(stream => {
+        camStream = stream;
+        document.getElementById('cam-video').srcObject = stream;
+
+        // Connect to calibration page via PeerJS
+        if (typeof Peer !== 'undefined') {
+            const peer = new Peer();
+            peer.on('open', () => {
+                camConn = peer.connect(camID);
+                camConn.on('open', () => {
+                    document.getElementById('cam-inst').textContent =
+                        'Connected — capture when all 4 markers are in frame';
+                });
+                camConn.on('error', () => {
+                    document.getElementById('cam-inst').textContent = 'Connection error';
+                });
+            });
+        }
+    })
+    .catch(err => {
+        document.getElementById('cam-inst').textContent = 'Camera access denied: ' + err.message;
+    });
+}
+
+function captureFrame() {
+    const video = document.getElementById('cam-video');
+    const canvas = document.getElementById('cam-canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const markers = findDarkMarkers(imgData, canvas.width, canvas.height);
+
+    if (markers.length >= 4) {
+        // Sort into TL, TR, BL, BR
+        markers.sort((a, b) => a.y - b.y);
+        const top = markers.slice(0, 2).sort((a, b) => a.x - b.x);
+        const bot = markers.slice(2, 4).sort((a, b) => a.x - b.x);
+
+        // Diagonal in camera pixels: TL to BR
+        const dx = bot[1].x - top[0].x;
+        const dy = bot[1].y - top[0].y;
+        const diagCamPx = Math.sqrt(dx * dx + dy * dy);
+
+        // Also compute horizontal span for FOV estimate
+        const hSpan = Math.max(Math.abs(top[1].x - top[0].x), Math.abs(bot[1].x - bot[0].x));
+
+        // Estimate distance using pinhole camera model
+        // hFOV ≈ 67° for typical phone rear camera
+        const hFovDeg = 67;
+        const focalLenPx = (canvas.width / 2) / Math.tan((hFovDeg / 2) * Math.PI / 180);
+
+        // apparentAngle = 2 * atan(diagCamPx / (2 * focalLenPx))
+        const apparentAngleRad = 2 * Math.atan(diagCamPx / (2 * focalLenPx));
+        const distMm = diagMm / (2 * Math.tan(apparentAngleRad / 2));
+
+        // Send to calibration page
+        if (camConn && camConn.open) {
+            camConn.send({ type: 'camDistance', distMm: distMm });
+        }
+
+        const distFt = (distMm / 304.8).toFixed(1);
+        document.getElementById('cam-inst').textContent =
+            `✓ Distance: ${distFt} ft (${(distMm/1000).toFixed(2)} m) — sent to display`;
+        document.getElementById('cam-cap-btn').style.display = 'none';
+
+        // Auto-close after a moment
+        setTimeout(() => {
+            cancelCamCapture();
+            // Show a simple done page
+            document.body.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:12px;font-family:var(--f);color:var(--t1);">
+                    <div style="font-size:2rem;">✓</div>
+                    <div style="font-family:var(--m);font-size:.6rem;letter-spacing:2px;color:var(--t3);">DISTANCE SENT</div>
+                    <div style="font-family:var(--m);font-size:1.4rem;color:var(--a);">${distFt} ft</div>
+                    <div style="font-family:var(--m);font-size:.5rem;color:var(--t3);margin-top:8px;">You can close this tab</div>
+                </div>`;
+        }, 2000);
+
+    } else {
+        document.getElementById('cam-inst').textContent =
+            `Found ${markers.length}/4 markers — reposition and try again`;
+        if (camConn && camConn.open) {
+            camConn.send({ type: 'camError', msg: `Only ${markers.length} markers detected` });
+        }
+    }
+}
+
+function findDarkMarkers(imgData, w, h) {
+    const DARK = 60, MIN_SIZE = 30;
+    const dark = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+        const r = imgData.data[i*4], g = imgData.data[i*4+1], b = imgData.data[i*4+2];
+        dark[i] = (r < DARK && g < DARK && b < DARK) ? 1 : 0;
+    }
+    const visited = new Uint8Array(w * h);
+    const clusters = [];
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const idx = y * w + x;
+            if (!dark[idx] || visited[idx]) continue;
+            const stack = [idx]; visited[idx] = 1;
+            let sx = 0, sy = 0, cnt = 0;
+            while (stack.length) {
+                const ci = stack.pop();
+                const cx = ci % w, cy = (ci - cx) / w;
+                sx += cx; sy += cy; cnt++;
+                for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+                    const nx = cx+dx, ny = cy+dy;
+                    if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+                        const ni = ny * w + nx;
+                        if (dark[ni] && !visited[ni]) { visited[ni] = 1; stack.push(ni); }
+                    }
+                }
+            }
+            if (cnt >= MIN_SIZE) clusters.push({ x: sx/cnt, y: sy/cnt, size: cnt });
+        }
+    }
+    clusters.sort((a, b) => b.size - a.size);
+    return clusters.slice(0, 4);
+}
+
+function cancelCamCapture() {
+    document.getElementById('cam-fs').classList.remove('open');
+    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Normal Controller Mode
+// ═══════════════════════════════════════════════════════════════
+let conn = null, isConn = false, cto = null, curMode = 'sloan', resultData = null;
+
+function initControllerMode() {
+    if (typeof Peer === 'undefined') { showErr('Lib failed'); return; }
+    const p = new Peer();
+    cto = setTimeout(() => { if (!isConn) showErr('Timed out'); }, 15000);
+    p.on('open', () => {
+        setSt('', 'Syncing');
+        conn = p.connect(laneID);
+        conn.on('open', () => { clearTimeout(cto); isConn = true; setSt('ok', 'Linked'); document.getElementById('rbtn').style.display = 'none'; });
+        conn.on('data', onMsg);
+        conn.on('close', () => { if (isConn) { isConn = false; showErr('Disconnected'); } });
+        conn.on('error', () => showErr('Error'));
+    });
+    p.on('error', e => { clearTimeout(cto); showErr(e.type === 'peer-unavailable' ? 'Lane not found' : e.type); });
+}
+
+function onMsg(d) {
+    if (d.type === 'state') switchPad(d.mode);
+    if (d.type === 'progress') updateRing(d.trial, d.maxTrials);
+    if (d.type === 'results') showResults(d.score, d.rank, d.detail);
+}
+
+function send(v) {
+    if (!conn || !isConn) return;
+    conn.send({ type: 'input', value: v });
+    if (navigator.vibrate) navigator.vibrate(25);
+    document.getElementById('prompt').classList.add('hid');
+    const all = [...document.querySelectorAll('.lb,.db')];
+    const map = { '↑':'up', '↓':'down', '←':'left', '→':'right', '↗':'upright', '↖':'upleft' };
+    all.forEach(b => {
+        const bv = map[b.textContent.trim()] || b.textContent.trim().toLowerCase();
+        if (bv === v) { b.classList.remove('fl'); void b.offsetWidth; b.classList.add('fl'); }
+    });
+}
+
+function setMode(m) {
+    curMode = m;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.m === m));
+    document.getElementById('sm').textContent = { sloan:'Sloan', tumblingE:'Tumbling E', gabor:'Gabor' }[m];
+    switchPad(m);
+    if (conn && isConn) conn.send({ type: 'setMode', mode: m });
+}
+
+function switchPad(m) {
+    const isDir = m === 'gabor' || m === 'tumblingE';
+    document.getElementById('pad-s').classList.toggle('hid', isDir);
+    document.getElementById('pad-d').classList.toggle('hid', !isDir);
+    document.querySelectorAll('.db[data-p]').forEach(b => {
+        b.style.transform = '';
+        if (m === 'gabor') {
+            if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
+            if (b.dataset.p === 'r') { b.textContent = '↗'; b.onclick = () => send('upright'); }
+            if (b.dataset.p === 'l') { b.textContent = '→'; b.onclick = () => send('right'); }
+            if (b.dataset.p === 'b') { b.textContent = '↖'; b.onclick = () => send('upleft'); }
+        } else {
+            if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
+            if (b.dataset.p === 'r') { b.textContent = '→'; b.onclick = () => send('right'); }
+            if (b.dataset.p === 'l') { b.textContent = '←'; b.onclick = () => send('left'); }
+            if (b.dataset.p === 'b') { b.textContent = '↓'; b.onclick = () => send('down'); }
+        }
+    });
+}
+
+function updateRing(t, mx) {
+    document.getElementById('rfg').style.strokeDashoffset = 2 * Math.PI * 21 * (1 - t / mx);
+    document.getElementById('rnum').textContent = t;
+}
+
+function showResults(score, rank, detail) {
+    const now = new Date();
+    resultData = { score: score||'—', rank: rank||'', detail: detail||'',
+        mode: {sloan:'Sloan Letters',tumblingE:'Tumbling E',gabor:'Gabor Grating'}[curMode]||curMode,
+        date: now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+        time: now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) };
+    document.getElementById('resp').style.display = 'none';
+    document.getElementById('tabs').style.display = 'none';
+    document.getElementById('prog').style.display = 'none';
+    document.getElementById('sbar').style.display = 'none';
+    const rv = document.getElementById('rv'); rv.style.display = 'flex';
+    document.getElementById('rsc').textContent = resultData.score;
+    document.getElementById('rrk').textContent = resultData.rank;
+    document.getElementById('rdt').textContent = resultData.detail;
+    document.getElementById('rts').textContent = `${resultData.mode}  ·  ${resultData.date}  ${resultData.time}`;
+}
+
+function getResultsText() {
+    if (!resultData) return '';
+    return `Manifold qCSF Results\n═══════════════════════\n\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\n\nMode:    ${resultData.mode}\nDate:    ${resultData.date} ${resultData.time}\n\n— Manifold Contrast Sensitivity Function`;
+}
+function shareResults() {
+    if (!resultData) return;
+    const text = getResultsText(), subj = `qCSF Result: AULCSF ${resultData.score} — ${resultData.rank}`;
+    if (navigator.share) navigator.share({title:subj,text}).catch(()=>{ window.location.href=`mailto:?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(text)}`; });
+    else window.location.href = `mailto:?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(text)}`;
+}
+function copyResults() {
+    if (!resultData) return;
+    navigator.clipboard.writeText(getResultsText()).then(()=>flashCopied()).catch(()=>{
+        const ta=document.createElement('textarea');ta.value=getResultsText();ta.style.cssText='position:fixed;opacity:0';
+        document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flashCopied();
+    });
+}
+function flashCopied(){const e=document.getElementById('rv-copied');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+
+function setSt(cls,txt){document.getElementById('st').innerHTML=(cls==='ok'?'<span class="sd ok"></span>':cls==='er'?'<span class="sd er"></span>':'<span class="sd"></span>')+txt}
+function showErr(msg){setSt('er',msg);document.getElementById('rbtn').style.display='inline-block'}
+function toggleSettings(){document.getElementById('sp').classList.toggle('open')}
+function sendCmd(a){if(conn&&isConn)conn.send({type:'command',action:a});toggleSettings()}
+</script>
+</body>
+</html>

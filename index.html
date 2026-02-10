@@ -15,49 +15,75 @@
 
 <!-- Calibration -->
 <div id="scr-cal" class="screen">
-<div class="cal-box">
-<div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
+<div class="cal-box" id="cal-box">
+<div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
 
+<!-- Step 0: Mirror question -->
 <div id="cs0" class="cal-step active">
-<div class="cal-sn">Step 1 of 4</div><h2>Luminance Calibration</h2>
-<p class="cal-sd">Adjust until circle disappears into pattern</p>
+<div class="cal-sn">Step 1 of 5</div>
+<h2>Setup Type</h2>
+<p class="cal-sd">Is the patient viewing this screen<br>through a mirror?</p>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
-<div style="width:170px;height:170px;border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
-<div id="ic" style="width:75px;height:75px;border-radius:50%;background:rgb(128,128,128)"></div></div></div>
-<div id="gamma-local"><input type="range" id="gs" min="60" max="220" value="128"><div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div></div>
-<div id="gamma-remote" class="phone-hint" style="display:none">ADJUST ON YOUR PHONE</div>
-<div class="cal-fn"><button class="bp" onclick="calGo(1)">Next →</button></div>
+<div class="mirror-choice">
+<button class="mirror-btn" onclick="setMirror(false)">No Mirror</button>
+<button class="mirror-btn" onclick="setMirror(true)">🪞 Using Mirror</button>
+</div>
+</div>
 </div>
 
+<!-- Step 1: Gamma -->
 <div id="cs1" class="cal-step">
-<div class="cal-sn">Step 2 of 4</div><h2>Physical Scale</h2>
+<div class="cal-sn">Step 2 of 5</div>
+<h2>Luminance</h2>
+<p class="cal-sd">Adjust until circle disappears into pattern</p>
+<div style="flex:1;display:flex;align-items:center;justify-content:center">
+<div style="width:clamp(140px,20vw,200px);height:clamp(140px,20vw,200px);border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
+<div id="ic" style="width:clamp(60px,9vw,90px);height:clamp(60px,9vw,90px);border-radius:50%;background:rgb(128,128,128)"></div></div></div>
+<div id="gamma-local"><input type="range" id="gs" min="60" max="220" value="128"><div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div></div>
+<div id="gamma-remote" class="phone-hint" style="display:none">ADJUST ON YOUR PHONE</div>
+<div class="cal-fn"><button class="bb" onclick="calGo(0)">← Back</button><button class="bp" onclick="calGo(2)">Next →</button></div>
+</div>
+
+<!-- Step 2: Card -->
+<div id="cs2" class="cal-step">
+<div class="cal-sn">Step 3 of 5</div>
+<h2>Physical Scale</h2>
 <p class="cal-sd">Hold credit card to screen. Match width.</p>
 <div id="card-sandbox"><div id="card-shape"></div></div>
 <input type="range" id="ss" min="150" max="750" step="0.1" value="300">
 <div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div>
-<div class="cal-fn"><button class="bb" onclick="calGo(0)">← Back</button><button class="bp" onclick="calGo(2)">Next →</button></div>
+<div class="cal-fn"><button class="bb" onclick="calGo(1)">← Back</button><button class="bp" onclick="calGo(3)">Next →</button></div>
 </div>
 
-<div id="cs2" class="cal-step">
-<div class="cal-sn">Step 3 of 4</div><h2>Viewing Distance</h2>
-<p class="cal-sd">Enter the distance from eyes to screen</p>
-<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;align-items:center">
+<!-- Step 3: Distance -->
+<div id="cs3" class="cal-step">
+<div class="cal-sn">Step 4 of 5</div>
+<h2>Viewing Distance</h2>
+<p class="cal-sd">Enter distance from eyes to screen</p>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;align-items:center">
 <div style="display:flex;gap:12px;align-items:center">
 <input type="number" class="dist-input" id="dv" placeholder="5" min="0.1" step="0.1">
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
 </div>
 <div class="cal-em" id="de"></div>
-<label class="ck"><input type="checkbox" id="mm">Mirror setup (doubles distance)</label>
 </div>
-<div class="cal-fn"><button class="bb" onclick="calGo(1)">← Back</button><button class="bp" onclick="calValidate()">Review →</button></div>
+<div class="cal-fn"><button class="bb" onclick="calGo(2)">← Back</button><button class="bp" onclick="calValidate()">Review →</button></div>
 </div>
 
-<div id="cs3" class="cal-step">
-<div class="cal-sn">Step 4 of 4</div><h2>Confirm & Start</h2>
+<!-- Step 4: Confirm -->
+<div id="cs4" class="cal-step">
+<div class="cal-sn">Step 5 of 5</div>
+<h2>Confirm & Start</h2>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
-<div class="cal-summary"><div><span class="l">Gamma</span><span class="v" id="sg">128</span></div><div><span class="l">Scale</span><span class="v" id="sp2">–</span> <span style="font-size:.65rem;color:var(--t3)">px/mm</span></div><div><span class="l">Distance</span><span class="v" id="sdi">–</span></div><div><span class="l">Mirror</span><span class="v" id="smi">Off</span></div><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Resolution</span><span class="v" id="spp">–</span></div></div>
+<div class="cal-summary">
+<div><span class="l">Mirror</span><span class="v" id="smi">Off</span></div>
+<div><span class="l">Gamma</span><span class="v" id="sg">128</span></div>
+<div><span class="l">Scale</span><span class="v" id="sp2">–</span> <span style="font-size:.65rem;color:var(--t3)">px/mm</span></div>
+<div><span class="l">Distance</span><span class="v" id="sdi">–</span></div>
+<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Resolution</span><span class="v" id="spp">–</span></div>
 </div>
-<div class="cal-fn"><button class="bb" onclick="calGo(2)">← Back</button><button class="bs" onclick="startTest()">Start Test ▶</button></div>
+</div>
+<div class="cal-fn"><button class="bb" onclick="calGo(3)">← Back</button><button class="bs" onclick="startTest()">Start Test ▶</button></div>
 </div>
 </div></div>
 
@@ -66,11 +92,19 @@
 <div class="display-frame" id="mirror-target">
 <canvas id="stimCanvas" width="600" height="600"></canvas>
 <div class="hud"><span class="hud-mode">Gabor Detection</span><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><span class="hud-progress" id="live-progress">0 / 50</span></div>
-<!-- Tutorial overlay -->
-<div class="tut-overlay" id="tutorial">
-<div class="tut-title">Learn the Responses</div>
-<div class="tut-row" id="tut-demos"></div>
-<div class="tut-proceed">Tap anywhere on your phone to begin the test</div>
+<!-- Tutorial overlay — actual Gabor demos rendered here -->
+<div class="tut-overlay" id="tutorial" style="display:none">
+<div class="tut-title" id="tut-title">Orientation Demo</div>
+<div class="tut-sub" id="tut-sub">This is a <strong>Vertical</strong> grating</div>
+<div class="tut-canvas-wrap">
+<canvas class="tut-gabor-canvas" id="tut-canvas" width="220" height="220"></canvas>
+<div style="display:flex;flex-direction:column;align-items:center">
+<div class="tut-btn-label" id="tut-arrow">↑</div>
+<div class="tut-btn-name" id="tut-key-name">Press ↑ on phone</div>
+</div>
+</div>
+<div class="tut-dots" id="tut-dots"></div>
+<div class="tut-sub" id="tut-hint" style="margin-top:8px">Tap the highlighted button on your phone</div>
 </div>
 </div></div>
 

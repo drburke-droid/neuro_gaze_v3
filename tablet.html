@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/tablet.html b/tablet.html
-index 631437bfaf63de04266ea2045af62360661872ed..92c573a04e8f9ca87aeb4d656cba9e873082e199 100644
+index 631437bfaf63de04266ea2045af62360661872ed..ffa56eb68116b1eeec694419d4ff98e3d7a018bd 100644
 --- a/tablet.html
 +++ b/tablet.html
-@@ -113,79 +113,105 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
+@@ -113,109 +113,152 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
  <div class="res-dt" id="rdt"></div>
  <img class="res-plot" id="rplot" style="display:none" alt="CSF">
  <canvas id="rcnv" style="display:none"></canvas>
@@ -111,6 +111,54 @@ index 631437bfaf63de04266ea2045af62360661872ed..92c573a04e8f9ca87aeb4d656cba9e87
          sl.textContent='STEP 2 · SCALE';tl.textContent='Card Size';
          bd.innerHTML=`<div class="cal-msg">Match the card rectangle on the display<br>to a real credit card width.</div>
  <div class="cal-slider"><input type="range" id="csl" min="150" max="750" step="0.1" value="${d.cardPx||300}" oninput="onCard(this.value)"></div>
+ <div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>`;
+         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next →</button>';
+     }else if(d.step===2){
+         sl.textContent='STEP 3 · DISTANCE';tl.textContent='Viewing Distance';
+-        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Enter the viewing distance<br>on the display screen.</div>';
++        const distValue=d.distanceValue||'';
++        const distUnit=d.distanceUnit||'ft';
++        bd.innerHTML=`<div class="cal-msg" style="font-size:1rem">Enter the viewing distance here<br>with your phone keyboard.</div>
++<div class="cal-slider" style="display:flex;gap:10px;align-items:center;max-width:340px">
++<input id="dist-input" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 20" value="${distValue}" style="flex:1;padding:12px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:1rem">
++<select id="dist-unit" style="padding:12px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:1rem">
++<option value="ft" ${distUnit==='ft'?'selected':''}>ft</option>
++<option value="m" ${distUnit==='m'?'selected':''}>m</option>
++<option value="cm" ${distUnit==='cm'?'selected':''}>cm</option>
++<option value="in" ${distUnit==='in'?'selected':''}>in</option>
++</select>
++</div>`;
++        setTimeout(()=>{
++            const din=document.getElementById('dist-input');
++            const du=document.getElementById('dist-unit');
++            if(din)din.addEventListener('input',()=>tx({type:'distance',value:din.value,unit:du?du.value:'ft'}));
++            if(du)du.addEventListener('change',()=>tx({type:'distance',value:din?din.value:'',unit:du.value}));
++        },0);
+         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review →</button>';
+     }else if(d.step===3){
+         sl.textContent='STEP 4 · CONFIRM';tl.textContent='Review & Start';
+         bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review settings on the display.<br>Press Start when ready.</div>';
+         nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">← Back</button><button class="cal-btn btn-start" onclick="nav(\'start\')">Start Test ▶</button>';
+     }
+ }
+ 
+ function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamma',value:parseInt(v)})}
+ function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
+ function nav(to){tx({type:'nav',to:to})}
+ // ═══ Test mode ═══
+ function send(v){
+     if(!isConn){dlog('send: not connected');return}
+     tx({type:'input',value:v});
+     if(navigator.vibrate)navigator.vibrate(20);
+ }
+ function updateRing(t,mx){
+     document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);
+     document.getElementById('rnum').textContent=t;
+ }
+ 
+ // ═══ Results ═══
+ let resultData=null;
+ function showResults(d){
  
 EOF
 )

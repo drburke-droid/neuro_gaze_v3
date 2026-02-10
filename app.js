@@ -211,6 +211,10 @@ function initPeerSync() {
     try {
         sync = initSync(laneID, {
             onReady(tabletURL) {
+                console.log('[App] Peer ready. URL:', tabletURL);
+                const dbg = document.getElementById('sync-debug');
+                if (dbg) dbg.textContent = `Lane: ${laneID}`;
+
                 if (typeof QRCode !== 'undefined') {
                     new QRCode(document.getElementById('qrcode'), {
                         text: tabletURL, width: 180, height: 180,
@@ -223,6 +227,7 @@ function initPeerSync() {
             },
 
             onConnect() {
+                console.log('[App] Tablet connected!');
                 const so = document.getElementById('sync-overlay');
                 if (so) so.style.display = 'none';
 

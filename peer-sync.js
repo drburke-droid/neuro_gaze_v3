@@ -1,91 +1,90 @@
 /**
  * PeerJS Bidirectional Sync
  * =========================
- * Display ↔ Tablet communication protocol:
- *
- * Display → Tablet:
- *   { type: 'state',   mode, labels, keys, trial, maxTrials, responseType }
- *   { type: 'results', score, rank, detail }
- *   { type: 'progress', trial, maxTrials }
- *
- * Tablet → Display:
- *   { type: 'input',    value }
- *   { type: 'setMode',  mode }
- *   { type: 'settings', key, value }
- *   { type: 'command',  action }  // 'start', 'restart', 'calibrate'
+ * Robust connection handling with proper open-state detection.
  */
 
 export function initSync(laneID, callbacks) {
     let activeConn = null;
+    let peer = null;
 
-    const peer = new Peer(laneID);
+    try {
+        peer = new Peer(laneID, {
+            debug: 1,
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' }
+                ]
+            }
+        });
+    } catch (e) {
+        console.error('[Sync] Peer creation failed:', e);
+        return null;
+    }
 
-    peer.on('open', () => {
+    peer.on('open', id => {
+        console.log('[Sync] Peer registered with ID:', id);
         const path = window.location.pathname;
         const dir  = path.substring(0, path.lastIndexOf('/'));
-        const tabletURL = `${window.location.origin}${dir}/tablet.html?id=${laneID}`;
+        const tabletURL = `${window.location.origin}${dir}/tablet.html?id=${id}`;
         if (callbacks.onReady) callbacks.onReady(tabletURL);
     });
 
     peer.on('connection', conn => {
-        activeConn = conn;
-        if (callbacks.onConnect) callbacks.onConnect();
+        console.log('[Sync] Incoming connection from:', conn.peer);
+
+        // CRITICAL: wait for the data channel to fully open
+        conn.on('open', () => {
+            console.log('[Sync] Data channel open — connected');
+            activeConn = conn;
+            if (callbacks.onConnect) callbacks.onConnect();
+        });
 
         conn.on('data', data => {
             switch (data.type) {
-                case 'input':
-                    if (callbacks.onInput) callbacks.onInput(data.value);
-                    break;
-                case 'setMode':
-                    if (callbacks.onModeChange) callbacks.onModeChange(data.mode);
-                    break;
-                case 'settings':
-                    if (callbacks.onSettings) callbacks.onSettings(data.key, data.value);
-                    break;
-                case 'command':
-                    if (callbacks.onCommand) callbacks.onCommand(data.action);
-                    break;
+                case 'input':    if (callbacks.onInput) callbacks.onInput(data.value); break;
+                case 'setMode':  if (callbacks.onModeChange) callbacks.onModeChange(data.mode); break;
+                case 'settings': if (callbacks.onSettings) callbacks.onSettings(data.key, data.value); break;
+                case 'command':  if (callbacks.onCommand) callbacks.onCommand(data.action); break;
             }
         });
 
         conn.on('close', () => {
+            console.log('[Sync] Connection closed');
             activeConn = null;
             if (callbacks.onDisconnect) callbacks.onDisconnect();
+        });
+
+        conn.on('error', err => {
+            console.error('[Sync] Connection error:', err);
         });
     });
 
     peer.on('error', err => {
-        console.warn('[Sync] PeerJS error:', err.type, err.message);
+        console.warn('[Sync] Peer error:', err.type, err.message || '');
+    });
+
+    peer.on('disconnected', () => {
+        console.log('[Sync] Disconnected from signaling server, reconnecting...');
+        if (!peer.destroyed) peer.reconnect();
     });
 
     return {
-        /** Send full state (mode info, labels, etc.) */
         sendState(state) {
-            if (activeConn && activeConn.open) {
-                activeConn.send({ type: 'state', ...state });
-            }
+            if (activeConn && activeConn.open) activeConn.send({ type: 'state', ...state });
         },
-
-        /** Send progress update */
         sendProgress(trial, maxTrials) {
-            if (activeConn && activeConn.open) {
-                activeConn.send({ type: 'progress', trial, maxTrials });
-            }
+            if (activeConn && activeConn.open) activeConn.send({ type: 'progress', trial, maxTrials });
         },
-
-        /** Send results */
         sendResults(score, rank, detail) {
-            if (activeConn && activeConn.open) {
-                activeConn.send({ type: 'results', score, rank, detail });
-            }
+            if (activeConn && activeConn.open) activeConn.send({ type: 'results', score, rank, detail });
         },
-
-        /** Check if connected */
         get connected() { return activeConn && activeConn.open; },
-
+        get peerID() { return peer ? peer.id : null; },
         destroy() {
             if (activeConn) activeConn.close();
-            peer.destroy();
+            if (peer) peer.destroy();
         }
     };
 }

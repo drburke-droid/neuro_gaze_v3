@@ -1,476 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manifold · Calibration</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@200;300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: rgb(128, 128, 128);
-            --accent: #00ffcc;
-            --accent-dim: rgba(0,255,204,0.1);
-            --accent-glow: rgba(0,255,204,0.25);
-            --surface: rgba(0,0,0,0.45);
-            --border: rgba(255,255,255,0.08);
-            --t1: rgba(255,255,255,0.92);
-            --t2: rgba(255,255,255,0.45);
-            --t3: rgba(255,255,255,0.22);
-            --error: #ff5c5c;
-            --sans: 'DM Sans', -apple-system, system-ui, sans-serif;
-            --mono: 'JetBrains Mono', 'SF Mono', monospace;
-            --ez: cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background: var(--bg); color: var(--t1); font-family: var(--sans);
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; height: 100dvh; -webkit-font-smoothing: antialiased;
-        }
-
-        #cal-box {
-            background: var(--surface); backdrop-filter: blur(40px) saturate(1.2);
-            -webkit-backdrop-filter: blur(40px) saturate(1.2);
-            padding: 2.5rem; border-radius: 36px; text-align: center;
-            width: 500px; min-height: 620px; border: 1px solid var(--border);
-            display: flex; flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-
-        .step { display: none; flex-direction: column; flex: 1; justify-content: space-between; }
-        .active { display: flex; }
-        .step h2 { font-weight: 400; font-size: 1.15rem; letter-spacing: -0.2px; margin: 0 0 6px; }
-        .step-num { font-family: var(--mono); font-size: 0.55rem; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; color: var(--t3); margin-bottom: 6px; }
-        .step-desc { font-size: 0.8rem; color: var(--t2); line-height: 1.5; max-width: 380px; margin: 0 auto; }
-
-        .step-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
-        .step-dot { width: 24px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.1); transition: all 0.3s var(--ez); }
-        .step-dot.done { background: var(--accent); opacity: 0.5; }
-        .step-dot.current { background: var(--accent); width: 32px; }
-
-        #card-sandbox { width: 100%; height: 260px; background: rgba(0,0,0,0.2); border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
-        #card-shape { width: 300px; height: 189px; background: linear-gradient(135deg, #f0f0f0, #e0e0e0); border-radius: 10px; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.25); flex-shrink: 0; }
-
-        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; margin: 16px 0 8px; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 12px var(--accent-glow); border: 2px solid rgba(0,0,0,0.2); }
-        input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid rgba(0,0,0,0.2); }
-        .slider-labels { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1px; color: var(--t3); text-transform: uppercase; }
-        .slider-labels .val { color: var(--t2); }
-
-        input[type=number], select { padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: rgba(0,0,0,0.3); color: var(--t1); font-family: var(--mono); font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
-        input[type=number]:focus, select:focus { border-color: var(--accent); }
-        input[type=number].invalid { border-color: var(--error); }
-        select { cursor: pointer; } select option { background: #222; color: white; }
-
-        .check-row { display: flex; align-items: center; gap: 10px; justify-content: center; cursor: pointer; font-size: 0.85rem; color: var(--t2); }
-        .check-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
-
-        button { border: none; border-radius: 100px; font-family: var(--sans); font-weight: 400; cursor: pointer; transition: all 0.2s var(--ez); letter-spacing: 0.3px; }
-        .btn-primary { background: white; color: #0a0a0c; padding: 13px 36px; font-size: 0.85rem; }
-        .btn-primary:hover { background: var(--accent); }
-        .btn-back { background: transparent; color: var(--t2); border: 1px solid var(--border); padding: 10px 24px; font-size: 0.8rem; }
-        .btn-back:hover { border-color: rgba(255,255,255,0.2); color: var(--t1); }
-        .btn-start { background: var(--accent); color: #0a0a0c; padding: 16px 48px; font-size: 0.95rem; font-weight: 500; }
-        .btn-start:hover { box-shadow: 0 0 30px var(--accent-glow); }
-        .footer-nav { padding-top: 24px; display: flex; justify-content: center; gap: 10px; align-items: center; }
-
-        .error-msg { color: var(--error); font-family: var(--mono); font-size: 0.65rem; min-height: 1em; margin-top: 6px; letter-spacing: 0.5px; }
-        .summary-table { text-align: left; margin: 0 auto; line-height: 2.4; }
-        .summary-table .label { font-size: 0.8rem; color: var(--t2); margin-right: 8px; }
-        .summary-table .val { font-family: var(--mono); font-size: 0.8rem; font-weight: 500; color: var(--accent); }
-        .summary-warning { color: var(--error); font-family: var(--mono); font-size: 0.6rem; margin-top: 6px; max-width: 350px; }
-
-        .existing-banner { background: var(--accent-dim); border: 1px solid rgba(0,255,204,0.15); border-radius: 12px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.75rem; color: var(--t2); }
-        .existing-banner a { color: var(--accent); text-decoration: none; font-weight: 500; }
-
-        /* Camera distance button */
-        .btn-cam-dist {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            width: 100%; padding: 16px; border-radius: 16px;
-            background: rgba(0,255,204,0.04); border: 1.5px solid rgba(0,255,204,0.15);
-            color: var(--t1); font-family: var(--sans); font-size: 0.85rem; font-weight: 400; cursor: pointer;
-        }
-        .btn-cam-dist:hover { border-color: var(--accent); background: rgba(0,255,204,0.08); box-shadow: 0 0 20px var(--accent-dim); }
-        .btn-cam-dist.waiting { opacity: 0.5; pointer-events: none; }
-        .btn-cam-dist .sub { font-size: 0.55rem; color: var(--t3); font-family: var(--mono); letter-spacing: 1px; }
-        .divider-row { display: flex; align-items: center; gap: 12px; justify-content: center; margin: 4px 0; }
-        .divider-line { flex: 1; height: 1px; background: var(--border); }
-        .divider-text { font-family: var(--mono); font-size: .5rem; color: var(--t3); letter-spacing: 2px; }
-        .cam-result { display: none; text-align: center; padding: 10px; border-radius: 12px; background: rgba(0,255,204,0.06); border: 1px solid rgba(0,255,204,0.15); }
-        .cam-result span { font-family: var(--mono); }
-
-        /* Fiducial fullscreen overlay */
-        #fiducial-overlay {
-            display: none; position: fixed; inset: 0; z-index: 9999; background: rgb(128,128,128);
-        }
-        .fid-marker { position: absolute; width: 80px; height: 80px; background: #000; border-radius: 4px; }
-        .fid-tl { top: 60px; left: 60px; }
-        .fid-tr { top: 60px; right: 60px; }
-        .fid-bl { bottom: 60px; left: 60px; }
-        .fid-br { bottom: 60px; right: 60px; }
-        .fid-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
-        .fid-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 3px; color: rgba(0,0,0,0.3); text-transform: uppercase; }
-        .fid-cross-h { width: 40px; height: 2px; background: rgba(0,0,0,0.15); margin: 12px auto; }
-        .fid-cross-v { width: 2px; height: 40px; background: rgba(0,0,0,0.15); margin: -21px auto 0; }
-        .fid-waiting { margin-top: 24px; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 2px; color: rgba(0,0,0,0.25); animation: breathe 2s ease-in-out infinite; }
-        @keyframes breathe { 0%,100% { opacity: 0.3; } 50% { opacity: 0.7; } }
-        .fid-cancel { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 100px; font-family: var(--sans); font-size: 0.8rem; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manifold · Calibration</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:rgb(128,128,128);--a:#00ffcc;--ad:rgba(0,255,204,.1);--ag:rgba(0,255,204,.25);--sf:rgba(0,0,0,.45);--b:rgba(255,255,255,.08);--t1:rgba(255,255,255,.92);--t2:rgba(255,255,255,.45);--t3:rgba(255,255,255,.22);--e:#ff5c5c;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:var(--f);display:flex;justify-content:center;align-items:center;height:100vh;height:100dvh;-webkit-font-smoothing:antialiased}
+#cal-box{background:var(--sf);backdrop-filter:blur(40px) saturate(1.2);-webkit-backdrop-filter:blur(40px) saturate(1.2);padding:2.5rem;border-radius:36px;text-align:center;width:500px;min-height:620px;border:1px solid var(--b);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.step{display:none;flex-direction:column;flex:1;justify-content:space-between}.active{display:flex}
+.step h2{font-weight:400;font-size:1.15rem;letter-spacing:-.2px;margin:0 0 6px}
+.sn{font-family:var(--m);font-size:.55rem;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.sd2{font-size:.8rem;color:var(--t2);line-height:1.5;max-width:380px;margin:0 auto}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.dot{width:24px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);transition:all .3s var(--ez)}
+.dot.done{background:var(--a);opacity:.5}.dot.cur{background:var(--a);width:32px}
+#card-sandbox{width:100%;height:260px;background:rgba(0,0,0,.2);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid var(--b)}
+#card-shape{width:300px;height:189px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border-radius:10px;border:1px solid rgba(0,0,0,.15);box-shadow:0 8px 24px rgba(0,0,0,.25);flex-shrink:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:2px;outline:0;margin:16px 0 8px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 12px var(--ag);border:2px solid rgba(0,0,0,.2)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--a);cursor:pointer;border:2px solid rgba(0,0,0,.2)}
+.sl{display:flex;justify-content:space-between;font-family:var(--m);font-size:.55rem;letter-spacing:1px;color:var(--t3);text-transform:uppercase}.sl .v{color:var(--t2)}
+input[type=number],select{padding:12px 16px;border-radius:12px;border:1.5px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:.85rem;outline:0}
+input[type=number]:focus,select:focus{border-color:var(--a)}input[type=number].inv{border-color:var(--e)}
+select{cursor:pointer}select option{background:#222;color:#fff}
+.ck{display:flex;align-items:center;gap:10px;justify-content:center;cursor:pointer;font-size:.85rem;color:var(--t2)}
+.ck input{width:18px;height:18px;accent-color:var(--a);cursor:pointer}
+button{border:none;border-radius:100px;font-family:var(--f);font-weight:400;cursor:pointer;transition:all .2s var(--ez);letter-spacing:.3px}
+.bp{background:#fff;color:#0a0a0c;padding:13px 36px;font-size:.85rem}.bp:hover{background:var(--a)}
+.bb{background:0;color:var(--t2);border:1px solid var(--b);padding:10px 24px;font-size:.8rem}.bb:hover{border-color:rgba(255,255,255,.2);color:var(--t1)}
+.bs{background:var(--a);color:#0a0a0c;padding:16px 48px;font-size:.95rem;font-weight:500}.bs:hover{box-shadow:0 0 30px var(--ag)}
+.fn{padding-top:24px;display:flex;justify-content:center;gap:10px;align-items:center}
+.em{color:var(--e);font-family:var(--m);font-size:.65rem;min-height:1em;margin-top:6px}
+.st{text-align:left;margin:0 auto;line-height:2.4}.st .l{font-size:.8rem;color:var(--t2);margin-right:8px}.st .v{font-family:var(--m);font-size:.8rem;font-weight:500;color:var(--a)}
+.sw{color:var(--e);font-family:var(--m);font-size:.6rem;margin-top:6px;max-width:350px}
+.eb{background:var(--ad);border:1px solid rgba(0,255,204,.15);border-radius:12px;padding:10px 16px;margin-bottom:16px;font-size:.75rem;color:var(--t2)}.eb a{color:var(--a);text-decoration:none;font-weight:500}
+.bcam{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:16px;border-radius:16px;background:rgba(0,255,204,.04);border:1.5px solid rgba(0,255,204,.15);color:var(--t1);font-family:var(--f);font-size:.85rem;font-weight:400;cursor:pointer}
+.bcam:hover{border-color:var(--a);background:rgba(0,255,204,.08);box-shadow:0 0 20px var(--ad)}
+.bcam .sub{font-size:.55rem;color:var(--t3);font-family:var(--m);letter-spacing:1px}
+.dr{display:flex;align-items:center;gap:12px;justify-content:center;margin:4px 0}.dl{flex:1;height:1px;background:var(--b)}.dt{font-family:var(--m);font-size:.5rem;color:var(--t3);letter-spacing:2px}
+.cr{display:none;text-align:center;padding:10px;border-radius:12px;background:rgba(0,255,204,.06);border:1px solid rgba(0,255,204,.15)}.cr span{font-family:var(--m)}
+/* Phone-connected badge */
+.conn-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-family:var(--m);font-size:.5rem;letter-spacing:1px;margin-bottom:12px}
+.conn-badge.off{background:rgba(255,255,255,.03);color:var(--t3);border:1px solid var(--b)}
+.conn-badge.on{background:rgba(0,255,204,.06);color:var(--a);border:1px solid rgba(0,255,204,.2)}
+.conn-badge .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+/* Fiducial overlay */
+#fid{display:none;position:fixed;inset:0;z-index:9999;background:rgb(128,128,128)}
+.fm{position:absolute;width:60px;height:60px;background:#000;border-radius:3px}
+.fc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.fc .lb{font-family:var(--m);font-size:.6rem;letter-spacing:3px;color:rgba(0,0,0,.3);text-transform:uppercase}
+.fc .wt{margin-top:20px;font-family:var(--m);font-size:.5rem;letter-spacing:2px;color:rgba(0,0,0,.25);animation:br 2s ease-in-out infinite}
+@keyframes br{0%,100%{opacity:.3}50%{opacity:.7}}
+.fcancel{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.3);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);padding:10px 24px;border-radius:100px;font-family:var(--f);font-size:.8rem;cursor:pointer}
+.finfo{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-family:var(--m);font-size:.5rem;letter-spacing:1px;color:rgba(0,0,0,.25)}
+</style>
 </head>
 <body>
 <div id="cal-box">
+<div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
+<div class="eb" id="eb" style="display:none">Previous calibration loaded. <a href="index.html">Skip to test →</a></div>
 
-    <div class="step-dots">
-        <div class="step-dot current" id="sd1"></div>
-        <div class="step-dot" id="sd2"></div>
-        <div class="step-dot" id="sd3"></div>
-        <div class="step-dot" id="sd4"></div>
-    </div>
-
-    <div class="existing-banner" id="existing-banner" style="display:none;">
-        Previous calibration loaded into fields. <a href="index.html">Skip to test →</a>
-    </div>
-
-    <!-- Step 1: Gamma -->
-    <div id="step1" class="step active">
-        <div>
-            <div class="step-num">Step 01 of 04</div>
-            <h2>Luminance Calibration</h2>
-            <p class="step-desc">Adjust until the inner circle disappears into the checkerboard.</p>
-        </div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
-            <div style="width:170px; height:170px; border-radius:50%; background-image: conic-gradient(#000 0.25turn, #fff 0.25turn 0.5turn, #000 0.5turn 0.75turn, #fff 0.75turn); background-size: 2px 2px; display:flex; align-items:center; justify-content:center;">
-                <div id="inner-circle" style="width:75px; height:75px; border-radius:50%; background:rgb(128,128,128);"></div>
-            </div>
-        </div>
-        <div>
-            <input type="range" id="gamma-slider" min="60" max="220" value="128">
-            <div class="slider-labels"><span>Darker</span><span class="val" id="gamma-readout">128</span><span>Brighter</span></div>
-        </div>
-        <div class="footer-nav"><button class="btn-primary" onclick="goStep(2)">Next →</button></div>
-    </div>
-
-    <!-- Step 2: Card Size -->
-    <div id="step2" class="step">
-        <div>
-            <div class="step-num">Step 02 of 04</div>
-            <h2>Physical Scale</h2>
-            <p class="step-desc">Hold a credit card to the screen. Match the rectangle to the card's width.</p>
-        </div>
-        <div id="card-sandbox"><div id="card-shape"></div></div>
-        <div>
-            <input type="range" id="size-slider" min="150" max="750" step="0.1" value="300">
-            <div class="slider-labels"><span>Smaller</span><span class="val"><span id="size-readout">300</span> px</span><span>Larger</span></div>
-        </div>
-        <div class="footer-nav">
-            <button class="btn-back" onclick="goStep(1)">← Back</button>
-            <button class="btn-primary" onclick="goStep(3)">Next →</button>
-        </div>
-    </div>
-
-    <!-- Step 3: Distance -->
-    <div id="step3" class="step">
-        <div>
-            <div class="step-num">Step 03 of 04</div>
-            <h2>Viewing Distance</h2>
-            <p class="step-desc">Use camera auto-detect or enter manually.</p>
-        </div>
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:14px;">
-
-            <button class="btn-cam-dist" id="cam-dist-btn" onclick="startCamDist()">
-                <span style="font-size:1.2rem;">📷</span>
-                <span>Auto-Detect with Phone Camera</span>
-                <span class="sub" id="cam-dist-sub">Requires connected phone</span>
-            </button>
-
-            <div class="divider-row">
-                <div class="divider-line"></div>
-                <span class="divider-text">Or enter manually</span>
-                <div class="divider-line"></div>
-            </div>
-
-            <div style="text-align:center;">
-                <input type="number" id="dist-val" value="" min="0.1" step="0.1" placeholder="e.g. 5" style="width:80px; text-align:center;">
-                <select id="dist-unit">
-                    <option value="ft">feet</option>
-                    <option value="m">meters</option>
-                    <option value="cm">cm</option>
-                    <option value="in">inches</option>
-                </select>
-                <div class="error-msg" id="dist-error"></div>
-            </div>
-
-            <div class="cam-result" id="cam-result">
-                <span style="font-size:0.65rem; color:var(--accent); letter-spacing:1px;">📷 DETECTED: </span>
-                <span id="cam-result-val" style="font-size:0.85rem; font-weight:600; color:var(--accent);"></span>
-            </div>
-
-            <label class="check-row">
-                <input type="checkbox" id="mirror-mode">
-                Mirror setup (invert X-axis)
-            </label>
-        </div>
-        <div class="footer-nav">
-            <button class="btn-back" onclick="goStep(2)">← Back</button>
-            <button class="btn-primary" onclick="validateAndPreview()">Review →</button>
-        </div>
-    </div>
-
-    <!-- Step 4: Confirm -->
-    <div id="step4" class="step">
-        <div>
-            <div class="step-num">Step 04 of 04</div>
-            <h2>Confirm Settings</h2>
-        </div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center;">
-            <div class="summary-table">
-                <div><span class="label">Gamma Grey</span><span class="val" id="sum-gamma">128</span></div>
-                <div><span class="label">Display Scale</span><span class="val" id="sum-pxmm">–</span> <span style="font-size:0.65rem; color:var(--t3);">px/mm</span></div>
-                <div><span class="label">Distance</span><span class="val" id="sum-dist">–</span></div>
-                <div><span class="label">Mirror</span><span class="val" id="sum-mirror">Off</span></div>
-                <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-                    <span class="label">Angular Resolution</span><span class="val" id="sum-ppd">–</span>
-                </div>
-                <div class="summary-warning" id="sum-warning"></div>
-            </div>
-        </div>
-        <div class="footer-nav">
-            <button class="btn-back" onclick="goStep(3)">← Back</button>
-            <button class="btn-start" onclick="saveAndStart()">Start Test ▶</button>
-        </div>
-    </div>
+<!-- Step 0: Connect Phone -->
+<div id="s0" class="step active">
+<div><div class="sn">Step 01 of 05</div><h2>Connect Your Phone</h2><p class="sd2">Scan the QR code below to link your phone as a remote controller.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+<div id="qr-area" style="background:white;padding:16px;border-radius:16px;min-width:160px;min-height:160px;display:flex;align-items:center;justify-content:center"><span style="font-family:var(--m);font-size:.5rem;color:#999">Loading…</span></div>
+<div id="conn-status" style="font-family:var(--m);font-size:.5rem;letter-spacing:2px;color:var(--t3)">INITIALIZING</div>
+</div>
+<div class="fn"><button class="bb" onclick="goStep(1)">Skip — use mouse</button></div>
 </div>
 
-<!-- Fiducial Target (fullscreen, shown during camera distance) -->
-<div id="fiducial-overlay">
-    <div class="fid-marker fid-tl"></div>
-    <div class="fid-marker fid-tr"></div>
-    <div class="fid-marker fid-bl"></div>
-    <div class="fid-marker fid-br"></div>
-    <div class="fid-center">
-        <div class="fid-label">Phone will capture these markers</div>
-        <div class="fid-cross-h"></div>
-        <div class="fid-cross-v"></div>
-        <div class="fid-waiting" id="fid-status">Waiting for phone capture…</div>
-    </div>
-    <button class="fid-cancel" onclick="cancelCamDist()">Cancel</button>
+<!-- Step 1: Gamma (phone slider or local) -->
+<div id="s1" class="step">
+<div><div class="sn">Step 02 of 05</div><h2>Luminance Calibration</h2><p class="sd2">Adjust from viewing position until the circle disappears into the pattern.</p></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center">
+<div style="width:170px;height:170px;border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
+<div id="ic" style="width:75px;height:75px;border-radius:50%;background:rgb(128,128,128)"></div>
+</div>
+</div>
+<div id="gamma-local">
+<input type="range" id="gs" min="60" max="220" value="128">
+<div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div>
+</div>
+<div id="gamma-remote" style="display:none;padding:12px;text-align:center;font-family:var(--m);font-size:.55rem;color:var(--t3);letter-spacing:2px">ADJUST ON YOUR PHONE</div>
+<div class="fn"><button class="bb" onclick="goStep(0)">← Back</button><button class="bp" onclick="goStep(2)">Next →</button></div>
 </div>
 
-<!-- PeerJS for camera distance delegation -->
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" onerror="console.warn('PeerJS failed.')"></script>
+<!-- Step 2: Card Size (always local — user is at display) -->
+<div id="s2" class="step">
+<div><div class="sn">Step 03 of 05</div><h2>Physical Scale</h2><p class="sd2">Hold a credit card to the screen. Match the rectangle width.</p></div>
+<div id="card-sandbox"><div id="card-shape"></div></div>
+<div><input type="range" id="ss" min="150" max="750" step="0.1" value="300"><div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div></div>
+<div class="fn"><button class="bb" onclick="goStep(1)">← Back</button><button class="bp" onclick="goStep(3)">Next →</button></div>
+</div>
 
+<!-- Step 3: Distance -->
+<div id="s3" class="step">
+<div><div class="sn">Step 04 of 05</div><h2>Viewing Distance</h2><p class="sd2">Use phone camera auto-detect or enter manually.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px">
+<button class="bcam" id="bcam" onclick="startCamDist()"><span style="font-size:1.2rem">📷</span><span>Auto-Detect with Phone Camera</span><span class="sub" id="bcam-sub">Requires connected phone</span></button>
+<div class="dr"><div class="dl"></div><span class="dt">Or enter manually</span><div class="dl"></div></div>
+<div style="text-align:center"><input type="number" id="dv" value="" min="0.1" step="0.1" placeholder="e.g. 5" style="width:80px;text-align:center"><select id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select><div class="em" id="de"></div></div>
+<div class="cr" id="cr"><span style="font-size:.65rem;color:var(--a);letter-spacing:1px">📷 DETECTED: </span><span id="crv" style="font-size:.85rem;font-weight:600;color:var(--a)"></span></div>
+<label class="ck"><input type="checkbox" id="mm">Mirror setup (invert X-axis)</label>
+</div>
+<div class="fn"><button class="bb" onclick="goStep(2)">← Back</button><button class="bp" onclick="validateAndPreview()">Review →</button></div>
+</div>
+
+<!-- Step 4: Confirm -->
+<div id="s4" class="step">
+<div><div class="sn">Step 05 of 05</div><h2>Confirm Settings</h2></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center">
+<div class="st"><div><span class="l">Gamma Grey</span><span class="v" id="sg">128</span></div><div><span class="l">Display Scale</span><span class="v" id="sp2">–</span> <span style="font-size:.65rem;color:var(--t3)">px/mm</span></div><div><span class="l">Distance</span><span class="v" id="sdi">–</span></div><div><span class="l">Mirror</span><span class="v" id="smi">Off</span></div><div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Angular Resolution</span><span class="v" id="spp">–</span></div><div class="sw" id="swn"></div></div>
+</div>
+<div class="fn"><button class="bb" onclick="goStep(3)">← Back</button><button class="bs" onclick="saveAndStart()">Start Test ▶</button></div>
+</div>
+</div>
+
+<!-- Fiducial overlay (fixed-separation markers) -->
+<div id="fid">
+<div class="fm" id="fm-tl"></div><div class="fm" id="fm-tr"></div><div class="fm" id="fm-bl"></div><div class="fm" id="fm-br"></div>
+<div class="finfo" id="finfo"></div>
+<div class="fc"><div class="lb">Phone camera captures these markers</div><div class="wt" id="fst">Waiting for phone…</div><div id="fqr"></div></div>
+<button class="fcancel" onclick="cancelCamDist()">Cancel</button>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror=""></script>
 <script>
-    // ═══════════════════════════════════════════════════════════════
-    // DOM refs
-    // ═══════════════════════════════════════════════════════════════
-    const gammaSlider = document.getElementById('gamma-slider');
-    const sizeSlider  = document.getElementById('size-slider');
-    const innerCircle = document.getElementById('inner-circle');
-    const cardShape   = document.getElementById('card-shape');
-    const distInput   = document.getElementById('dist-val');
-    const distUnit    = document.getElementById('dist-unit');
-    const distError   = document.getElementById('dist-error');
-    const mirrorCheck = document.getElementById('mirror-mode');
+// ═══════════════════════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════════════════════
+const gs=document.getElementById('gs'), ss=document.getElementById('ss');
+const ic=document.getElementById('ic'), cs=document.getElementById('card-shape');
+const dv=document.getElementById('dv'), du=document.getElementById('du');
+const de=document.getElementById('de'), mm=document.getElementById('mm');
 
-    // ═══════════════════════════════════════════════════════════════
-    // Load existing calibration into fields (always show all steps)
-    // ═══════════════════════════════════════════════════════════════
-    const ePx = parseFloat(localStorage.getItem('user_px_per_mm'));
-    const eD  = parseFloat(localStorage.getItem('user_distance_mm'));
-    if (!isNaN(ePx) && !isNaN(eD) && ePx > 0 && eD > 0) {
-        document.getElementById('existing-banner').style.display = 'block';
-        const eG = localStorage.getItem('user_gamma_grey');
-        if (eG) gammaSlider.value = eG;
-        sizeSlider.value = ePx * 85.6;
-        distInput.value = (eD / 304.8).toFixed(1);
-        distUnit.value = 'ft';
-        mirrorCheck.checked = localStorage.getItem('mirror_mode') === 'true';
+// ═══════════════════════════════════════════════════════════════
+// PeerJS — calibration host
+// ═══════════════════════════════════════════════════════════════
+const calID='CAL-'+Math.floor(1000+Math.random()*9000);
+let calPeer=null, calConn=null, phoneConnected=false;
+
+function initCalPeer(){
+    if(typeof Peer==='undefined'){document.getElementById('conn-status').textContent='PEERJS UNAVAILABLE';return}
+    calPeer=new Peer(calID,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+    calPeer.on('open',id=>{
+        console.log('[Cal] Peer open:',id);
+        document.getElementById('conn-status').textContent='SCAN QR TO CONNECT';
+        const path=location.pathname, dir=path.substring(0,path.lastIndexOf('/'));
+        const url=`${location.origin}${dir}/tablet.html?cal=${id}`;
+        const qa=document.getElementById('qr-area');
+        qa.innerHTML='';
+        if(typeof QRCode!=='undefined') new QRCode(qa,{text:url,width:150,height:150,colorDark:'#000',colorLight:'#fff'});
+        else qa.innerHTML=`<span style="font-size:.5rem;word-break:break-all">${url}</span>`;
+    });
+    calPeer.on('connection',conn=>{
+        conn.on('open',()=>{
+            calConn=conn; phoneConnected=true;
+            document.getElementById('conn-status').innerHTML='<span style="color:#00ffcc">● PHONE LINKED</span>';
+            document.getElementById('bcam-sub').textContent='Phone connected ✓';
+            // Show remote gamma control hint
+            document.getElementById('gamma-local').style.display='none';
+            document.getElementById('gamma-remote').style.display='block';
+            // Auto advance
+            goStep(1);
+        });
+        conn.on('data',onPhoneMsg);
+        conn.on('close',()=>{calConn=null;phoneConnected=false;
+            document.getElementById('conn-status').innerHTML='<span style="color:var(--e)">DISCONNECTED</span>';
+            document.getElementById('gamma-local').style.display='block';
+            document.getElementById('gamma-remote').style.display='none';
+        });
+    });
+    calPeer.on('error',e=>{console.warn('[Cal] Peer error:',e.type);document.getElementById('conn-status').textContent='ERROR: '+e.type});
+}
+
+function onPhoneMsg(d){
+    if(d.type==='gamma'){
+        gs.value=d.value; updateGamma();
     }
-
-    updateGamma(); updateSize();
-    gammaSlider.oninput = updateGamma;
-    sizeSlider.oninput  = updateSize;
-
-    function updateGamma() {
-        const v = gammaSlider.value;
-        innerCircle.style.backgroundColor = `rgb(${v},${v},${v})`;
-        document.getElementById('gamma-readout').textContent = v;
+    if(d.type==='camDistance'&&d.distMm>0){
+        const ft=(d.distMm/304.8).toFixed(1);
+        dv.value=ft; du.value='ft';
+        document.getElementById('cr').style.display='block';
+        document.getElementById('crv').textContent=`${ft} ft (${(d.distMm/1000).toFixed(2)} m)`;
+        cancelCamDist();
     }
-    function updateSize() {
-        const px = parseFloat(sizeSlider.value);
-        cardShape.style.width = px + 'px';
-        cardShape.style.height = (px / 1.585) + 'px';
-        document.getElementById('size-readout').textContent = px.toFixed(0);
+    if(d.type==='camError'){
+        document.getElementById('fst').textContent=d.msg||'Detection failed — reposition and try again';
     }
+}
 
-    // ═══════════════════════════════════════════════════════════════
-    // Step navigation
-    // ═══════════════════════════════════════════════════════════════
-    let currentStep = 1;
-    function goStep(n) {
-        currentStep = n;
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step' + n).classList.add('active');
-        for (let i = 1; i <= 4; i++) {
-            const d = document.getElementById('sd' + i);
-            d.classList.remove('done', 'current');
-            if (i < n) d.classList.add('done');
-            else if (i === n) d.classList.add('current');
+function sendToPhone(msg){if(calConn&&calConn.open)calConn.send(msg)}
+
+initCalPeer();
+
+// ═══════════════════════════════════════════════════════════════
+// Load existing cal
+// ═══════════════════════════════════════════════════════════════
+const ePx=parseFloat(localStorage.getItem('user_px_per_mm'));
+const eD=parseFloat(localStorage.getItem('user_distance_mm'));
+if(!isNaN(ePx)&&!isNaN(eD)&&ePx>0&&eD>0){
+    document.getElementById('eb').style.display='block';
+    const eG=localStorage.getItem('user_gamma_grey');if(eG)gs.value=eG;
+    ss.value=ePx*85.6; dv.value=(eD/304.8).toFixed(1); du.value='ft';
+    mm.checked=localStorage.getItem('mirror_mode')==='true';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Controls
+// ═══════════════════════════════════════════════════════════════
+updateGamma();updateSize();
+gs.oninput=updateGamma; ss.oninput=updateSize;
+
+function updateGamma(){const v=gs.value;ic.style.backgroundColor=`rgb(${v},${v},${v})`;document.getElementById('gv').textContent=v}
+function updateSize(){const px=parseFloat(ss.value);cs.style.width=px+'px';cs.style.height=(px/1.585)+'px';document.getElementById('sv').textContent=px.toFixed(0)}
+
+// ═══════════════════════════════════════════════════════════════
+// Navigation
+// ═══════════════════════════════════════════════════════════════
+let curStep=0;
+function goStep(n){
+    curStep=n;
+    for(let i=0;i<5;i++){document.getElementById('s'+i).classList.remove('active');const d=document.getElementById('d'+i);d.classList.remove('done','cur');if(i<n)d.classList.add('done');else if(i===n)d.classList.add('cur')}
+    document.getElementById('s'+n).classList.add('active');
+    // Tell phone which step we're on
+    sendToPhone({type:'calStep',step:n});
+}
+
+function distToMm(){const v=parseFloat(dv.value);if(isNaN(v))return NaN;return v*({ft:304.8,m:1000,cm:10,'in':25.4}[du.value]||NaN)}
+
+function validateAndPreview(){
+    dv.classList.remove('inv');de.textContent='';
+    const raw=dv.value.trim();if(!raw){showErr('Enter a viewing distance.');return}
+    const val=parseFloat(raw);if(isNaN(val)){showErr('Enter a valid number.');return}
+    if(val<=0){showErr('Must be > 0.');return}
+    const mmVal=distToMm();if(mmVal<200){showErr('Too close — min ~20 cm.');return}if(mmVal>20000){showErr('Too far.');return}
+    const pxPerMm=parseFloat(ss.value)/85.6, ppd=mmVal*0.017455*pxPerMm;
+    document.getElementById('sg').textContent=gs.value;
+    document.getElementById('sp2').textContent=pxPerMm.toFixed(3);
+    document.getElementById('sdi').textContent=`${val} ${{ft:'ft',m:'m',cm:'cm','in':'in'}[du.value]}  (${(mmVal/1000).toFixed(2)} m)`;
+    document.getElementById('smi').textContent=mm.checked?'On':'Off';
+    const pe=document.getElementById('spp');pe.textContent=ppd.toFixed(1)+' px/°';pe.style.color=ppd<10?'var(--e)':'var(--a)';
+    document.getElementById('swn').textContent=ppd<10?'⚠ Low resolution — high frequencies may alias.':'';
+    goStep(4);
+}
+function showErr(m){dv.classList.add('inv');de.textContent=m;dv.focus()}
+function saveAndStart(){
+    localStorage.setItem('user_gamma_grey',gs.value);
+    localStorage.setItem('user_px_per_mm',parseFloat(ss.value)/85.6);
+    localStorage.setItem('user_distance_mm',distToMm());
+    localStorage.setItem('mirror_mode',mm.checked);
+    localStorage.setItem('cal_timestamp',new Date().toISOString());
+    window.location.href='index.html';
+}
+dv.addEventListener('input',()=>{dv.classList.remove('inv');de.textContent=''});
+
+// ═══════════════════════════════════════════════════════════════
+// Camera Distance — Fixed-Separation Fiducials
+// ═══════════════════════════════════════════════════════════════
+// The 4 markers are placed at a FIXED physical separation derived
+// from px/mm, CENTERED on screen. Not tied to window edges.
+// markerSepMm = 200mm (≈8 inches) — a reasonable span
+// markerSepPx = markerSepMm * pxPerMm
+// Markers form a square centered on screen with this side length.
+
+const MARKER_SEP_MM = 200; // fixed 200mm between marker centers
+
+function startCamDist(){
+    const pxPerMm=parseFloat(ss.value)/85.6;
+    if(pxPerMm<=0||isNaN(pxPerMm)){alert('Complete Step 3 (Physical Scale) first.');return}
+
+    const sepPx=MARKER_SEP_MM*pxPerMm;
+    const diagMm=Math.sqrt(2)*MARKER_SEP_MM; // diagonal of the 200mm square
+
+    // Position markers: centered square, sepPx apart
+    const cx=window.innerWidth/2, cy=window.innerHeight/2, half=sepPx/2;
+    const mw=60; // marker width px
+    document.getElementById('fm-tl').style.cssText=`position:absolute;left:${cx-half-mw/2}px;top:${cy-half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
+    document.getElementById('fm-tr').style.cssText=`position:absolute;left:${cx+half-mw/2}px;top:${cy-half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
+    document.getElementById('fm-bl').style.cssText=`position:absolute;left:${cx-half-mw/2}px;top:${cy+half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
+    document.getElementById('fm-br').style.cssText=`position:absolute;left:${cx+half-mw/2}px;top:${cy+half-mw/2}px;width:${mw}px;height:${mw}px;background:#000;border-radius:3px`;
+
+    document.getElementById('finfo').textContent=`Markers: ${MARKER_SEP_MM}mm apart (${(sepPx).toFixed(0)}px) | Diag: ${diagMm.toFixed(0)}mm`;
+
+    // Show overlay FULLSCREEN so markers are at correct positions
+    const fidEl = document.getElementById('fid');
+    fidEl.style.display='block';
+    if(fidEl.requestFullscreen) fidEl.requestFullscreen().catch(()=>{});
+    else if(fidEl.webkitRequestFullscreen) fidEl.webkitRequestFullscreen();
+    document.getElementById('fst').textContent='Waiting for phone capture…';
+
+    // Clear old QR
+    document.getElementById('fqr').innerHTML='';
+
+    if(phoneConnected){
+        // Phone is already connected — tell it to start camera capture
+        sendToPhone({type:'startCamCapture',diagMm:diagMm});
+        document.getElementById('fst').textContent='Phone connected — capture when markers visible';
+    } else {
+        // Need phone to connect — show QR for camera-only mode
+        document.getElementById('fst').textContent='Scan QR with phone to capture';
+        if(typeof QRCode!=='undefined'){
+            const path=location.pathname,dir=path.substring(0,path.lastIndexOf('/'));
+            const url=`${location.origin}${dir}/tablet.html?cam=${calID}&diagMm=${diagMm.toFixed(1)}`;
+            const qd=document.createElement('div');
+            qd.style.cssText='margin-top:16px;background:white;padding:10px;border-radius:10px;display:inline-block';
+            new QRCode(qd,{text:url,width:120,height:120});
+            document.getElementById('fqr').appendChild(qd);
         }
     }
+}
 
-    function distToMm() {
-        const v = parseFloat(distInput.value);
-        if (isNaN(v)) return NaN;
-        const m = { ft: 304.8, m: 1000, cm: 10, 'in': 25.4 };
-        return v * (m[distUnit.value] || NaN);
-    }
-
-    function validateAndPreview() {
-        distInput.classList.remove('invalid');
-        distError.textContent = '';
-        const raw = distInput.value.trim();
-        if (!raw) { showErr('Enter a viewing distance.'); return; }
-        const val = parseFloat(raw);
-        if (isNaN(val)) { showErr('Enter a valid number.'); return; }
-        if (val <= 0) { showErr('Must be greater than zero.'); return; }
-        const mm = distToMm();
-        if (mm < 200) { showErr('Too close — minimum ~20 cm.'); return; }
-        if (mm > 20000) { showErr('Too far for screen-based testing.'); return; }
-
-        const pxPerMm = parseFloat(sizeSlider.value) / 85.6;
-        const ppd = mm * 0.017455 * pxPerMm;
-
-        document.getElementById('sum-gamma').textContent = gammaSlider.value;
-        document.getElementById('sum-pxmm').textContent = pxPerMm.toFixed(3);
-        document.getElementById('sum-dist').textContent = `${val} ${{ft:'ft',m:'m',cm:'cm','in':'in'}[distUnit.value]}  (${(mm/1000).toFixed(2)} m)`;
-        document.getElementById('sum-mirror').textContent = mirrorCheck.checked ? 'On' : 'Off';
-        const ppdEl = document.getElementById('sum-ppd');
-        ppdEl.textContent = ppd.toFixed(1) + ' px/°';
-        ppdEl.style.color = ppd < 10 ? 'var(--error)' : 'var(--accent)';
-        document.getElementById('sum-warning').textContent = ppd < 10 ? '⚠ Low resolution — high frequencies may alias.' : '';
-        goStep(4);
-    }
-
-    function showErr(msg) { distInput.classList.add('invalid'); distError.textContent = msg; distInput.focus(); }
-
-    function saveAndStart() {
-        const mm = distToMm();
-        localStorage.setItem('user_gamma_grey', gammaSlider.value);
-        localStorage.setItem('user_px_per_mm', parseFloat(sizeSlider.value) / 85.6);
-        localStorage.setItem('user_distance_mm', mm);
-        localStorage.setItem('mirror_mode', mirrorCheck.checked);
-        localStorage.setItem('cal_timestamp', new Date().toISOString());
-        window.location.href = 'index.html';
-    }
-
-    distInput.addEventListener('input', () => { distInput.classList.remove('invalid'); distError.textContent = ''; });
-
-    // ═══════════════════════════════════════════════════════════════
-    // Camera Distance — PeerJS Delegation
-    // ═══════════════════════════════════════════════════════════════
-    // Architecture:
-    //   1. Desktop creates a PeerJS host (calPeer)
-    //   2. Desktop shows fiducial markers fullscreen
-    //   3. Desktop displays a QR code so phone can connect
-    //   4. Phone connects, opens rear camera, captures frame
-    //   5. Phone analyzes frame (finds 4 dark markers), computes distance
-    //   6. Phone sends { type:'camDistance', distMm } back to desktop
-    //   7. Desktop receives it, fills in the distance field
-    //
-    // The phone does the heavy lifting because it has the rear camera.
-    // The known physical size comes from Step 2's px/mm calibration.
-
-    let calPeer = null;
-    let calConn = null;
-
-    function startCamDist() {
-        const pxPerMm = parseFloat(sizeSlider.value) / 85.6;
-        if (pxPerMm <= 0 || isNaN(pxPerMm)) {
-            alert('Complete Step 2 (Physical Scale) first so the marker size is known.');
-            return;
-        }
-
-        // Compute the physical diagonal between marker centers (mm)
-        // Markers: 80x80px squares, inset 60px from screen edges
-        // Center of each marker = 60 + 40 = 100px from each edge
-        const screenWpx = window.screen.width;
-        const screenHpx = window.screen.height;
-        const markerCenterDx = screenWpx - 200; // px between TL and TR centers
-        const markerCenterDy = screenHpx - 200; // px between TL and BL centers
-        const diagPx = Math.sqrt(markerCenterDx * markerCenterDx + markerCenterDy * markerCenterDy);
-        const diagMm = diagPx / pxPerMm;
-
-        // Show fiducials
-        document.getElementById('fiducial-overlay').style.display = 'block';
-        document.getElementById('fid-status').textContent = 'Waiting for phone capture…';
-
-        // Create PeerJS host for camera handshake
-        if (typeof Peer === 'undefined') {
-            document.getElementById('fid-status').textContent = 'PeerJS unavailable — enter distance manually.';
-            return;
-        }
-
-        const calID = 'CAL-' + Math.floor(1000 + Math.random() * 9000);
-        calPeer = new Peer(calID);
-
-        calPeer.on('open', () => {
-            // Build the URL the phone should open
-            const path = window.location.pathname;
-            const dir = path.substring(0, path.lastIndexOf('/'));
-            const camURL = `${window.location.origin}${dir}/tablet.html?cam=${calID}&diagMm=${diagMm.toFixed(1)}&sw=${screenWpx}&sh=${screenHpx}`;
-
-            document.getElementById('fid-status').innerHTML =
-                `Open on phone:<br><span style="font-size:0.45rem;word-break:break-all;color:rgba(0,0,0,0.4);">${camURL}</span>`;
-
-            // Also show QR if available
-            if (typeof QRCode !== 'undefined') {
-                const qrDiv = document.createElement('div');
-                qrDiv.style.cssText = 'margin-top:16px;background:white;padding:12px;border-radius:12px;display:inline-block;';
-                new QRCode(qrDiv, { text: camURL, width: 140, height: 140 });
-                document.querySelector('.fid-center').appendChild(qrDiv);
-            }
-        });
-
-        calPeer.on('connection', conn => {
-            calConn = conn;
-            document.getElementById('fid-status').textContent = 'Phone connected — capturing…';
-
-            conn.on('data', data => {
-                if (data.type === 'camDistance' && data.distMm > 0) {
-                    // Success! Fill in the distance
-                    const distFt = (data.distMm / 304.8).toFixed(1);
-                    distInput.value = distFt;
-                    distUnit.value = 'ft';
-
-                    document.getElementById('cam-result').style.display = 'block';
-                    document.getElementById('cam-result-val').textContent =
-                        `${distFt} ft (${(data.distMm / 1000).toFixed(2)} m)`;
-
-                    cancelCamDist();
-                }
-                if (data.type === 'camError') {
-                    document.getElementById('fid-status').textContent = data.msg || 'Detection failed — try again or enter manually.';
-                }
-            });
-        });
-
-        calPeer.on('error', err => {
-            document.getElementById('fid-status').textContent = 'Connection error: ' + err.type;
-        });
-    }
-
-    function cancelCamDist() {
-        document.getElementById('fiducial-overlay').style.display = 'none';
-        if (calConn) { calConn.close(); calConn = null; }
-        if (calPeer) { calPeer.destroy(); calPeer = null; }
-        // Remove any added QR codes
-        const qrs = document.querySelectorAll('.fid-center > div:not(.fid-label):not(.fid-cross-h):not(.fid-cross-v):not(.fid-waiting)');
-        qrs.forEach(q => q.remove());
-    }
+function cancelCamDist(){
+    document.getElementById('fid').style.display='none';
+    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    else if(document.webkitFullscreenElement) document.webkitExitFullscreen();
+    sendToPhone({type:'cancelCamCapture'});
+}
 </script>
-<!-- QRCode library for camera distance QR -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="console.warn('QRCode CDN failed.')"></script>
 </body>
 </html>

@@ -42,6 +42,7 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .sd.ok{background:var(--a);animation:pls 2s ease-in-out infinite}.sd.er{background:var(--e)}
 @keyframes pls{0%,100%{opacity:1}50%{opacity:.3}}
 .rbtn{display:none;margin-top:10px;background:0;color:var(--t3);border:1px solid var(--b);padding:7px 18px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem}
+/* Results */
 .rv{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:6px;padding:20px}
 .rv-ey{font-family:var(--m);font-size:.45rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3)}
 .rv-sc{font-family:var(--m);font-size:3.8rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 50px var(--ag)}
@@ -55,6 +56,7 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .rv-btn.primary{background:var(--as);border-color:rgba(0,255,204,.2);color:var(--a)}
 .rv-copied{font-family:var(--m);font-size:.45rem;color:var(--a);letter-spacing:1px;opacity:0;transition:opacity .3s}
 .rv-copied.show{opacity:1}
+/* Settings */
 .sp{display:none;position:fixed;inset:0;background:var(--c);z-index:200;flex-direction:column;padding:20px;overflow-y:auto;animation:su .3s var(--ez)}
 .sp.open{display:flex}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -63,7 +65,20 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .sr{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--b)}
 .sr .sl{font-size:.8rem;color:var(--t2)}.sr .sv{font-family:var(--m);font-size:.7rem;color:var(--a)}
 .cbtn{width:100%;padding:13px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-family:var(--f);font-size:.8rem;cursor:pointer;margin-top:10px;text-align:center}
-/* Camera capture fullscreen */
+/* Calibration assistant panel */
+.cal-panel{display:none;flex-direction:column;flex:1;padding:20px}
+.cal-panel.open{display:flex}
+.cal-title{font-size:1rem;font-weight:200;text-align:center;margin-bottom:4px}
+.cal-step{font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:16px}
+.cal-section{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.cal-slider{width:90%;max-width:300px}
+.cal-slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;outline:0}
+.cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--a);box-shadow:0 0 16px var(--ag);border:2px solid rgba(0,0,0,.2)}
+.cal-slider input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--a);border:2px solid rgba(0,0,0,.2)}
+.cal-val{font-family:var(--m);font-size:1.2rem;font-weight:400;color:var(--a)}
+.cal-hint{font-family:var(--m);font-size:.45rem;letter-spacing:1px;color:var(--t3);text-align:center}
+.cal-msg{font-family:var(--m);font-size:.5rem;color:var(--t2);text-align:center;padding:12px}
+/* Camera fullscreen */
 .cam-fs{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
 .cam-fs.open{display:flex}
 .cam-fs video{flex:1;object-fit:cover}
@@ -72,13 +87,14 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .cam-fs .cap{width:60px;height:60px;border-radius:50%;background:#fff;border:3px solid rgba(255,255,255,.3);cursor:pointer}
 .cam-fs .cap:active{transform:scale(.9)}
 .cam-fs .cx{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;z-index:1}
-.cam-fs .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80vw;height:50vw;border:2px dashed rgba(0,255,204,.3);border-radius:10px;pointer-events:none}
-.cam-fs .guide-label{position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-50% - 28vw));font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--a);opacity:.5}
+.cam-fs .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.3);border-radius:10px;pointer-events:none}
+.cam-fs .guide-label{position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-50% - 40vw));font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--a);opacity:.5}
+.cam-fs .dbg{position:absolute;top:50px;left:10px;right:10px;font-family:var(--m);font-size:.4rem;color:rgba(0,255,204,.4);pointer-events:none;white-space:pre-line}
 </style>
 </head>
 <body>
 
-<!-- Normal controller UI (hidden during cam-distance mode) -->
+<!-- ═══════════ CONTROLLER UI ═══════════ -->
 <div id="controller-ui">
 <div class="hdr"><span class="brand">Manifold</span><div class="gear" onclick="toggleSettings()">⚙</div></div>
 <div class="tabs" id="tabs">
@@ -117,7 +133,16 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 </div>
 </div>
 
-<!-- Settings -->
+<!-- ═══════════ CALIBRATION PANEL ═══════════ -->
+<div class="cal-panel" id="cal-panel">
+<div class="cal-step" id="cal-step-label">Calibration</div>
+<div class="cal-title" id="cal-title">Linked to Display</div>
+<div class="cal-section" id="cal-body">
+    <div class="cal-msg">Waiting for calibration step…</div>
+</div>
+</div>
+
+<!-- ═══════════ SETTINGS ═══════════ -->
 <div class="sp" id="sp">
 <div class="sh"><span class="st">Settings</span><button class="sc2" onclick="toggleSettings()">Done</button></div>
 <div class="sr"><span class="sl">Mode</span><span class="sv" id="sm">Sloan</span></div>
@@ -126,37 +151,41 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <button class="cbtn" style="color:var(--e);border-color:rgba(255,69,58,.15)" onclick="sendCmd('restart')">Restart Test</button>
 </div>
 
-<!-- Camera capture fullscreen (for distance measurement) -->
+<!-- ═══════════ CAMERA FULLSCREEN ═══════════ -->
 <div class="cam-fs" id="cam-fs">
-<button class="cx" onclick="cancelCamCapture()">✕</button>
+<button class="cx" onclick="closeCam()">✕</button>
 <video id="cam-video" autoplay playsinline></video>
 <div class="guide"></div>
 <div class="guide-label">Frame all 4 corner markers</div>
+<div class="dbg" id="cam-dbg"></div>
 <div class="hud">
-    <div class="inst" id="cam-inst">Point camera at the display — capture when all 4 markers visible</div>
+    <div class="inst" id="cam-inst">Point camera at display markers — capture when visible</div>
     <button class="cap" id="cam-cap-btn" onclick="captureFrame()"></button>
 </div>
 <canvas id="cam-canvas" style="display:none"></canvas>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script>
 // ═══════════════════════════════════════════════════════════════
-// Route: normal controller vs camera-distance mode
+// Routing
 // ═══════════════════════════════════════════════════════════════
 const params = new URLSearchParams(location.search);
-const laneID = params.get('id');
-const camID  = params.get('cam');    // calibration PeerJS ID
-const diagMm = parseFloat(params.get('diagMm'));  // physical diagonal of markers in mm
-const screenW = parseFloat(params.get('sw'));
-const screenH = parseFloat(params.get('sh'));
+const laneID = params.get('id');     // test controller mode
+const calID  = params.get('cal');    // calibration assistant mode
+const camID  = params.get('cam');    // standalone camera-only mode
+let   activeDiagMm = parseFloat(params.get('diagMm')) || 0;
 
-if (camID) {
-    // ── Camera Distance Mode ─────────────────────────────────
+if (calID) {
     document.getElementById('controller-ui').style.display = 'none';
-    initCamDistMode();
+    document.getElementById('cal-panel').classList.add('open');
+    initCalMode(calID);
+} else if (camID) {
+    document.getElementById('controller-ui').style.display = 'none';
+    activeDiagMm = parseFloat(params.get('diagMm')) || 0;
+    initStandaloneCam(camID);
 } else if (laneID) {
-    // ── Normal Controller Mode ───────────────────────────────
     initControllerMode();
 } else {
     showErr('No connection ID');
@@ -165,13 +194,117 @@ if (camID) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Camera Distance Mode
+// Calibration Assistant Mode (?cal=)
 // ═══════════════════════════════════════════════════════════════
-let camStream = null, camConn = null;
+let calConn = null;
 
-function initCamDistMode() {
-    // Open camera immediately
+function initCalMode(peerId) {
+    if (typeof Peer === 'undefined') { showCalMsg('PeerJS unavailable'); return; }
+    showCalMsg('Connecting to display…');
+    const p = new Peer(undefined, {
+        debug: 1,
+        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+    });
+    p.on('open', () => {
+        calConn = p.connect(peerId, { reliable: true });
+        calConn.on('open', () => {
+            console.log('[Cal] Connected to display');
+            showCalMsg('Connected — follow steps on display');
+        });
+        calConn.on('data', onCalMsg);
+        calConn.on('close', () => showCalMsg('Disconnected'));
+        calConn.on('error', e => showCalMsg('Error: ' + e));
+    });
+    p.on('error', e => showCalMsg('Peer error: ' + e.type));
+}
+
+function onCalMsg(d) {
+    console.log('[Cal] Received:', d.type, d);
+    if (d.type === 'calStep') {
+        updateCalUI(d.step);
+    }
+    if (d.type === 'startCamCapture') {
+        activeDiagMm = d.diagMm;
+        console.log('[Cal] Start cam capture, diagMm =', activeDiagMm);
+        openCamCapture();
+    }
+    if (d.type === 'cancelCamCapture') {
+        closeCam();
+    }
+}
+
+function updateCalUI(step) {
+    const body = document.getElementById('cal-body');
+    const title = document.getElementById('cal-title');
+    const label = document.getElementById('cal-step-label');
+
+    if (step === 1) {
+        // Gamma — show big slider
+        label.textContent = 'STEP 2 OF 5 · LUMINANCE';
+        title.textContent = 'Adjust Brightness';
+        body.innerHTML = `
+            <div class="cal-val" id="gamma-val">128</div>
+            <div class="cal-slider">
+                <input type="range" id="gamma-range" min="60" max="220" value="128" oninput="onGammaSlide(this.value)">
+            </div>
+            <div style="display:flex;justify-content:space-between;width:90%;max-width:300px;font-family:var(--m);font-size:.45rem;color:var(--t3)"><span>DARKER</span><span>BRIGHTER</span></div>
+            <div class="cal-hint">Adjust until the circle disappears<br>into the pattern on the display</div>`;
+    } else if (step === 2) {
+        label.textContent = 'STEP 3 OF 5 · SCALE';
+        title.textContent = 'Card Size';
+        body.innerHTML = '<div class="cal-msg">Adjust on the display —<br>hold a credit card to the screen</div>';
+    } else if (step === 3) {
+        label.textContent = 'STEP 4 OF 5 · DISTANCE';
+        title.textContent = 'Viewing Distance';
+        body.innerHTML = '<div class="cal-msg">Use camera or enter manually on display</div>';
+    } else if (step === 4) {
+        label.textContent = 'STEP 5 OF 5 · CONFIRM';
+        title.textContent = 'Review Settings';
+        body.innerHTML = '<div class="cal-msg">Confirm and start on display</div>';
+    } else {
+        label.textContent = 'CALIBRATION';
+        title.textContent = 'Connected';
+        body.innerHTML = '<div class="cal-msg">Follow steps on display</div>';
+    }
+}
+
+function onGammaSlide(v) {
+    document.getElementById('gamma-val').textContent = v;
+    if (calConn && calConn.open) calConn.send({ type: 'gamma', value: parseInt(v) });
+}
+
+function showCalMsg(msg) {
+    document.getElementById('cal-body').innerHTML = `<div class="cal-msg">${msg}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Standalone Camera Mode (?cam=)
+// ═══════════════════════════════════════════════════════════════
+function initStandaloneCam(peerId) {
+    document.getElementById('cal-panel').classList.add('open');
+    showCalMsg('Opening camera…');
+    // Connect to display
+    if (typeof Peer !== 'undefined') {
+        const p = new Peer(undefined, { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } });
+        p.on('open', () => {
+            calConn = p.connect(peerId, { reliable: true });
+            calConn.on('open', () => { console.log('[Cam] Connected'); openCamCapture(); });
+        });
+    } else {
+        openCamCapture();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Camera Capture (shared by cal and standalone modes)
+// ═══════════════════════════════════════════════════════════════
+let camStream = null;
+
+function openCamCapture() {
     document.getElementById('cam-fs').classList.add('open');
+    document.getElementById('cam-cap-btn').style.display = '';
+    document.getElementById('cam-dbg').textContent = '';
+    document.getElementById('cam-inst').textContent = 'Point camera at display — capture when 4 markers visible';
 
     navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
@@ -179,25 +312,15 @@ function initCamDistMode() {
     .then(stream => {
         camStream = stream;
         document.getElementById('cam-video').srcObject = stream;
-
-        // Connect to calibration page via PeerJS
-        if (typeof Peer !== 'undefined') {
-            const peer = new Peer();
-            peer.on('open', () => {
-                camConn = peer.connect(camID);
-                camConn.on('open', () => {
-                    document.getElementById('cam-inst').textContent =
-                        'Connected — capture when all 4 markers are in frame';
-                });
-                camConn.on('error', () => {
-                    document.getElementById('cam-inst').textContent = 'Connection error';
-                });
-            });
-        }
     })
     .catch(err => {
-        document.getElementById('cam-inst').textContent = 'Camera access denied: ' + err.message;
+        document.getElementById('cam-inst').textContent = 'Camera denied: ' + err.message;
     });
+}
+
+function closeCam() {
+    document.getElementById('cam-fs').classList.remove('open');
+    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
 }
 
 function captureFrame() {
@@ -210,64 +333,59 @@ function captureFrame() {
 
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const markers = findDarkMarkers(imgData, canvas.width, canvas.height);
+    const dbg = document.getElementById('cam-dbg');
 
     if (markers.length >= 4) {
-        // Sort into TL, TR, BL, BR
+        // Sort: top 2, bottom 2
         markers.sort((a, b) => a.y - b.y);
         const top = markers.slice(0, 2).sort((a, b) => a.x - b.x);
         const bot = markers.slice(2, 4).sort((a, b) => a.x - b.x);
 
-        // Diagonal in camera pixels: TL to BR
+        // Diagonal pixel span in photo: TL center → BR center
         const dx = bot[1].x - top[0].x;
         const dy = bot[1].y - top[0].y;
         const diagCamPx = Math.sqrt(dx * dx + dy * dy);
 
-        // Also compute horizontal span for FOV estimate
-        const hSpan = Math.max(Math.abs(top[1].x - top[0].x), Math.abs(bot[1].x - bot[0].x));
-
-        // Estimate distance using pinhole camera model
-        // hFOV ≈ 67° for typical phone rear camera
-        const hFovDeg = 67;
-        const focalLenPx = (canvas.width / 2) / Math.tan((hFovDeg / 2) * Math.PI / 180);
-
-        // apparentAngle = 2 * atan(diagCamPx / (2 * focalLenPx))
-        const apparentAngleRad = 2 * Math.atan(diagCamPx / (2 * focalLenPx));
-        const distMm = diagMm / (2 * Math.tan(apparentAngleRad / 2));
-
-        // Send to calibration page
-        if (camConn && camConn.open) {
-            camConn.send({ type: 'camDistance', distMm: distMm });
-        }
+        // Pinhole camera model: distance = (realSize * focalLength) / imageSize
+        // focalLength in px = (imageWidth / 2) / tan(hFOV / 2)
+        // Typical phone wide camera hFOV ≈ 67-75°
+        // We use 70° as a reasonable default
+        const hFovDeg = 70;
+        const focalPx = (canvas.width / 2) / Math.tan((hFovDeg / 2) * Math.PI / 180);
+        const distMm = (activeDiagMm * focalPx) / diagCamPx;
 
         const distFt = (distMm / 304.8).toFixed(1);
-        document.getElementById('cam-inst').textContent =
-            `✓ Distance: ${distFt} ft (${(distMm/1000).toFixed(2)} m) — sent to display`;
+        const distM = (distMm / 1000).toFixed(2);
+
+        // Debug info
+        dbg.textContent = [
+            `Frame: ${canvas.width}×${canvas.height}`,
+            `Markers found: ${markers.length}`,
+            `Diag in photo: ${diagCamPx.toFixed(0)}px`,
+            `Real diag: ${activeDiagMm.toFixed(0)}mm`,
+            `hFOV: ${hFovDeg}°  focalPx: ${focalPx.toFixed(0)}`,
+            `Distance: ${distMm.toFixed(0)}mm = ${distFt}ft = ${distM}m`,
+            `TL(${top[0].x.toFixed(0)},${top[0].y.toFixed(0)}) TR(${top[1].x.toFixed(0)},${top[1].y.toFixed(0)})`,
+            `BL(${bot[0].x.toFixed(0)},${bot[0].y.toFixed(0)}) BR(${bot[1].x.toFixed(0)},${bot[1].y.toFixed(0)})`
+        ].join('\n');
+
+        // Send to display
+        if (calConn && calConn.open) {
+            calConn.send({ type: 'camDistance', distMm });
+        }
+
+        document.getElementById('cam-inst').textContent = `✓ ${distFt} ft (${distM} m) — sent`;
         document.getElementById('cam-cap-btn').style.display = 'none';
 
-        // Auto-close after a moment
-        setTimeout(() => {
-            cancelCamCapture();
-            // Show a simple done page
-            document.body.innerHTML = `
-                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:12px;font-family:var(--f);color:var(--t1);">
-                    <div style="font-size:2rem;">✓</div>
-                    <div style="font-family:var(--m);font-size:.6rem;letter-spacing:2px;color:var(--t3);">DISTANCE SENT</div>
-                    <div style="font-family:var(--m);font-size:1.4rem;color:var(--a);">${distFt} ft</div>
-                    <div style="font-family:var(--m);font-size:.5rem;color:var(--t3);margin-top:8px;">You can close this tab</div>
-                </div>`;
-        }, 2000);
-
+        setTimeout(() => closeCam(), 3000);
     } else {
-        document.getElementById('cam-inst').textContent =
-            `Found ${markers.length}/4 markers — reposition and try again`;
-        if (camConn && camConn.open) {
-            camConn.send({ type: 'camError', msg: `Only ${markers.length} markers detected` });
-        }
+        dbg.textContent = `Found ${markers.length}/4 markers\nClusters: ${markers.map(m=>`(${m.x.toFixed(0)},${m.y.toFixed(0)} sz:${m.size})`).join(' ')}`;
+        document.getElementById('cam-inst').textContent = `${markers.length}/4 markers found — reposition and try again`;
     }
 }
 
 function findDarkMarkers(imgData, w, h) {
-    const DARK = 60, MIN_SIZE = 30;
+    const DARK = 70, MIN_SIZE = 40;
     const dark = new Uint8Array(w * h);
     for (let i = 0; i < w * h; i++) {
         const r = imgData.data[i*4], g = imgData.data[i*4+1], b = imgData.data[i*4+2];
@@ -285,8 +403,8 @@ function findDarkMarkers(imgData, w, h) {
                 const ci = stack.pop();
                 const cx = ci % w, cy = (ci - cx) / w;
                 sx += cx; sy += cy; cnt++;
-                for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-                    const nx = cx+dx, ny = cy+dy;
+                for (const [dx2, dy2] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+                    const nx = cx+dx2, ny = cy+dy2;
                     if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
                         const ni = ny * w + nx;
                         if (dark[ni] && !visited[ni]) { visited[ni] = 1; stack.push(ni); }
@@ -300,29 +418,29 @@ function findDarkMarkers(imgData, w, h) {
     return clusters.slice(0, 4);
 }
 
-function cancelCamCapture() {
-    document.getElementById('cam-fs').classList.remove('open');
-    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-}
-
 // ═══════════════════════════════════════════════════════════════
-// Normal Controller Mode
+// Normal Controller Mode (?id=)
 // ═══════════════════════════════════════════════════════════════
 let conn = null, isConn = false, cto = null, curMode = 'sloan', resultData = null;
 
 function initControllerMode() {
     if (typeof Peer === 'undefined') { showErr('Lib failed'); return; }
-    const p = new Peer();
-    cto = setTimeout(() => { if (!isConn) showErr('Timed out'); }, 15000);
-    p.on('open', () => {
+    const p = new Peer(undefined, {
+        debug: 1,
+        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
+    });
+    cto = setTimeout(() => { if (!isConn) showErr('Timed out — try reloading'); }, 15000);
+    p.on('open', myId => {
+        console.log('[Tablet] My ID:', myId, '→', laneID);
         setSt('', 'Syncing');
-        conn = p.connect(laneID);
+        conn = p.connect(laneID, { reliable: true });
         conn.on('open', () => { clearTimeout(cto); isConn = true; setSt('ok', 'Linked'); document.getElementById('rbtn').style.display = 'none'; });
         conn.on('data', onMsg);
         conn.on('close', () => { if (isConn) { isConn = false; showErr('Disconnected'); } });
-        conn.on('error', () => showErr('Error'));
+        conn.on('error', e => { console.error('[Tablet]', e); showErr('Connection error'); });
     });
-    p.on('error', e => { clearTimeout(cto); showErr(e.type === 'peer-unavailable' ? 'Lane not found' : e.type); });
+    p.on('error', e => { clearTimeout(cto); showErr(e.type === 'peer-unavailable' ? 'Display not found' : e.type); });
+    p.on('disconnected', () => { if (!p.destroyed) p.reconnect(); });
 }
 
 function onMsg(d) {
@@ -337,11 +455,8 @@ function send(v) {
     if (navigator.vibrate) navigator.vibrate(25);
     document.getElementById('prompt').classList.add('hid');
     const all = [...document.querySelectorAll('.lb,.db')];
-    const map = { '↑':'up', '↓':'down', '←':'left', '→':'right', '↗':'upright', '↖':'upleft' };
-    all.forEach(b => {
-        const bv = map[b.textContent.trim()] || b.textContent.trim().toLowerCase();
-        if (bv === v) { b.classList.remove('fl'); void b.offsetWidth; b.classList.add('fl'); }
-    });
+    const map = { '↑':'up','↓':'down','←':'left','→':'right','↗':'upright','↖':'upleft' };
+    all.forEach(b => { const bv = map[b.textContent.trim()] || b.textContent.trim().toLowerCase(); if (bv === v) { b.classList.remove('fl'); void b.offsetWidth; b.classList.add('fl'); } });
 }
 
 function setMode(m) {
@@ -357,7 +472,6 @@ function switchPad(m) {
     document.getElementById('pad-s').classList.toggle('hid', isDir);
     document.getElementById('pad-d').classList.toggle('hid', !isDir);
     document.querySelectorAll('.db[data-p]').forEach(b => {
-        b.style.transform = '';
         if (m === 'gabor') {
             if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
             if (b.dataset.p === 'r') { b.textContent = '↗'; b.onclick = () => send('upright'); }
@@ -372,49 +486,29 @@ function switchPad(m) {
     });
 }
 
-function updateRing(t, mx) {
-    document.getElementById('rfg').style.strokeDashoffset = 2 * Math.PI * 21 * (1 - t / mx);
-    document.getElementById('rnum').textContent = t;
-}
+function updateRing(t, mx) { document.getElementById('rfg').style.strokeDashoffset = 2 * Math.PI * 21 * (1 - t / mx); document.getElementById('rnum').textContent = t; }
 
 function showResults(score, rank, detail) {
     const now = new Date();
-    resultData = { score: score||'—', rank: rank||'', detail: detail||'',
-        mode: {sloan:'Sloan Letters',tumblingE:'Tumbling E',gabor:'Gabor Grating'}[curMode]||curMode,
-        date: now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
-        time: now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) };
-    document.getElementById('resp').style.display = 'none';
-    document.getElementById('tabs').style.display = 'none';
-    document.getElementById('prog').style.display = 'none';
-    document.getElementById('sbar').style.display = 'none';
-    const rv = document.getElementById('rv'); rv.style.display = 'flex';
-    document.getElementById('rsc').textContent = resultData.score;
-    document.getElementById('rrk').textContent = resultData.rank;
-    document.getElementById('rdt').textContent = resultData.detail;
-    document.getElementById('rts').textContent = `${resultData.mode}  ·  ${resultData.date}  ${resultData.time}`;
+    resultData = { score:score||'—', rank:rank||'', detail:detail||'',
+        mode:{sloan:'Sloan Letters',tumblingE:'Tumbling E',gabor:'Gabor Grating'}[curMode]||curMode,
+        date:now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+        time:now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) };
+    document.getElementById('resp').style.display='none'; document.getElementById('tabs').style.display='none';
+    document.getElementById('prog').style.display='none'; document.getElementById('sbar').style.display='none';
+    const rv=document.getElementById('rv'); rv.style.display='flex';
+    document.getElementById('rsc').textContent=resultData.score; document.getElementById('rrk').textContent=resultData.rank;
+    document.getElementById('rdt').textContent=resultData.detail;
+    document.getElementById('rts').textContent=`${resultData.mode}  ·  ${resultData.date}  ${resultData.time}`;
 }
 
-function getResultsText() {
-    if (!resultData) return '';
-    return `Manifold qCSF Results\n═══════════════════════\n\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\n\nMode:    ${resultData.mode}\nDate:    ${resultData.date} ${resultData.time}\n\n— Manifold Contrast Sensitivity Function`;
-}
-function shareResults() {
-    if (!resultData) return;
-    const text = getResultsText(), subj = `qCSF Result: AULCSF ${resultData.score} — ${resultData.rank}`;
-    if (navigator.share) navigator.share({title:subj,text}).catch(()=>{ window.location.href=`mailto:?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(text)}`; });
-    else window.location.href = `mailto:?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(text)}`;
-}
-function copyResults() {
-    if (!resultData) return;
-    navigator.clipboard.writeText(getResultsText()).then(()=>flashCopied()).catch(()=>{
-        const ta=document.createElement('textarea');ta.value=getResultsText();ta.style.cssText='position:fixed;opacity:0';
-        document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flashCopied();
-    });
-}
-function flashCopied(){const e=document.getElementById('rv-copied');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+function getResultsText(){if(!resultData)return '';return `Manifold qCSF Results\n═══════════════════════\n\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\n\nMode:    ${resultData.mode}\nDate:    ${resultData.date} ${resultData.time}\n\n— Manifold Contrast Sensitivity Function`}
+function shareResults(){if(!resultData)return;const t=getResultsText(),s=`qCSF: AULCSF ${resultData.score}`;if(navigator.share)navigator.share({title:s,text:t}).catch(()=>{location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`});else location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`}
+function copyResults(){if(!resultData)return;navigator.clipboard.writeText(getResultsText()).then(fc).catch(()=>{const a=document.createElement('textarea');a.value=getResultsText();a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);fc()})}
+function fc(){const e=document.getElementById('rv-copied');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
 
-function setSt(cls,txt){document.getElementById('st').innerHTML=(cls==='ok'?'<span class="sd ok"></span>':cls==='er'?'<span class="sd er"></span>':'<span class="sd"></span>')+txt}
-function showErr(msg){setSt('er',msg);document.getElementById('rbtn').style.display='inline-block'}
+function setSt(c,t){document.getElementById('st').innerHTML=(c==='ok'?'<span class="sd ok"></span>':c==='er'?'<span class="sd er"></span>':'<span class="sd"></span>')+t}
+function showErr(m){setSt('er',m);document.getElementById('rbtn').style.display='inline-block'}
 function toggleSettings(){document.getElementById('sp').classList.toggle('open')}
 function sendCmd(a){if(conn&&isConn)conn.send({type:'command',action:a});toggleSettings()}
 </script>

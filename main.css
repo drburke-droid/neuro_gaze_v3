@@ -82,14 +82,14 @@ canvas#stimCanvas{width:560px;height:560px;background:var(--bg);border-radius:12
 
 /* ═══ Results — Premium Full Screen ═══ */
 #scr-results{background:linear-gradient(170deg,var(--s1) 0%,#080810 100%);z-index:200;text-align:center;padding:clamp(20px,4vw,40px);animation:fadeIn .8s var(--ez);overflow-y:auto}
-#result-content{display:flex;flex-direction:column;align-items:center;max-width:900px;margin:0 auto}
+#result-content{display:flex;flex-direction:column;align-items:center;max-width:1800px;margin:0 auto}
 #scr-results.results-boost #result-content{font-size:200%}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .result-eyebrow{font-family:var(--m);font-size:clamp(.8rem,1.5vw,1.2rem);letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px}
 .auc-value{font-family:var(--m);font-size:clamp(5rem,14vw,11rem);font-weight:700;color:var(--a);line-height:.85;text-shadow:0 0 100px rgba(0,255,204,.2)}
 .rank-label{font-size:clamp(1.2rem,3vw,2.2rem);font-weight:200;text-transform:uppercase;letter-spacing:clamp(4px,1vw,12px);margin-top:10px;color:rgba(255,255,255,.55)}
 .result-detail{font-family:var(--m);font-size:clamp(.7rem,1.2vw,1rem);color:rgba(255,255,255,.4);margin-top:8px;letter-spacing:.5px}
-#csf-plot{margin-top:20px;border-radius:10px;display:block;max-width:720px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+#csf-plot{margin-top:20px;border-radius:10px;display:block;max-width:1440px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
 .restart-btn{padding:clamp(10px,2vw,16px) clamp(28px,4vw,44px);border-radius:100px;border:1px solid var(--b);background:transparent;color:var(--t3);font-family:var(--f);font-size:clamp(.75rem,1.2vw,1rem);cursor:pointer;letter-spacing:.5px;transition:all .3s}
 .restart-btn:hover{border-color:var(--a);color:var(--a);box-shadow:0 0 20px var(--ag)}
 #gear-btn{position:fixed;bottom:20px;right:20px;cursor:pointer;opacity:.08;font-size:20px;z-index:400;transition:opacity .3s}#gear-btn:hover{opacity:.3}

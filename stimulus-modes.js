@@ -1,5 +1,5 @@
 /**
- * BurkeCSF — Stimulus Modes
+  * Burke Vision Lab — Stimulus Modes
  * =========================
  * Default: Gabor Yes/No detection (always present, user says "I see it" or not)
  * Hidden:  tumblingE, sloan (4-AFC and 10-AFC modes preserved for future use)

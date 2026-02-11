@@ -1,5 +1,5 @@
 /**
- * BurkeCSF — CSF Plot (v7 — AAA Quality)
+ * Burke Vision Lab — CSF Plot (v7 — AAA Quality)
  * 
  * Accurate real-world landmark pairs + predicted Snellen acuity.
  * 
@@ -52,7 +52,7 @@ const PAIR_COLORS = {
 
 export function drawCSFPlot(canvas, engine, params) {
     const dpr = window.devicePixelRatio || 1;
-    const cssW = 720, cssH = 500;
+    const cssW = 1440, cssH = 1000;
     canvas.width = cssW * dpr; canvas.height = cssH * dpr;
     canvas.style.width  = cssW + 'px';
     canvas.style.height = cssH + 'px';

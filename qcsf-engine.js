@@ -1,5 +1,5 @@
 /**
- * BurkeCSF — Bayesian Adaptive Engine
+* Burke Vision Lab — Bayesian Adaptive Engine
  * ====================================
  * Quick Contrast Sensitivity Function using Bayesian adaptive estimation.
  *

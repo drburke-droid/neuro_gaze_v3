@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>BurkeCSF</title>
+<title>Burke Vision Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--a:#00ffcc;--ag:rgba(0,255,204,.25);--as:rgba(0,255,204,.1);--c:#0a0a0c;--b:rgba(255,255,255,.12);--t1:#fff;--t2:rgba(255,255,255,.7);--t3:rgba(255,255,255,.4);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
@@ -89,7 +89,7 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
 .res-copied{font-family:var(--m);font-size:.5rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
 </style></head><body>
-<div class="hdr"><span class="brand">BurkeCSF</span></div>
+<div class="hdr"><span class="brand">Burke Vision Lab</span></div>
 
 <div id="m-cal" class="mode active">
 <div class="cal">
@@ -374,7 +374,7 @@ function showResults(d){
 
 function getRText(){
     if(!resultData)return'';
-    var t='BurkeCSF Vision Report\n';
+    var t='Burke Vision Lab Results\n';
     t+='========================\n';
     t+='AULCSF Score: '+resultData.score+'\n';
     t+='Rating: '+resultData.rank+'\n';
@@ -392,6 +392,6 @@ function getRText(){
     t+='\nDate: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
     return t;
 }
-function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF Vision Report',text:getRText()}).catch(function(){});else copyR()}
+function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'Burke Vision Lab Results',text:getRText()}).catch(function(){});else copyR()}
 function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');if(e){e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}}).catch(function(){})}
 </script></body></html>

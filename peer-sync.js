@@ -1,5 +1,5 @@
 /**
- * BurkeCSF — PeerJS Sync (Safari-hardened)
+ * Burke Vision Lab — PeerJS Sync (Safari-hardened)
  * - Auto-assigned IDs (no collisions)
  * - Multiple STUN servers for iOS Safari compat
  * - Cache-bust: unique peer ID prefix to avoid Safari WebRTC cache

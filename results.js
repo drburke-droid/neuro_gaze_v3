@@ -1,5 +1,5 @@
 /**
- * BurkeCSF — Results & Scoring
+ * Burke Vision Lab — Results & Scoring
  */
 
 export function computeResult(engine) {

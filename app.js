@@ -1,5 +1,5 @@
 /**
- * BurkeCSF — Display Controller (v7)
+  * Burke Vision Lab — Display Controller (v7)
  * Card -> Mirror -> Luminance -> Distance -> Confirm -> Tutorial -> Test -> Results
  */
 import { QCSFEngine }    from './qcsf-engine.js';
@@ -201,11 +201,11 @@ window.sharePlot = async function() {
     const canvas = document.getElementById('csf-plot');
     try {
         const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-        const file = new File([blob], 'BurkeCSF-Results.png', { type: 'image/png' });
+        const file = new File([blob], 'Burke Vision Lab-Results.png', { type: 'image/png' });
 
         // Try native share first (iOS/Android)
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ title: 'BurkeCSF Results', files: [file] });
+            await navigator.share({ title: 'Burke Vision Lab Results', files: [file] });
             return;
         }
     } catch (e) { /* fall through to download */ }
@@ -215,7 +215,7 @@ window.sharePlot = async function() {
         const dataUrl = canvas.toDataURL('image/png');
         const a = document.createElement('a');
         a.href = dataUrl;
-        a.download = 'BurkeCSF-Results.png';
+        a.download = 'Burke Vision Lab-Results.png';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

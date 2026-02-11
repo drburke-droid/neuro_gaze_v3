@@ -332,17 +332,17 @@ export function drawCSFPlot(canvas, engine, params) {
     ctx.restore();
     // Range labels
     ctx.save();
-    ctx.translate(208, pad.top + pH);
+    ctx.translate(168, pad.top + pH);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.fillStyle = 'rgba(255,255,255,0.30)';
     ctx.font = '500 24px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
     ctx.fillText('Black on White', 0, 0);
     ctx.restore();
     ctx.save();
-    ctx.translate(208, pad.top);
+    ctx.translate(168, pad.top);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.fillStyle = 'rgba(255,255,255,0.30)';
     ctx.font = '500 24px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     ctx.fillText('Gray on Gray', 0, 0);

@@ -4,27 +4,29 @@
 </head><body>
 
 <div id="scr-qr" class="screen active">
-<div class="welcome-title">Welcome, ready to test your vision today?</div>
+<div class="welcome-title">Ready to test<br>your vision?</div>
 <div class="welcome-sub">Scan with your phone to get started</div>
 <div id="qrcode"></div>
-<div class="qr-debug" id="qr-debug"></div>
 <button class="qr-skip" onclick="skipPhone()">Use Keyboard Instead</button>
+<div class="qr-debug" id="qr-debug"></div>
 </div>
 
 <div id="scr-cal" class="screen">
 <div class="cal-box" id="cal-box">
 <div class="dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
 
+<!-- Step 0: Card (near) -->
 <div id="cs0" class="cal-step active">
 <div class="sn-n">Step 1 of 5</div><div class="h2-n">Physical Scale</div>
-<p class="sd-n">Hold a credit card to the screen. Adjust until the rectangle matches the card width.</p>
+<p class="sd-n">Hold a credit card to the screen and adjust until the rectangle matches the card width.</p>
 <div id="card-sandbox"><div id="card-shape"></div></div>
 <div id="card-local"><input type="range" id="ss" min="150" max="750" step="0.1" value="300">
 <div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div></div>
-<div id="card-remote" class="phone-hint-l" style="display:none;font-size:.7rem">ADJUST ON YOUR PHONE</div>
+<div id="card-remote" class="phone-hint-l" style="display:none;font-size:.65rem">Adjust on your phone</div>
 <div class="cal-fn"><button class="bp-n" onclick="calGo(1)">Next</button></div>
 </div>
 
+<!-- Step 1: Mirror (near) -->
 <div id="cs1" class="cal-step">
 <div class="sn-n">Step 2 of 5</div><div class="h2-n">Setup Type</div>
 <p class="sd-n">Will the patient view this screen through a mirror?</p>
@@ -36,21 +38,23 @@
 <div class="cal-fn"><button class="bb-n" onclick="calGo(0)">Back</button></div>
 </div>
 
+<!-- Step 2: Luminance (far) -->
 <div id="cs2" class="cal-step">
 <div class="sn-l">Step 3 of 5</div><div class="h2-l">Luminance</div>
-<p class="sd-l">Adjust until circle disappears into pattern</p>
+<p class="sd-l">Adjust until the circle disappears into the pattern</p>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
-<div style="width:clamp(160px,22vw,220px);height:clamp(160px,22vw,220px);border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
-<div id="ic" style="width:clamp(70px,10vw,100px);height:clamp(70px,10vw,100px);border-radius:50%;background:rgb(128,128,128)"></div></div></div>
+<div style="width:clamp(140px,20vw,200px);height:clamp(140px,20vw,200px);border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
+<div id="ic" style="width:clamp(60px,9vw,90px);height:clamp(60px,9vw,90px);border-radius:50%;background:rgb(128,128,128)"></div></div></div>
 <div id="gamma-local"><input type="range" id="gs" min="60" max="220" value="128"><div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div></div>
-<div id="gamma-remote" class="phone-hint-l" style="display:none">ADJUST ON YOUR PHONE</div>
+<div id="gamma-remote" class="phone-hint-l" style="display:none">Adjust on your phone</div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(1)">Back</button><button class="bp-l" onclick="calGo(3)">Next</button></div>
 </div>
 
+<!-- Step 3: Distance (far) -->
 <div id="cs3" class="cal-step">
 <div class="sn-l">Step 4 of 5</div><div class="h2-l">Viewing Distance</div>
 <p class="sd-l">Enter distance from eyes to screen</p>
-<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;align-items:center">
 <div style="display:flex;gap:14px;align-items:center">
 <input type="number" class="dist-input" id="dv" placeholder="5" min="0.1" step="0.1">
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
@@ -60,6 +64,7 @@
 <div class="cal-fn"><button class="bb-l" onclick="calGo(2)">Back</button><button class="bp-l" onclick="calValidate()">Review</button></div>
 </div>
 
+<!-- Step 4: Confirm (far) -->
 <div id="cs4" class="cal-step">
 <div class="sn-l">Step 5 of 5</div><div class="h2-l">Confirm</div>
 <div style="flex:1;display:flex;align-items:center;justify-content:center">
@@ -68,7 +73,7 @@
 <div><span class="l">Gamma</span><span class="v" id="sg">128</span></div>
 <div><span class="l">Scale</span><span class="v" id="sp2">-</span></div>
 <div><span class="l">Distance</span><span class="v" id="sdi">-</span></div>
-<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b)"><span class="l">Res</span><span class="v" id="spp">-</span></div>
+<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b)"><span class="l">Resolution</span><span class="v" id="spp">-</span></div>
 </div></div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(3)">Back</button><button class="bs-l" onclick="startTest()">Start Test</button></div>
 </div>
@@ -77,10 +82,11 @@
 <div id="scr-test" class="screen">
 <div class="display-frame" id="mirror-target">
 <canvas id="stimCanvas" width="600" height="600"></canvas>
-<div class="hud"><span class="hud-mode">Gabor Detection</span><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><span class="hud-progress" id="live-progress">0 / 50</span></div>
+<div class="hud"><span class="hud-mode">Gabor 4-AFC</span><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><span class="hud-progress" id="live-progress">0 / 50</span></div>
+<!-- Tutorial overlay — labels ABOVE the plate -->
 <div class="tut-overlay" id="tutorial" style="display:none">
-<div class="tut-title" id="tut-title">Orientation Demo</div>
-<div class="tut-sub" id="tut-sub"></div>
+<div class="tut-step-label" id="tut-step-label">Demo 1 of 5</div>
+<div class="tut-orient-name" id="tut-orient-name">Vertical</div>
 <div class="tut-wrap">
 <canvas class="tut-gabor" id="tut-canvas" width="400" height="400"></canvas>
 <div style="display:flex;flex-direction:column;align-items:center">
@@ -89,7 +95,8 @@
 </div></div>
 <div class="tut-dots" id="tut-dots"></div>
 <div class="tut-hint" id="tut-hint"></div>
-</div></div></div>
+</div>
+</div></div>
 
 <div id="scr-results" class="screen">
 <div id="result-content">

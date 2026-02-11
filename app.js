@@ -1,6 +1,6 @@
 /**
- * BurkeCSF — Display Controller
- * Card → Mirror → Luminance → Distance → Confirm → Tutorial → Test → Results
+ * BurkeCSF — Display Controller (v7)
+ * Card -> Mirror -> Luminance -> Distance -> Confirm -> Tutorial -> Test -> Results
  */
 import { QCSFEngine }    from './qcsf-engine.js';
 import { createMode }    from './stimulus-modes.js';
@@ -10,7 +10,7 @@ import { computeResult } from './results.js';
 import { createHost }    from './peer-sync.js';
 
 const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
-const CARD_ASPECT = 85.6 / 53.98; // ISO credit card W/H = 1.585
+const CARD_W_MM = 85.6, CARD_H_MM = 53.98, CARD_ASPECT = CARD_W_MM / CARD_H_MM;
 
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -34,7 +34,7 @@ function initPeer() {
             if (typeof QRCode !== 'undefined') {
                 new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
             } else {
-                qrEl.innerHTML = `<p style="font-size:.5rem;word-break:break-all;max-width:260px">${url}</p>`;
+                qrEl.innerHTML = `<a href="${url}" style="font-size:.5rem;word-break:break-all;max-width:260px;color:#00ffcc">${url}</a>`;
             }
         },
         () => {
@@ -100,12 +100,13 @@ function updateGamma() {
 }
 function updateCardSize() {
     const px = parseFloat(ss.value);
-    // Fix: update BOTH width and height maintaining credit card aspect ratio
-    csh.style.width = px + 'px';
-    csh.style.height = (px / CARD_ASPECT) + 'px';
+    const h = px / CARD_ASPECT;
+    csh.style.width  = px + 'px';
+    csh.style.height = h + 'px';
     document.getElementById('sv').textContent = px.toFixed(0);
 }
-gs.oninput = updateGamma; ss.oninput = updateCardSize;
+gs.oninput = updateGamma;
+ss.oninput = updateCardSize;
 updateGamma(); updateCardSize();
 
 window.calGo = function(n) {
@@ -135,9 +136,12 @@ window.calValidate = function() {
     const mmVal = distToMm();
     if (mmVal < 200) { de.textContent = 'Too close'; return; }
     if (mmVal > 30000) { de.textContent = 'Too far'; return; }
-    const ppm = parseFloat(ss.value) / 85.6, u = document.getElementById('du').value;
+
+    const ppm = parseFloat(ss.value) / CARD_W_MM;
+    const u = document.getElementById('du').value;
     const effMm = isMirror ? mmVal * 2 : mmVal;
     const effPpd = effMm * 0.017455 * ppm;
+
     document.getElementById('smi').textContent = isMirror ? 'On (2x)' : 'Off';
     document.getElementById('sg').textContent = gs.value;
     document.getElementById('sp2').textContent = ppm.toFixed(3) + ' px/mm';
@@ -160,28 +164,37 @@ let tutStep = 0;
 function renderTutStep(idx) {
     tutStep = idx;
     const s = TUT[idx], tc = document.getElementById('tut-canvas');
-    // Calibration for demo: make ~8 cycles visible across 400px canvas at 4cpd
     const demoCal = { pxPerMm: 14.3, distMm: 800, midPoint: 128 };
+
+    // Labels ABOVE the plate
+    document.getElementById('tut-step-label').textContent = `Demo ${idx + 1} of ${TUT.length}`;
+    document.getElementById('tut-orient-name').textContent = s.name;
+
     if (s.angle >= 0) {
         drawGabor(tc, { cpd: 4, contrast: 0.95, angle: s.angle }, demoCal);
-        document.getElementById('tut-sub').innerHTML = `<strong>${s.name}</strong> grating`;
     } else {
-        const ctx = tc.getContext('2d');
-        ctx.fillStyle = 'rgb(128,128,128)'; ctx.fillRect(0, 0, tc.width, tc.height);
-        document.getElementById('tut-sub').innerHTML = `Cannot see a grating? Press <strong>No Target</strong>`;
+        const ctx2 = tc.getContext('2d');
+        ctx2.fillStyle = 'rgb(128,128,128)';
+        ctx2.fillRect(0, 0, tc.width, tc.height);
     }
+
     document.getElementById('tut-arrow').textContent = s.arrow;
-    document.getElementById('tut-key-name').textContent = `Press ${s.name} on phone`;
-    document.getElementById('tut-title').textContent = `Demo ${idx + 1} of ${TUT.length}`;
+    document.getElementById('tut-key-name').textContent = `Press ${s.name}`;
     document.getElementById('tut-dots').innerHTML = TUT.map((_, i) => `<div class="tut-dot${i === idx ? ' active' : ''}"></div>`).join('');
-    document.getElementById('tut-hint').textContent = idx < TUT.length - 1 ? 'Press the highlighted button on your phone' : 'Press No Target to begin the test';
+    document.getElementById('tut-hint').textContent =
+        idx < TUT.length - 1 ? 'Press the highlighted button on your phone' : 'Press No Target to begin';
     tx({ type: 'tutStep', stepIdx: idx, key: s.key, arrow: s.arrow, name: s.name, total: TUT.length });
 }
 
 function advanceTut(key) {
     if (key !== TUT[tutStep].key) return;
     if (tutStep < TUT.length - 1) renderTutStep(tutStep + 1);
-    else { document.getElementById('tutorial').style.display = 'none'; testStarted = true; nextTrial(); tx({ type: 'testStart', maxTrials: MAX_TRIALS }); }
+    else {
+        document.getElementById('tutorial').style.display = 'none';
+        testStarted = true;
+        nextTrial();
+        tx({ type: 'testStart', maxTrials: MAX_TRIALS });
+    }
 }
 
 // ═══ Test ═══
@@ -189,8 +202,7 @@ let mode = null, engine = null, currentStim = null;
 let testComplete = false, testStarted = false, inTutorial = false, lastInputTime = 0;
 
 window.startTest = function() {
-    localStorage.setItem('user_gamma_grey', gs.value);
-    const ppm = parseFloat(ss.value) / 85.6;
+    const ppm = parseFloat(ss.value) / CARD_W_MM;
     const effDist = isMirror ? distToMm() * 2 : distToMm();
     window._cal = { pxPerMm: ppm, distMm: effDist, midPoint: parseInt(gs.value), isMirror };
     if (isMirror) document.getElementById('mirror-target').classList.add('mirror-flip');
@@ -201,7 +213,8 @@ window.startTest = function() {
     updateProgress(0);
 
     const canvas = document.getElementById('stimCanvas'), ctx = canvas.getContext('2d');
-    ctx.fillStyle = `rgb(${window._cal.midPoint},${window._cal.midPoint},${window._cal.midPoint})`;
+    const mp = window._cal.midPoint;
+    ctx.fillStyle = `rgb(${mp},${mp},${mp})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     showScreen('scr-test');
@@ -217,6 +230,7 @@ function handleInput(value) {
     const now = performance.now();
     if (now - lastInputTime < DEBOUNCE_MS) return;
     lastInputTime = now;
+
     const correct = mode.checkAnswer(value);
     try { engine.update(currentStim.stimIndex, correct); } catch (e) { finish(); return; }
     updateProgress(engine.trialCount);
@@ -245,8 +259,10 @@ function nextTrial() {
 }
 
 function updateProgress(t) {
-    const el = document.getElementById('live-progress'); if (el) el.textContent = `${t} / ${MAX_TRIALS}`;
-    const fill = document.getElementById('progress-fill'); if (fill) fill.style.width = `${(t / MAX_TRIALS) * 100}%`;
+    const el = document.getElementById('live-progress');
+    if (el) el.textContent = `${t} / ${MAX_TRIALS}`;
+    const fill = document.getElementById('progress-fill');
+    if (fill) fill.style.width = `${(t / MAX_TRIALS) * 100}%`;
 }
 
 function finish() {
@@ -254,15 +270,21 @@ function finish() {
     let result;
     try { result = computeResult(engine); }
     catch (e) { result = { aulcsf: 0, rank: 'ERROR', detail: '', params: null, curve: [] }; }
+
     showScreen('scr-results');
     document.getElementById('final-auc').innerText = result.aulcsf.toFixed(2);
     document.getElementById('final-rank').innerText = result.rank;
     document.getElementById('final-detail').innerText = result.detail;
+
     let plotUrl = '';
-    try { plotUrl = drawCSFPlot(document.getElementById('csf-plot'), engine, result.params); } catch (e) {}
+    try { plotUrl = drawCSFPlot(document.getElementById('csf-plot'), engine, result.params); } catch (e) { console.error('Plot error:', e); }
+
     tx({
-        type: 'results', score: result.aulcsf.toFixed(2), rank: result.rank,
-        detail: result.detail, plotDataUrl: plotUrl,
+        type: 'results',
+        score: result.aulcsf.toFixed(2),
+        rank: result.rank,
+        detail: result.detail,
+        plotDataUrl: plotUrl,
         curve: result.curve || [],
         history: engine.history.map(h => ({
             stimIndex: h.stimIndex, correct: h.correct,

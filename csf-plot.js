@@ -135,51 +135,93 @@ export function drawCSFPlot(canvas, engine, params) {
         ctx.restore();
     });
 
-    // ── CSF Curve — gradient fill ──
+    // ── CSF Curve data ──
     const curve = engine.getCSFCurve(params);
     const curvGrad = ctx.createLinearGradient(0, pad.top, 0, pad.top + pH);
     curvGrad.addColorStop(0, 'rgba(0,255,204,0.14)');
     curvGrad.addColorStop(0.7, 'rgba(0,255,204,0.03)');
     curvGrad.addColorStop(1, 'rgba(0,255,204,0.0)');
 
-    ctx.beginPath();
-    let started = false, firstX, lastX;
+    // ── CSF Curve — smooth stroke with glow ──
+    // Build array of plot points
+    const pts = [];
     for (const pt of curve) {
-        if (pt.logS < lsMin) continue;
+        if (pt.logS < lsMin - 0.5) continue; // slight undershoot allowed for smoothing
         const x = tX(Math.log10(pt.freq));
         const y = tY(Math.min(pt.logS, lsMax));
-        if (!started) { ctx.moveTo(x, y); firstX = x; started = true; }
-        else ctx.lineTo(x, y);
-        lastX = x;
-    }
-    if (started) {
-        ctx.lineTo(lastX, pad.top + pH);
-        ctx.lineTo(firstX, pad.top + pH);
-        ctx.closePath();
-        ctx.fillStyle = curvGrad;
-        ctx.fill();
+        pts.push({ x, y, logS: pt.logS });
     }
 
-    // ── CSF Curve — smooth stroke with glow ──
-    ctx.beginPath(); started = false;
-    for (const pt of curve) {
-        if (pt.logS < lsMin) continue;
-        const x = tX(Math.log10(pt.freq));
-        const y = tY(Math.min(pt.logS, lsMax));
-        if (!started) { ctx.moveTo(x, y); started = true; }
-        else ctx.lineTo(x, y);
+    // Draw smooth curve using cardinal spline
+    function drawSmoothCurve(points) {
+        if (points.length < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        if (points.length === 2) {
+            ctx.lineTo(points[1].x, points[1].y);
+            return;
+        }
+        for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[Math.max(0, i - 1)];
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const p3 = points[Math.min(points.length - 1, i + 2)];
+            const cp1x = p1.x + (p2.x - p0.x) / 6;
+            const cp1y = p1.y + (p2.y - p0.y) / 6;
+            const cp2x = p2.x - (p3.x - p1.x) / 6;
+            const cp2y = p2.y - (p3.y - p1.y) / 6;
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
     }
-    // Glow pass
+
+    // Clip to plot area
     ctx.save();
+    ctx.beginPath();
+    ctx.rect(pad.left - 1, pad.top - 1, pW + 2, pH + 2);
+    ctx.clip();
+
+    // Glow pass
+    drawSmoothCurve(pts);
     ctx.strokeStyle = 'rgba(0,255,204,0.3)';
     ctx.lineWidth = 8;
     ctx.filter = 'blur(6px)';
     ctx.stroke();
-    ctx.restore();
+    ctx.filter = 'none';
+
     // Main stroke
+    drawSmoothCurve(pts);
     ctx.strokeStyle = '#00ffcc';
     ctx.lineWidth = 2.5;
     ctx.stroke();
+    ctx.restore();
+
+    // Gradient fill under curve
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(pad.left, pad.top, pW, pH);
+    ctx.clip();
+    const fillPts = pts.filter(p => p.logS >= lsMin);
+    if (fillPts.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(fillPts[0].x, fillPts[0].y);
+        for (let i = 0; i < fillPts.length - 1; i++) {
+            const p0 = fillPts[Math.max(0, i - 1)];
+            const p1 = fillPts[i];
+            const p2 = fillPts[i + 1];
+            const p3 = fillPts[Math.min(fillPts.length - 1, i + 2)];
+            const cp1x = p1.x + (p2.x - p0.x) / 6;
+            const cp1y = p1.y + (p2.y - p0.y) / 6;
+            const cp2x = p2.x - (p3.x - p1.x) / 6;
+            const cp2y = p2.y - (p3.y - p1.y) / 6;
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+        ctx.lineTo(fillPts[fillPts.length - 1].x, pad.top + pH);
+        ctx.lineTo(fillPts[0].x, pad.top + pH);
+        ctx.closePath();
+        ctx.fillStyle = curvGrad;
+        ctx.fill();
+    }
+    ctx.restore();
 
     // ── Trial markers ──
     for (const trial of engine.history) {

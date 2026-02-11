@@ -315,12 +315,12 @@ function finish() {
         }
     }
 
+    // Send results WITHOUT the large plot image first (ensures phone gets data)
     tx({
         type: 'results',
         score: result.aulcsf.toFixed(2),
         rank: result.rank,
         detail: result.detail,
-        plotDataUrl: plotUrl,
         snellen: snellenStr,
         peakSens: Math.round(Math.pow(10, result.params.peakGain)),
         peakFreq: result.params.peakFreq.toFixed(1),
@@ -328,4 +328,9 @@ function finish() {
         passCount: lmResults.filter(l => l.pass).length,
         totalLandmarks: lmResults.length,
     });
+
+    // Send plot image separately (may be too large for single PeerJS message)
+    if (plotUrl) {
+        try { tx({ type: 'plotImage', url: plotUrl }); } catch (e) { console.warn('Plot send failed:', e); }
+    }
 }

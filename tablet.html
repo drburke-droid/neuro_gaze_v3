@@ -215,7 +215,15 @@ function onMsg(d){
     if(d.type==='tutStep')renderTutStep(d);
     if(d.type==='testStart'){dlog('Test started');setMode('m-test')}
     if(d.type==='progress')updateRing(d.trial,d.maxTrials);
-    if(d.type==='results')showResults(d);
+    if(d.type==='results'){dlog('Results received');showResults(d)}
+    if(d.type==='plotImage'){
+        var img=document.querySelector('.res-plot');
+        if(img){img.src=d.url;img.style.display='block'}
+        else{
+            var c=document.getElementById('result-content');
+            if(c){var i=document.createElement('img');i.className='res-plot';i.src=d.url;i.alt='CSF Plot';c.insertBefore(i,c.querySelector('.res-actions'))}
+        }
+    }
 }
 
 // ═══ Calibration ═══
@@ -354,10 +362,8 @@ function showResults(d){
         c.innerHTML+=html;
     }
 
-    // Plot image if available
-    if(d.plotDataUrl){
-        c.innerHTML+='<img class="res-plot" src="'+d.plotDataUrl+'" alt="CSF Plot">';
-    }
+    // Plot placeholder (image arrives separately via plotImage message)
+    c.innerHTML+='<img class="res-plot" style="display:none" alt="CSF Plot">';
 
     // Actions
     c.innerHTML+='<div class="res-actions">'

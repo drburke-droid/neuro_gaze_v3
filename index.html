@@ -60,6 +60,7 @@
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
 </div>
 <div class="cal-em-l" id="de"></div>
+<div style="font-family:var(--m);font-size:clamp(.7rem,1.5vw,1.1rem);color:var(--t3);letter-spacing:1px;text-align:center;line-height:1.6;max-width:500px">Minimum 10 ft recommended. 20 ft+ preferred for clinical accuracy.</div>
 </div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(2)">Back</button><button class="bp-l" onclick="calValidate()">Review</button></div>
 </div>
@@ -83,20 +84,24 @@
 <div class="display-frame" id="mirror-target">
 <canvas id="stimCanvas" width="600" height="600"></canvas>
 <div class="hud"><span class="hud-mode">Gabor 4-AFC</span><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><span class="hud-progress" id="live-progress">0 / 50</span></div>
-<!-- Tutorial overlay — labels ABOVE the plate -->
+</div></div>
+
+<!-- Tutorial is now a separate full-screen overlay, not inside display-frame -->
 <div class="tut-overlay" id="tutorial" style="display:none">
 <div class="tut-step-label" id="tut-step-label">Demo 1 of 5</div>
 <div class="tut-orient-name" id="tut-orient-name">Vertical</div>
-<div class="tut-wrap">
+<div class="tut-plate-area">
 <canvas class="tut-gabor" id="tut-canvas" width="400" height="400"></canvas>
-<div style="display:flex;flex-direction:column;align-items:center">
+<div class="tut-arrow-col">
 <div class="tut-arrow-box" id="tut-arrow"></div>
 <div class="tut-key-name" id="tut-key-name"></div>
-</div></div>
+</div>
+</div>
+<div class="tut-footer">
 <div class="tut-dots" id="tut-dots"></div>
 <div class="tut-hint" id="tut-hint"></div>
 </div>
-</div></div>
+</div>
 
 <div id="scr-results" class="screen">
 <div id="result-content">

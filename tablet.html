@@ -1,516 +1,257 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Manifold</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>BurkeCSF</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--a:#00ffcc;--ag:rgba(0,255,204,.2);--as:rgba(0,255,204,.08);--c:#0a0a0c;--s:rgba(255,255,255,.03);--s2:rgba(255,255,255,.06);--b:rgba(255,255,255,.06);--t1:rgba(255,255,255,.88);--t2:rgba(255,255,255,.4);--t3:rgba(255,255,255,.18);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
+:root{--a:#00ffcc;--ag:rgba(0,255,204,.25);--as:rgba(0,255,204,.1);--c:#0a0a0c;--b:rgba(255,255,255,.12);--t1:#fff;--t2:rgba(255,255,255,.7);--t3:rgba(255,255,255,.4);--e:#ff453a;--f:'DM Sans',-apple-system,system-ui,sans-serif;--m:'JetBrains Mono','SF Mono',monospace;--ez:cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 6px;flex-shrink:0}
-.brand{font-size:.9rem;font-weight:200;letter-spacing:-.3px;color:var(--t2)}
-.gear{width:30px;height:30px;border-radius:50%;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);font-size:13px}
-.tabs{display:flex;gap:3px;padding:0 20px;margin-bottom:10px;flex-shrink:0}
-.tab{flex:1;padding:7px 0;border-radius:9px;background:0;border:1px solid transparent;font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);cursor:pointer;text-align:center;transition:all .2s var(--ez)}
-.tab.on{background:var(--s2);border-color:var(--b);color:var(--a)}
-.prog{display:flex;justify-content:center;padding:2px 0 6px;flex-shrink:0}
-.ring{position:relative;width:48px;height:48px}
-.ring svg{width:48px;height:48px;transform:rotate(-90deg)}
-.ring .bg{fill:none;stroke:var(--s2);stroke-width:2.5}
-.ring .fg{fill:none;stroke:var(--a);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
-.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.6rem;font-weight:400;color:var(--t2)}
-.resp{flex:1;display:flex;align-items:center;justify-content:center;padding:0 14px;overflow:hidden;position:relative}
-.prompt{text-align:center;font-family:var(--m);font-size:.5rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3);animation:breathe 3s ease-in-out infinite;position:absolute}
-@keyframes breathe{0%,100%{opacity:.3}50%{opacity:.7}}
-.lpad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:min(88vw,340px)}
-.lb{aspect-ratio:1;border-radius:13px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;font-family:var(--m);font-size:1.15rem;font-weight:400;color:var(--t2)}
-.lb:active{transform:scale(.92);background:var(--as);border-color:var(--a);color:var(--a)}
-.dpad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:7px;width:min(68vw,240px);height:min(68vw,240px)}
-.db{border-radius:14px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s var(--ez);touch-action:manipulation;font-size:1.4rem;color:var(--t2)}
-.db:active{transform:scale(.92);background:var(--as);border-color:var(--a);color:var(--a)}
-.db[data-p="t"]{grid-column:2;grid-row:1}.db[data-p="l"]{grid-column:1;grid-row:2}
-.db[data-p="r"]{grid-column:3;grid-row:2}.db[data-p="b"]{grid-column:2;grid-row:3}
-.db[data-p="c"]{grid-column:2;grid-row:2;pointer-events:none;opacity:.08;font-size:.5rem;color:var(--t3)}
-.fl{animation:fl .3s ease-out}
-@keyframes fl{0%{background:var(--as);border-color:var(--a);color:var(--a);box-shadow:0 0 14px var(--ag)}100%{background:var(--s);border-color:var(--b);color:var(--t2);box-shadow:none}}
-.hid{display:none!important}
-.sbar{padding:10px 20px;text-align:center;flex-shrink:0}
-#st{font-family:var(--m);font-size:.45rem;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
-.sd{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:middle}
-.sd.ok{background:var(--a);animation:pls 2s ease-in-out infinite}.sd.er{background:var(--e)}
-@keyframes pls{0%,100%{opacity:1}50%{opacity:.3}}
-.rbtn{display:none;margin-top:10px;background:0;color:var(--t3);border:1px solid var(--b);padding:7px 18px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem}
-/* Results */
-.rv{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:6px;padding:20px}
-.rv-ey{font-family:var(--m);font-size:.45rem;letter-spacing:4px;text-transform:uppercase;color:var(--t3)}
-.rv-sc{font-family:var(--m);font-size:3.8rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 50px var(--ag)}
-.rv-rk{font-family:var(--f);font-size:.75rem;font-weight:200;letter-spacing:6px;text-transform:uppercase;color:var(--t2);margin-top:2px}
-.rv-dt{font-family:var(--m);font-size:.45rem;color:var(--t3);margin-top:4px}
-.rv-ts{font-family:var(--m);font-size:.4rem;color:var(--t3);margin-top:8px;opacity:.5}
-.rv-divider{width:60px;height:1px;background:var(--b);margin:14px 0}
-.rv-actions{display:flex;gap:8px;margin-top:12px}
-.rv-btn{padding:10px 22px;border-radius:100px;border:1px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.75rem;font-weight:400;cursor:pointer;transition:all .2s var(--ez);display:flex;align-items:center;gap:6px}
-.rv-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
-.rv-btn.primary{background:var(--as);border-color:rgba(0,255,204,.2);color:var(--a)}
-.rv-copied{font-family:var(--m);font-size:.45rem;color:var(--a);letter-spacing:1px;opacity:0;transition:opacity .3s}
-.rv-copied.show{opacity:1}
-/* Settings */
-.sp{display:none;position:fixed;inset:0;background:var(--c);z-index:200;flex-direction:column;padding:20px;overflow-y:auto;animation:su .3s var(--ez)}
-.sp.open{display:flex}
-@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sp .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.sp .st{font-size:1rem;font-weight:200}.sp .sc2{background:0;border:0;color:var(--a);font-size:.8rem;cursor:pointer;font-family:var(--f)}
-.sr{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--b)}
-.sr .sl{font-size:.8rem;color:var(--t2)}.sr .sv{font-family:var(--m);font-size:.7rem;color:var(--a)}
-.cbtn{width:100%;padding:13px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-family:var(--f);font-size:.8rem;cursor:pointer;margin-top:10px;text-align:center}
-/* Calibration assistant panel */
-.cal-panel{display:none;flex-direction:column;flex:1;padding:20px}
-.cal-panel.open{display:flex}
-.cal-title{font-size:1rem;font-weight:200;text-align:center;margin-bottom:4px}
-.cal-step{font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:16px}
-.cal-section{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.cal-slider{width:90%;max-width:300px}
-.cal-slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;outline:0}
-.cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--a);box-shadow:0 0 16px var(--ag);border:2px solid rgba(0,0,0,.2)}
-.cal-slider input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--a);border:2px solid rgba(0,0,0,.2)}
-.cal-val{font-family:var(--m);font-size:1.2rem;font-weight:400;color:var(--a)}
-.cal-hint{font-family:var(--m);font-size:.45rem;letter-spacing:1px;color:var(--t3);text-align:center}
-.cal-msg{font-family:var(--m);font-size:.5rem;color:var(--t2);text-align:center;padding:12px}
-/* Camera fullscreen */
-.cam-fs{display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column}
-.cam-fs.open{display:flex}
-.cam-fs video{flex:1;object-fit:cover}
-.cam-fs .hud{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(transparent,rgba(0,0,0,.8));text-align:center}
-.cam-fs .inst{font-family:var(--m);font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin-bottom:12px}
-.cam-fs .cap{width:60px;height:60px;border-radius:50%;background:#fff;border:3px solid rgba(255,255,255,.3);cursor:pointer}
-.cam-fs .cap:active{transform:scale(.9)}
-.cam-fs .cx{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;z-index:1}
-.cam-fs .guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:75vw;height:75vw;border:2px dashed rgba(0,255,204,.3);border-radius:10px;pointer-events:none}
-.cam-fs .guide-label{position:absolute;top:50%;left:50%;transform:translate(-50%,calc(-50% - 40vw));font-family:var(--m);font-size:.45rem;letter-spacing:2px;text-transform:uppercase;color:var(--a);opacity:.5}
-.cam-fs .dbg{position:absolute;top:50px;left:10px;right:10px;font-family:var(--m);font-size:.4rem;color:rgba(0,255,204,.4);pointer-events:none;white-space:pre-line}
-</style>
-</head>
-<body>
+body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoothing:antialiased;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.hdr{padding:14px 20px 6px;text-align:center;flex-shrink:0}.brand{font-size:1rem;font-weight:300;color:var(--t2)}
+.mode{display:none;flex-direction:column;flex:1;overflow:hidden}.mode.active{display:flex}
+.sbar{padding:8px 20px;text-align:center;flex-shrink:0}
+.stt{font-family:var(--m);font-size:.65rem;letter-spacing:1.5px;color:var(--t2)}
+.sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.sd-ok{background:var(--a)}.sd-er{background:var(--e)}.sd-wait{background:rgba(255,255,255,.4);animation:pls 1.5s ease-in-out infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.2}}
+#dlog{font-family:var(--m);font-size:.5rem;color:var(--t3);max-height:40px;overflow-y:auto;padding:0 20px;line-height:1.5}
+.cal{padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.cal-title{font-size:1.2rem;font-weight:300;text-align:center;margin-bottom:2px}
+.cal-step-label{font-family:var(--m);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3);text-align:center;margin-bottom:14px}
+.cal-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.cal-val{font-family:var(--m);font-size:2.4rem;font-weight:500;color:var(--a)}
+.cal-hint{font-size:.85rem;color:var(--t2);text-align:center;line-height:1.6}
+.cal-msg{font-size:.9rem;color:var(--t2);text-align:center;padding:12px;line-height:1.7}
+.cal-slider{width:94%;max-width:320px}
+.cal-slider input[type=range]{-webkit-appearance:none;width:100%;height:12px;background:rgba(255,255,255,.15);border-radius:6px;outline:0}
+.cal-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:40px;border-radius:50%;background:var(--a);box-shadow:0 0 20px var(--ag);border:3px solid rgba(0,0,0,.3)}
+.cal-slider input[type=range]::-moz-range-thumb{width:40px;height:40px;border-radius:50%;background:var(--a);border:3px solid rgba(0,0,0,.3)}
+.cal-sl{display:flex;justify-content:space-between;width:94%;max-width:320px;font-family:var(--m);font-size:.6rem;color:var(--t3);text-transform:uppercase;margin-top:4px}
+.cal-nav{display:flex;gap:12px;justify-content:center;padding:16px 0;flex-shrink:0}
+.cal-btn{padding:16px 36px;border-radius:100px;font-family:var(--f);font-size:.9rem;cursor:pointer;border:none;transition:all .15s var(--ez)}
+.btn-back{background:0;color:var(--t2);border:2px solid var(--b)}.btn-next{background:#fff;color:#0a0a0c}.btn-next:active{background:var(--a)}.btn-start{background:var(--a);color:#0a0a0c;font-weight:500;font-size:1.05rem;padding:18px 52px}
+.btn-mirror{padding:16px 28px;border-radius:18px;font-size:1.05rem;font-weight:500;cursor:pointer;border:2px solid var(--b);background:rgba(255,255,255,.03);color:var(--t1)}.btn-mirror:active{border-color:var(--a);background:var(--as);color:var(--a)}
+.ph-dist-input{padding:14px 20px;border-radius:14px;border:2px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:1.4rem;width:100px;text-align:center;outline:0}.ph-dist-input:focus{border-color:var(--a)}
+.ph-dist-select{padding:14px;border-radius:14px;border:2px solid var(--b);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:1rem;outline:0;cursor:pointer}.ph-dist-select option{background:#222;color:#fff}
 
-<!-- ═══════════ CONTROLLER UI ═══════════ -->
-<div id="controller-ui">
-<div class="hdr"><span class="brand">Manifold</span><div class="gear" onclick="toggleSettings()">⚙</div></div>
-<div class="tabs" id="tabs">
-<button class="tab on" data-m="sloan" onclick="setMode('sloan')">Sloan</button>
-<button class="tab" data-m="tumblingE" onclick="setMode('tumblingE')">Tumbling E</button>
-<button class="tab" data-m="gabor" onclick="setMode('gabor')">Gabor</button>
-</div>
-<div class="prog" id="prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
-<div class="resp" id="resp">
-<div class="prompt" id="prompt">Tap any response to begin</div>
-<div class="lpad" id="pad-s">
-<button class="lb" onclick="send('c')">C</button><button class="lb" onclick="send('d')">D</button>
-<button class="lb" onclick="send('h')">H</button><button class="lb" onclick="send('k')">K</button>
-<button class="lb" onclick="send('n')">N</button><button class="lb" onclick="send('o')">O</button>
-<button class="lb" onclick="send('r')">R</button><button class="lb" onclick="send('s')">S</button>
-<button class="lb" onclick="send('v')">V</button><button class="lb" onclick="send('z')">Z</button>
-</div>
-<div class="dpad hid" id="pad-d">
-<button class="db" data-p="t" onclick="send('up')">↑</button>
-<button class="db" data-p="l" onclick="send('left')">←</button>
-<button class="db" data-p="c">+</button>
-<button class="db" data-p="r" onclick="send('right')">→</button>
-<button class="db" data-p="b" onclick="send('down')">↓</button>
-</div>
-</div>
-<div class="sbar" id="sbar"><div id="st"><span class="sd" id="sd"></span>Connecting</div><button class="rbtn" id="rbtn" onclick="location.reload()">Retry</button></div>
-<div class="rv" id="rv">
-    <div class="rv-ey">Area Under Log CSF</div>
-    <div class="rv-sc" id="rsc">—</div><div class="rv-rk" id="rrk"></div><div class="rv-dt" id="rdt"></div>
-    <div class="rv-ts" id="rts"></div><div class="rv-divider"></div>
-    <div class="rv-actions">
-        <button class="rv-btn primary" onclick="shareResults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>
-        <button class="rv-btn" onclick="copyResults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
-    </div>
-    <div class="rv-copied" id="rv-copied">Copied to clipboard</div>
-</div>
-</div>
+/* Tutorial */
+.tut{padding:16px;flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:auto}
+.tut-title{font-size:1.05rem;font-weight:300;text-align:center;margin-bottom:4px}
+.tut-sub{font-size:.8rem;color:var(--t2);text-align:center;margin-bottom:14px}
+.tut-grid{display:flex;flex-direction:column;gap:10px;width:min(94vw,360px)}
+.tut-row{display:flex;gap:10px}
+.tut-btn{flex:1;padding:20px 8px;border-radius:18px;border:2px solid var(--b);background:rgba(255,255,255,.03);text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:all .12s}
+.tut-btn .arrow{font-size:2rem;color:var(--t1)}.tut-btn .lbl{font-family:var(--m);font-size:.6rem;color:var(--t2);letter-spacing:1px}
+.tut-btn.dim{opacity:.2;pointer-events:none}
+.tut-btn.hl{border-color:var(--e);background:rgba(255,69,58,.12);box-shadow:0 0 20px rgba(255,69,58,.3);animation:hlP 1.2s ease-in-out infinite}.tut-btn.hl .arrow{color:var(--e)}
+@keyframes hlP{0%,100%{box-shadow:0 0 14px rgba(255,69,58,.2)}50%{box-shadow:0 0 28px rgba(255,69,58,.5)}}
+.tut-no{padding:18px;border-radius:18px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-size:1rem;color:var(--t2);text-align:center;cursor:pointer;touch-action:manipulation;transition:all .12s}
+.tut-no.dim{opacity:.2;pointer-events:none}
+.tut-no.hl{border-color:var(--e);background:rgba(255,69,58,.12);box-shadow:0 0 20px rgba(255,69,58,.3);color:var(--e);animation:hlP 1.2s ease-in-out infinite}
+.tut-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.tut-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15)}.tut-dot.active{background:var(--a)}
+.tut-inst{font-family:var(--m);font-size:.55rem;color:var(--t3);text-align:center;margin-top:8px;letter-spacing:1px}
 
-<!-- ═══════════ CALIBRATION PANEL ═══════════ -->
-<div class="cal-panel" id="cal-panel">
-<div class="cal-step" id="cal-step-label">Calibration</div>
-<div class="cal-title" id="cal-title">Linked to Display</div>
-<div class="cal-section" id="cal-body">
-    <div class="cal-msg">Waiting for calibration step…</div>
-</div>
-</div>
+/* Test */
+.test{padding:0 16px;flex:1;display:flex;flex-direction:column}
+.test-prog{display:flex;justify-content:center;padding:8px 0;flex-shrink:0}
+.ring{position:relative;width:56px;height:56px}.ring svg{width:56px;height:56px;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:3}.ring .fg{fill:none;stroke:var(--a);stroke-width:3;stroke-linecap:round;stroke-dasharray:131.9;stroke-dashoffset:131.9;transition:stroke-dashoffset .5s var(--ez)}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-size:.9rem;font-weight:500;color:var(--t1)}
+.test-resp{flex:1;display:flex;align-items:center;justify-content:center}
+.ori-pad{display:flex;flex-direction:column;gap:12px;width:min(94vw,380px)}
+.ori-row{display:flex;gap:12px}
+.ori-btn{flex:1;padding:24px 8px;border-radius:20px;border:2px solid var(--b);background:rgba(255,255,255,.03);font-size:2.2rem;color:var(--t1);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ori-btn:active{transform:scale(.94);background:var(--as);border-color:var(--a);color:var(--a)}
+.ori-lbl{font-family:var(--m);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
+.no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-size:1.1rem;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center}
+.no-btn:active{transform:scale(.97);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e)}
 
-<!-- ═══════════ SETTINGS ═══════════ -->
-<div class="sp" id="sp">
-<div class="sh"><span class="st">Settings</span><button class="sc2" onclick="toggleSettings()">Done</button></div>
-<div class="sr"><span class="sl">Mode</span><span class="sv" id="sm">Sloan</span></div>
-<div class="sr"><span class="sl">Trials</span><span class="sv">50</span></div>
-<button class="cbtn" onclick="sendCmd('calibrate')">Calibration Wizard</button>
-<button class="cbtn" style="color:var(--e);border-color:rgba(255,69,58,.15)" onclick="sendCmd('restart')">Restart Test</button>
-</div>
+/* Results — higher contrast */
+.res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;overflow-y:auto}
+.res-ey{font-family:var(--m);font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.res-sc{font-family:var(--m);font-size:3.5rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
+.res-rk{font-size:1.05rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4px}
+.res-dt{font-family:var(--m);font-size:.65rem;color:rgba(255,255,255,.5);margin-top:4px}
+.res-plot{width:100%;max-width:380px;border-radius:8px;margin:8px 0}
+.res-actions{display:flex;gap:10px;margin-top:8px}
+.res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+.res-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
+.res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
+.res-copied{font-family:var(--m);font-size:.55rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
+</style></head><body>
+<div class="hdr"><span class="brand">BurkeCSF</span></div>
 
-<!-- ═══════════ CAMERA FULLSCREEN ═══════════ -->
-<div class="cam-fs" id="cam-fs">
-<button class="cx" onclick="closeCam()">✕</button>
-<video id="cam-video" autoplay playsinline></video>
-<div class="guide"></div>
-<div class="guide-label">Frame all 4 corner markers</div>
-<div class="dbg" id="cam-dbg"></div>
-<div class="hud">
-    <div class="inst" id="cam-inst">Point camera at display markers — capture when visible</div>
-    <button class="cap" id="cam-cap-btn" onclick="captureFrame()"></button>
+<div id="m-cal" class="mode active">
+<div class="cal">
+<div class="cal-step-label" id="csl">Connecting...</div>
+<div class="cal-title" id="ctl">Waiting for display</div>
+<div class="cal-body" id="cbd"><div class="cal-msg">Connecting to display...</div></div>
+<div class="cal-nav" id="cnv"></div>
+</div></div>
+
+<div id="m-tut" class="mode">
+<div class="tut">
+<div class="tut-title" id="ttl">Orientation Demo</div>
+<div class="tut-sub" id="tsub">Press the highlighted button</div>
+<div class="tut-grid">
+<div class="tut-row">
+<div class="tut-btn dim" id="tb-upleft" onclick="tutTap('upleft')"><span class="arrow">&#8598;</span><span class="lbl">Left</span></div>
+<div class="tut-btn dim" id="tb-up" onclick="tutTap('up')"><span class="arrow">&#8593;</span><span class="lbl">Vertical</span></div>
+<div class="tut-btn dim" id="tb-upright" onclick="tutTap('upright')"><span class="arrow">&#8599;</span><span class="lbl">Right</span></div>
 </div>
-<canvas id="cam-canvas" style="display:none"></canvas>
+<div class="tut-row">
+<div class="tut-btn dim" id="tb-right" onclick="tutTap('right')" style="max-width:45%;margin:0 auto"><span class="arrow">&#8594;</span><span class="lbl">Horiz</span></div>
 </div>
+<div class="tut-no dim" id="tb-none" onclick="tutTap('none')">No Target Visible</div>
+</div>
+<div class="tut-dots" id="tdots"></div>
+<div class="tut-inst" id="tinst">Look at the display</div>
+</div></div>
+
+<div id="m-test" class="mode">
+<div class="test">
+<div class="test-prog"><div class="ring"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="21"/><circle class="fg" id="rfg" cx="24" cy="24" r="21"/></svg><div class="num" id="rnum">0</div></div></div>
+<div class="test-resp">
+<div class="ori-pad">
+<div class="ori-row">
+<button class="ori-btn" onclick="send('upleft')">&#8598;<span class="ori-lbl">Left</span></button>
+<button class="ori-btn" onclick="send('up')">&#8593;<span class="ori-lbl">Vertical</span></button>
+<button class="ori-btn" onclick="send('upright')">&#8599;<span class="ori-lbl">Right</span></button>
+</div>
+<div class="ori-row">
+<button class="ori-btn" onclick="send('right')" style="max-width:45%;margin:0 auto">&#8594;<span class="ori-lbl">Horiz</span></button>
+</div>
+<button class="no-btn" onclick="send('none')">No Target Visible</button>
+</div></div>
+</div></div>
+
+<div id="m-res" class="mode">
+<div class="res">
+<div class="res-ey">Area Under Log CSF</div>
+<div class="res-sc" id="rsc">--</div>
+<div class="res-rk" id="rrk"></div><div class="res-dt" id="rdt"></div>
+<img class="res-plot" id="rplot" style="display:none" alt="CSF">
+<div class="res-actions">
+<button class="res-btn primary" onclick="shareR()">Share</button>
+<button class="res-btn" onclick="copyR()">Copy</button>
+</div>
+<div class="res-copied" id="rcp">Copied</div>
+</div></div>
+
+<div class="sbar"><div class="stt" id="stt"><span class="sd sd-wait"></span>Connecting...</div></div>
+<div id="dlog"></div>
 
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>if(typeof Peer==='undefined'){var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js';document.head.appendChild(s)}</script>
 <script>
-// ═══════════════════════════════════════════════════════════════
-// Routing
-// ═══════════════════════════════════════════════════════════════
-const params = new URLSearchParams(location.search);
-const laneID = params.get('id');     // test controller mode
-const calID  = params.get('cal');    // calibration assistant mode
-const camID  = params.get('cam');    // standalone camera-only mode
-let   activeDiagMm = parseFloat(params.get('diagMm')) || 0;
+function dlog(m){const e=document.getElementById('dlog');if(e){e.textContent+=m+'\n';e.scrollTop=e.scrollHeight}console.log('[T]',m)}
+function setSt(cls,txt){document.getElementById('stt').innerHTML='<span class="sd '+cls+'"></span>'+txt}
+function setMode(id){document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));document.getElementById(id).classList.add('active')}
 
-if (calID) {
-    document.getElementById('controller-ui').style.display = 'none';
-    document.getElementById('cal-panel').classList.add('open');
-    initCalMode(calID);
-} else if (camID) {
-    document.getElementById('controller-ui').style.display = 'none';
-    activeDiagMm = parseFloat(params.get('diagMm')) || 0;
-    initStandaloneCam(camID);
-} else if (laneID) {
-    initControllerMode();
-} else {
-    showErr('No connection ID');
-    document.getElementById('rbtn').textContent = 'Back';
-    document.getElementById('rbtn').onclick = () => history.back();
-}
+const P=new URLSearchParams(location.search),targetID=P.get('id');
+let conn=null,isConn=false;
+if(!targetID){setSt('sd-er','No ID');dlog('No id')}
+else{dlog('Target: '+targetID);if(typeof Peer==='undefined')setTimeout(function(){if(typeof Peer!=='undefined')doConnect();else setSt('sd-er','PeerJS failed')},2000);else doConnect()}
 
-// ═══════════════════════════════════════════════════════════════
-// Calibration Assistant Mode (?cal=)
-// ═══════════════════════════════════════════════════════════════
-let calConn = null;
-
-function initCalMode(peerId) {
-    if (typeof Peer === 'undefined') { showCalMsg('PeerJS unavailable'); return; }
-    showCalMsg('Connecting to display…');
-    const p = new Peer(undefined, {
-        debug: 1,
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+function doConnect(){
+    setSt('sd-wait','Connecting...');
+    var p=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}});
+    var timeout=setTimeout(function(){if(!isConn){setSt('sd-er','Timed out');dlog('Timeout')}},30000);
+    p.on('open',function(myId){
+        dlog('My ID: '+myId.substring(0,8));
+        conn=p.connect(targetID,{reliable:true});
+        conn.on('open',function(){clearTimeout(timeout);isConn=true;dlog('CONNECTED');setSt('sd-ok','Linked')});
+        conn.on('data',onMsg);
+        conn.on('close',function(){isConn=false;setSt('sd-er','Disconnected')});
+        conn.on('error',function(e){dlog('Conn err: '+(e.type||e))});
     });
-    p.on('open', () => {
-        calConn = p.connect(peerId, { reliable: true });
-        calConn.on('open', () => {
-            console.log('[Cal] Connected to display');
-            showCalMsg('Connected — follow steps on display');
-        });
-        calConn.on('data', onCalMsg);
-        calConn.on('close', () => showCalMsg('Disconnected'));
-        calConn.on('error', e => showCalMsg('Error: ' + e));
-    });
-    p.on('error', e => showCalMsg('Peer error: ' + e.type));
+    p.on('error',function(e){clearTimeout(timeout);dlog('Peer err: '+e.type);setSt('sd-er',e.type==='peer-unavailable'?'Display not found':'Error: '+e.type)});
+    p.on('disconnected',function(){if(!p.destroyed)p.reconnect()});
 }
 
-function onCalMsg(d) {
-    console.log('[Cal] Received:', d.type, d);
-    if (d.type === 'calStep') {
-        updateCalUI(d.step);
-    }
-    if (d.type === 'startCamCapture') {
-        activeDiagMm = d.diagMm;
-        console.log('[Cal] Start cam capture, diagMm =', activeDiagMm);
-        openCamCapture();
-    }
-    if (d.type === 'cancelCamCapture') {
-        closeCam();
-    }
+function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail')}
+
+function onMsg(d){
+    if(d.type==='calStep')renderCalStep(d);
+    if(d.type==='mirrorSet')dlog('Mirror: '+d.value);
+    if(d.type==='tutStep')renderTutStep(d);
+    if(d.type==='testStart'){dlog('Test');setMode('m-test')}
+    if(d.type==='progress')updateRing(d.trial,d.maxTrials);
+    if(d.type==='results')showResults(d);
 }
 
-function updateCalUI(step) {
-    const body = document.getElementById('cal-body');
-    const title = document.getElementById('cal-title');
-    const label = document.getElementById('cal-step-label');
-
-    if (step === 1) {
-        // Gamma — show big slider
-        label.textContent = 'STEP 2 OF 5 · LUMINANCE';
-        title.textContent = 'Adjust Brightness';
-        body.innerHTML = `
-            <div class="cal-val" id="gamma-val">128</div>
-            <div class="cal-slider">
-                <input type="range" id="gamma-range" min="60" max="220" value="128" oninput="onGammaSlide(this.value)">
-            </div>
-            <div style="display:flex;justify-content:space-between;width:90%;max-width:300px;font-family:var(--m);font-size:.45rem;color:var(--t3)"><span>DARKER</span><span>BRIGHTER</span></div>
-            <div class="cal-hint">Adjust until the circle disappears<br>into the pattern on the display</div>`;
-    } else if (step === 2) {
-        label.textContent = 'STEP 3 OF 5 · SCALE';
-        title.textContent = 'Card Size';
-        body.innerHTML = '<div class="cal-msg">Adjust on the display —<br>hold a credit card to the screen</div>';
-    } else if (step === 3) {
-        label.textContent = 'STEP 4 OF 5 · DISTANCE';
-        title.textContent = 'Viewing Distance';
-        body.innerHTML = '<div class="cal-msg">Use camera or enter manually on display</div>';
-    } else if (step === 4) {
-        label.textContent = 'STEP 5 OF 5 · CONFIRM';
-        title.textContent = 'Review Settings';
-        body.innerHTML = '<div class="cal-msg">Confirm and start on display</div>';
-    } else {
-        label.textContent = 'CALIBRATION';
-        title.textContent = 'Connected';
-        body.innerHTML = '<div class="cal-msg">Follow steps on display</div>';
+// ═══ Calibration ═══
+var distTimer=null;
+function renderCalStep(d){
+    var bd=document.getElementById('cbd'),tl=document.getElementById('ctl'),sl=document.getElementById('csl'),nv=document.getElementById('cnv');
+    setMode('m-cal');
+    if(d.step===0){
+        sl.textContent='STEP 1 \u00B7 SCALE';tl.textContent='Card Size';
+        bd.innerHTML='<div class="cal-msg">Match the rectangle on display to a credit card width.</div><div class="cal-slider"><input type="range" id="csl2" min="150" max="750" step="0.1" value="'+(d.cardPx||300)+'" oninput="onCard(this.value)"></div><div class="cal-sl"><span>SMALLER</span><span>LARGER</span></div>';
+        nv.innerHTML='<button class="cal-btn btn-next" onclick="nav(\'next\')">Next</button>';
+    }else if(d.step===1){
+        sl.textContent='STEP 2 \u00B7 SETUP';tl.textContent='Mirror Setup';
+        bd.innerHTML='<div class="cal-msg">Will the patient view through a mirror?</div><div style="display:flex;gap:14px;justify-content:center;margin-top:6px"><button class="btn-mirror" onclick="sendMirror(false)">Direct View</button><button class="btn-mirror" onclick="sendMirror(true)">Mirror View</button></div>';
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button>';
+    }else if(d.step===2){
+        sl.textContent='STEP 3 \u00B7 LUMINANCE';tl.textContent='Brightness';
+        bd.innerHTML='<div class="cal-val" id="gval">'+(d.gamma||128)+'</div><div class="cal-slider"><input type="range" id="gsl" min="60" max="220" value="'+(d.gamma||128)+'" oninput="onGamma(this.value)"></div><div class="cal-sl"><span>DARKER</span><span>BRIGHTER</span></div><div class="cal-hint">Adjust until circle disappears into checkerboard</div>';
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Next</button>';
+    }else if(d.step===3){
+        sl.textContent='STEP 4 \u00B7 DISTANCE';tl.textContent='Viewing Distance';
+        bd.innerHTML='<div class="cal-hint" style="margin-bottom:10px">Enter distance from eyes to screen</div><div style="display:flex;gap:10px;align-items:center;justify-content:center"><input type="number" class="ph-dist-input" id="pdv" placeholder="5" min="0.1" step="0.1" inputmode="decimal" oninput="onDistInput()"><select class="ph-dist-select" id="pdu" onchange="onDistInput()"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select></div>';
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-next" onclick="nav(\'next\')">Review</button>';
+    }else if(d.step===4){
+        sl.textContent='STEP 5 \u00B7 CONFIRM';tl.textContent='Review';
+        bd.innerHTML='<div class="cal-msg" style="font-size:1rem">Review on display. Press Start.</div>';
+        nv.innerHTML='<button class="cal-btn btn-back" onclick="nav(\'back\')">Back</button><button class="cal-btn btn-start" onclick="nav(\'start\')">Start Test</button>';
     }
 }
 
-function onGammaSlide(v) {
-    document.getElementById('gamma-val').textContent = v;
-    if (calConn && calConn.open) calConn.send({ type: 'gamma', value: parseInt(v) });
+function onGamma(v){document.getElementById('gval').textContent=v;tx({type:'gamma',value:parseInt(v)})}
+function onCard(v){tx({type:'cardSize',value:parseFloat(v)})}
+function nav(to){tx({type:'nav',to:to})}
+function sendMirror(v){tx({type:'mirror',value:v})}
+function onDistInput(){
+    // Auto-sync to display on every keystroke with small debounce
+    clearTimeout(distTimer);
+    distTimer=setTimeout(function(){
+        var v=document.getElementById('pdv').value,u=document.getElementById('pdu').value;
+        if(v&&!isNaN(parseFloat(v))&&parseFloat(v)>0)tx({type:'distance',value:parseFloat(v),unit:u});
+    },300);
 }
 
-function showCalMsg(msg) {
-    document.getElementById('cal-body').innerHTML = `<div class="cal-msg">${msg}</div>`;
+// ═══ Tutorial ═══
+var curTutKey=null;
+function renderTutStep(d){
+    setMode('m-tut');curTutKey=d.key;
+    document.getElementById('ttl').textContent='Demo '+( d.stepIdx+1)+' of '+d.total;
+    document.getElementById('tsub').textContent=d.stepIdx<d.total-1?'Press '+d.arrow+' '+d.name:'Press No Target';
+    ['tb-upleft','tb-up','tb-upright','tb-right','tb-none'].forEach(function(id){var el=document.getElementById(id);el.className=el.className.replace(/ hl/g,'');if(!el.className.match(/dim/))el.className+=' dim'});
+    var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right',none:'tb-none'};
+    var t=document.getElementById(map[d.key]);
+    if(t){t.className=t.className.replace(/ dim/g,'');t.className+=' hl'}
+    var dots=document.getElementById('tdots');dots.innerHTML='';
+    for(var i=0;i<d.total;i++){var dot=document.createElement('div');dot.className='tut-dot'+(i===d.stepIdx?' active':'');dots.appendChild(dot)}
+    document.getElementById('tinst').textContent=d.stepIdx<d.total-1?'Press the highlighted button':'Press No Target to start testing';
 }
+function tutTap(key){if(key===curTutKey)tx({type:'input',value:key})}
 
-// ═══════════════════════════════════════════════════════════════
-// Standalone Camera Mode (?cam=)
-// ═══════════════════════════════════════════════════════════════
-function initStandaloneCam(peerId) {
-    document.getElementById('cal-panel').classList.add('open');
-    showCalMsg('Opening camera…');
-    // Connect to display
-    if (typeof Peer !== 'undefined') {
-        const p = new Peer(undefined, { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } });
-        p.on('open', () => {
-            calConn = p.connect(peerId, { reliable: true });
-            calConn.on('open', () => { console.log('[Cam] Connected'); openCamCapture(); });
-        });
-    } else {
-        openCamCapture();
-    }
-}
+// ═══ Test ═══
+function send(v){if(!isConn)return;tx({type:'input',value:v});if(navigator.vibrate)navigator.vibrate(20)}
+function updateRing(t,mx){document.getElementById('rfg').style.strokeDashoffset=2*Math.PI*21*(1-t/mx);document.getElementById('rnum').textContent=t}
 
-// ═══════════════════════════════════════════════════════════════
-// Camera Capture (shared by cal and standalone modes)
-// ═══════════════════════════════════════════════════════════════
-let camStream = null;
-
-function openCamCapture() {
-    document.getElementById('cam-fs').classList.add('open');
-    document.getElementById('cam-cap-btn').style.display = '';
-    document.getElementById('cam-dbg').textContent = '';
-    document.getElementById('cam-inst').textContent = 'Point camera at display — capture when 4 markers visible';
-
-    navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
-    })
-    .then(stream => {
-        camStream = stream;
-        document.getElementById('cam-video').srcObject = stream;
-    })
-    .catch(err => {
-        document.getElementById('cam-inst').textContent = 'Camera denied: ' + err.message;
-    });
-}
-
-function closeCam() {
-    document.getElementById('cam-fs').classList.remove('open');
-    if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-}
-
-function captureFrame() {
-    const video = document.getElementById('cam-video');
-    const canvas = document.getElementById('cam-canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const markers = findDarkMarkers(imgData, canvas.width, canvas.height);
-    const dbg = document.getElementById('cam-dbg');
-
-    if (markers.length >= 4) {
-        // Sort: top 2, bottom 2
-        markers.sort((a, b) => a.y - b.y);
-        const top = markers.slice(0, 2).sort((a, b) => a.x - b.x);
-        const bot = markers.slice(2, 4).sort((a, b) => a.x - b.x);
-
-        // Diagonal pixel span in photo: TL center → BR center
-        const dx = bot[1].x - top[0].x;
-        const dy = bot[1].y - top[0].y;
-        const diagCamPx = Math.sqrt(dx * dx + dy * dy);
-
-        // Pinhole camera model: distance = (realSize * focalLength) / imageSize
-        // focalLength in px = (imageWidth / 2) / tan(hFOV / 2)
-        // Typical phone wide camera hFOV ≈ 67-75°
-        // We use 70° as a reasonable default
-        const hFovDeg = 70;
-        const focalPx = (canvas.width / 2) / Math.tan((hFovDeg / 2) * Math.PI / 180);
-        const distMm = (activeDiagMm * focalPx) / diagCamPx;
-
-        const distFt = (distMm / 304.8).toFixed(1);
-        const distM = (distMm / 1000).toFixed(2);
-
-        // Debug info
-        dbg.textContent = [
-            `Frame: ${canvas.width}×${canvas.height}`,
-            `Markers found: ${markers.length}`,
-            `Diag in photo: ${diagCamPx.toFixed(0)}px`,
-            `Real diag: ${activeDiagMm.toFixed(0)}mm`,
-            `hFOV: ${hFovDeg}°  focalPx: ${focalPx.toFixed(0)}`,
-            `Distance: ${distMm.toFixed(0)}mm = ${distFt}ft = ${distM}m`,
-            `TL(${top[0].x.toFixed(0)},${top[0].y.toFixed(0)}) TR(${top[1].x.toFixed(0)},${top[1].y.toFixed(0)})`,
-            `BL(${bot[0].x.toFixed(0)},${bot[0].y.toFixed(0)}) BR(${bot[1].x.toFixed(0)},${bot[1].y.toFixed(0)})`
-        ].join('\n');
-
-        // Send to display
-        if (calConn && calConn.open) {
-            calConn.send({ type: 'camDistance', distMm });
-        }
-
-        document.getElementById('cam-inst').textContent = `✓ ${distFt} ft (${distM} m) — sent`;
-        document.getElementById('cam-cap-btn').style.display = 'none';
-
-        setTimeout(() => closeCam(), 3000);
-    } else {
-        dbg.textContent = `Found ${markers.length}/4 markers\nClusters: ${markers.map(m=>`(${m.x.toFixed(0)},${m.y.toFixed(0)} sz:${m.size})`).join(' ')}`;
-        document.getElementById('cam-inst').textContent = `${markers.length}/4 markers found — reposition and try again`;
-    }
-}
-
-function findDarkMarkers(imgData, w, h) {
-    const DARK = 70, MIN_SIZE = 40;
-    const dark = new Uint8Array(w * h);
-    for (let i = 0; i < w * h; i++) {
-        const r = imgData.data[i*4], g = imgData.data[i*4+1], b = imgData.data[i*4+2];
-        dark[i] = (r < DARK && g < DARK && b < DARK) ? 1 : 0;
-    }
-    const visited = new Uint8Array(w * h);
-    const clusters = [];
-    for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-            const idx = y * w + x;
-            if (!dark[idx] || visited[idx]) continue;
-            const stack = [idx]; visited[idx] = 1;
-            let sx = 0, sy = 0, cnt = 0;
-            while (stack.length) {
-                const ci = stack.pop();
-                const cx = ci % w, cy = (ci - cx) / w;
-                sx += cx; sy += cy; cnt++;
-                for (const [dx2, dy2] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-                    const nx = cx+dx2, ny = cy+dy2;
-                    if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-                        const ni = ny * w + nx;
-                        if (dark[ni] && !visited[ni]) { visited[ni] = 1; stack.push(ni); }
-                    }
-                }
-            }
-            if (cnt >= MIN_SIZE) clusters.push({ x: sx/cnt, y: sy/cnt, size: cnt });
-        }
-    }
-    clusters.sort((a, b) => b.size - a.size);
-    return clusters.slice(0, 4);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Normal Controller Mode (?id=)
-// ═══════════════════════════════════════════════════════════════
-let conn = null, isConn = false, cto = null, curMode = 'sloan', resultData = null;
-
-function initControllerMode() {
-    if (typeof Peer === 'undefined') { showErr('Lib failed'); return; }
-    const p = new Peer(undefined, {
-        debug: 1,
-        config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
-    });
-    cto = setTimeout(() => { if (!isConn) showErr('Timed out — try reloading'); }, 15000);
-    p.on('open', myId => {
-        console.log('[Tablet] My ID:', myId, '→', laneID);
-        setSt('', 'Syncing');
-        conn = p.connect(laneID, { reliable: true });
-        conn.on('open', () => { clearTimeout(cto); isConn = true; setSt('ok', 'Linked'); document.getElementById('rbtn').style.display = 'none'; });
-        conn.on('data', onMsg);
-        conn.on('close', () => { if (isConn) { isConn = false; showErr('Disconnected'); } });
-        conn.on('error', e => { console.error('[Tablet]', e); showErr('Connection error'); });
-    });
-    p.on('error', e => { clearTimeout(cto); showErr(e.type === 'peer-unavailable' ? 'Display not found' : e.type); });
-    p.on('disconnected', () => { if (!p.destroyed) p.reconnect(); });
-}
-
-function onMsg(d) {
-    if (d.type === 'state') switchPad(d.mode);
-    if (d.type === 'progress') updateRing(d.trial, d.maxTrials);
-    if (d.type === 'results') showResults(d.score, d.rank, d.detail);
-}
-
-function send(v) {
-    if (!conn || !isConn) return;
-    conn.send({ type: 'input', value: v });
-    if (navigator.vibrate) navigator.vibrate(25);
-    document.getElementById('prompt').classList.add('hid');
-    const all = [...document.querySelectorAll('.lb,.db')];
-    const map = { '↑':'up','↓':'down','←':'left','→':'right','↗':'upright','↖':'upleft' };
-    all.forEach(b => { const bv = map[b.textContent.trim()] || b.textContent.trim().toLowerCase(); if (bv === v) { b.classList.remove('fl'); void b.offsetWidth; b.classList.add('fl'); } });
-}
-
-function setMode(m) {
-    curMode = m;
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.m === m));
-    document.getElementById('sm').textContent = { sloan:'Sloan', tumblingE:'Tumbling E', gabor:'Gabor' }[m];
-    switchPad(m);
-    if (conn && isConn) conn.send({ type: 'setMode', mode: m });
-}
-
-function switchPad(m) {
-    const isDir = m === 'gabor' || m === 'tumblingE';
-    document.getElementById('pad-s').classList.toggle('hid', isDir);
-    document.getElementById('pad-d').classList.toggle('hid', !isDir);
-    document.querySelectorAll('.db[data-p]').forEach(b => {
-        if (m === 'gabor') {
-            if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
-            if (b.dataset.p === 'r') { b.textContent = '↗'; b.onclick = () => send('upright'); }
-            if (b.dataset.p === 'l') { b.textContent = '→'; b.onclick = () => send('right'); }
-            if (b.dataset.p === 'b') { b.textContent = '↖'; b.onclick = () => send('upleft'); }
-        } else {
-            if (b.dataset.p === 't') { b.textContent = '↑'; b.onclick = () => send('up'); }
-            if (b.dataset.p === 'r') { b.textContent = '→'; b.onclick = () => send('right'); }
-            if (b.dataset.p === 'l') { b.textContent = '←'; b.onclick = () => send('left'); }
-            if (b.dataset.p === 'b') { b.textContent = '↓'; b.onclick = () => send('down'); }
-        }
-    });
-}
-
-function updateRing(t, mx) { document.getElementById('rfg').style.strokeDashoffset = 2 * Math.PI * 21 * (1 - t / mx); document.getElementById('rnum').textContent = t; }
-
-function showResults(score, rank, detail) {
-    const now = new Date();
-    resultData = { score:score||'—', rank:rank||'', detail:detail||'',
-        mode:{sloan:'Sloan Letters',tumblingE:'Tumbling E',gabor:'Gabor Grating'}[curMode]||curMode,
-        date:now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
-        time:now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) };
-    document.getElementById('resp').style.display='none'; document.getElementById('tabs').style.display='none';
-    document.getElementById('prog').style.display='none'; document.getElementById('sbar').style.display='none';
-    const rv=document.getElementById('rv'); rv.style.display='flex';
-    document.getElementById('rsc').textContent=resultData.score; document.getElementById('rrk').textContent=resultData.rank;
+// ═══ Results ═══
+var resultData=null;
+function showResults(d){
+    resultData={score:d.score||'--',rank:d.rank||'',detail:d.detail||'',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})};
+    setMode('m-res');
+    document.getElementById('rsc').textContent=resultData.score;
+    document.getElementById('rrk').textContent=resultData.rank;
     document.getElementById('rdt').textContent=resultData.detail;
-    document.getElementById('rts').textContent=`${resultData.mode}  ·  ${resultData.date}  ${resultData.time}`;
+    if(d.plotDataUrl){document.getElementById('rplot').src=d.plotDataUrl;document.getElementById('rplot').style.display='block'}
 }
-
-function getResultsText(){if(!resultData)return '';return `Manifold qCSF Results\n═══════════════════════\n\nAULCSF:  ${resultData.score}\nRating:  ${resultData.rank}\nDetail:  ${resultData.detail}\n\nMode:    ${resultData.mode}\nDate:    ${resultData.date} ${resultData.time}\n\n— Manifold Contrast Sensitivity Function`}
-function shareResults(){if(!resultData)return;const t=getResultsText(),s=`qCSF: AULCSF ${resultData.score}`;if(navigator.share)navigator.share({title:s,text:t}).catch(()=>{location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`});else location.href=`mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(t)}`}
-function copyResults(){if(!resultData)return;navigator.clipboard.writeText(getResultsText()).then(fc).catch(()=>{const a=document.createElement('textarea');a.value=getResultsText();a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);fc()})}
-function fc(){const e=document.getElementById('rv-copied');e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
-
-function setSt(c,t){document.getElementById('st').innerHTML=(c==='ok'?'<span class="sd ok"></span>':c==='er'?'<span class="sd er"></span>':'<span class="sd"></span>')+t}
-function showErr(m){setSt('er',m);document.getElementById('rbtn').style.display='inline-block'}
-function toggleSettings(){document.getElementById('sp').classList.toggle('open')}
-function sendCmd(a){if(conn&&isConn)conn.send({type:'command',action:a});toggleSettings()}
-</script>
-</body>
-</html>
+function getRText(){if(!resultData)return'';return'BurkeCSF\nAULCSF: '+resultData.score+'\nRating: '+resultData.rank+'\n'+resultData.detail+'\n'+resultData.date}
+function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF',text:getRText()}).catch(function(){});else copyR()}
+function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}).catch(function(){})}
+</script></body></html>

@@ -14,7 +14,7 @@ export function computeResult(engine) {
     else                    rank = 'IMPAIRED';
 
     const peakSens = Math.pow(10, params.peakGain).toFixed(0);
-    const detail   = `Peak: ${peakSens} @ ${params.peakFreq.toFixed(1)} cpd | BW: ${params.bandwidth.toFixed(1)} oct`;
+    const detail   = `Low-freq Sens: ${peakSens} | Knee: ${params.peakFreq.toFixed(1)} cpd | Curvature: ${params.truncation.toFixed(1)}`;
 
     // Curve data for tablet rendering
     const curve = engine.getCSFCurve(params);

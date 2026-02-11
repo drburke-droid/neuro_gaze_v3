@@ -1,7 +1,7 @@
 /**
   * Burke Vision Lab — Stimulus Modes
  * =========================
- * Default: Gabor Yes/No detection (always present, user says "I see it" or not)
+ * Default: Gabor orientation with optional "No Target" response.
  * Hidden:  tumblingE, sloan (4-AFC and 10-AFC modes preserved for future use)
  */
 
@@ -24,20 +24,21 @@ export function createMode(mode) {
     }
 }
 
-// ─── Gabor 4-AFC (DEFAULT) ───────────────────────────────────────────────
+// // ─── Gabor 4-AFC + "No Target" (DEFAULT) ─────────────────────────────────
 // Stimulus is ALWAYS present with one of 4 orientations.
-// This keeps the response model aligned with the Bayesian engine (numAFC = 4).
+// "No target" is intentionally allowed as a high-value below-threshold response.
+// Bayesian model treats this as incorrect evidence (numAFC = 5 guess rate).
 
 function createGaborYesNoMode() {
     let currentAngle = 0;
 
     return {
         id: 'gabor',
-        name: 'Gabor 4-AFC',
-        numAFC: 4,
+        name: 'Gabor 4-AFC + No Target',
+        numAFC: 5,
         psychometricSlope: 3.5,
-        labels: ['↑', '↗', '→', '↖'],
-        keys:   ['up', 'upright', 'right', 'upleft'],
+        labels: ['↑', '↗', '→', '↖', 'Ø'],
+        keys:   ['up', 'upright', 'right', 'upleft', 'none'],
         responseType: 'orientation',
 
         generate() { /* No templates */ },
@@ -54,6 +55,7 @@ function createGaborYesNoMode() {
 
         checkAnswer(response) {
             const map = { up: 0, right: 90, upright: 45, upleft: 135 };
+            if (response === 'none') return false;
             return map[response] === currentAngle;
         }
     };

@@ -18,42 +18,39 @@
 
 import { linspace } from './utils.js';
 
-const KAPPA = Math.log10(2);
-
 /**
- * Truncated log-parabola CSF model.
+  * Smooth monotonic CSF approximation.
+ *
+ * Literature basis:
+ * - qCSF commonly uses a truncated log-parabola (Lesmes et al., 2010), but low-frequency
+ *   truncation can visually create flat plateaus in sparse/noisy runs.
+ * - For stable clinical display and AULCSF integration we use a smooth low-pass form:
+ *     logS(f) = g - b * log10(1 + (f / f0)^d)
+ *   where g is low-frequency gain, f0 is the knee frequency, b is roll-off depth,
+ *   and d controls curvature steepness.
+ *
+ * This model is always curved and strictly non-increasing for f > 0, avoiding
+ * flat segments and reversals.
  */
 export function logParabolaCSF(freq, g, f, b, d) {
-    const betaPrime = Math.log10(Math.pow(2, b));
-    const logF    = Math.log10(freq);
-    const logFmax = Math.log10(f);
-    let logSens = g - KAPPA * Math.pow((logF - logFmax) / (betaPrime / 2), 2);
-    if (freq <= f) {
-        const truncLevel = g - d;
-        if (logSens < truncLevel) logSens = truncLevel;
-    }
-    // High-frequency neural/optical cutoff
-    // Smooth exponential rolloff that accelerates beyond peak
-    // Models combined optical MTF + retinal sampling limit (~40-50 cpd)
-    if (freq > f) {
-        const octAbove = Math.log2(freq / f);
-        // Gentle cubic ramp — no hard knee, smooth join at peak
-        logSens -= 0.18 * octAbove * octAbove * octAbove;
-    }
-    return logSens;
+    const safeFreq = Math.max(0.05, freq);
+    const ratio = safeFreq / Math.max(0.2, f);
+    const shaped = Math.pow(ratio, Math.max(0.8, d));
+    return g - b * Math.log10(1 + shaped);
 }
 
 const DEFAULTS = {
-    numAFC:             4,      // 4 orientations (with additional "no target" option)
+    numAFC:             5,      // 4 orientations + optional "no target" response
     lapse:              0.04,
     falseAlarmRate:     0.01,   // unused in AFC mode
     psychometricSlope:  3.5,
     peakGainValues:     linspace(0.5, 2.8, 10),
-    peakFreqValues:     [0.5, 1, 1.5, 2, 3, 4, 6, 8, 12, 16],
-    bandwidthValues:    linspace(1.0, 6.0, 6),
-    truncationValues:   [0, 0.5, 1.0, 1.5, 2.0],
+    peakFreqValues:     [0.8, 1.2, 1.8, 2.5, 3.5, 5, 7, 10, 14, 18],
+    bandwidthValues:    [0.8, 1.05, 1.3, 1.6, 1.95],
+    truncationValues:   [1.0, 1.4, 1.8, 2.2, 2.6],
     stimFreqs:          [0.5, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24],
     stimLogContrasts:   linspace(-3.0, 0.0, 30),
+    robustLikelihoodMix: 0.03,
 };
 
 export class QCSFEngine {
@@ -65,6 +62,7 @@ export class QCSFEngine {
         this.gamma      = this.isYesNo ? cfg.falseAlarmRate : (1 / this.numAFC);
         this.lapse      = cfg.lapse;
         this.slopeParam = cfg.psychometricSlope;
+        this.robustLikelihoodMix = cfg.robustLikelihoodMix;
 
         // Parameter grid
         this.paramGrid = [];
@@ -140,7 +138,7 @@ export class QCSFEngine {
         }
 
         const sorted = Array.from(ee).map((e, i) => ({ e, i })).sort((a, b) => a.e - b.e);
-        const topN   = Math.max(1, Math.ceil(this.nStim * 0.1));
+        const topN   = this.trialCount < 8 ? 5 : 1;
         const chosen = sorted[Math.floor(Math.random() * topN)];
         const stim   = this.stimGrid[chosen.i];
         return {
@@ -159,7 +157,9 @@ export class QCSFEngine {
         let total = 0;
         for (let h = 0; h < this.nParams; h++) {
             const pCH = this.pCorrectMatrix[h][stimIndex];
-            this.prior[h] *= detected ? pCH : (1 - pCH);
+            const pObsRaw = detected ? pCH : (1 - pCH);
+            const pObs = (1 - this.robustLikelihoodMix) * pObsRaw + this.robustLikelihoodMix * 0.5;
+            this.prior[h] *= pObs;
             total += this.prior[h];
         }
         if (total > 0) {

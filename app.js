@@ -276,6 +276,7 @@ document.addEventListener('keydown', e => {
     else if (k === 'arrowright' || k === 'd') handleInput('right');
     else if (k === 'e') handleInput('upright');
     else if (k === 'q') handleInput('upleft');
+    else if (k === 'x' || k === 'n' || k === ' ') handleInput('none');
 });
 
 function nextTrial() {

@@ -197,6 +197,32 @@ function advanceTut(key) {
     }
 }
 
+// ═══ Share/Save Plot ═══
+window.sharePlot = async function() {
+    const canvas = document.getElementById('csf-plot');
+    try {
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        const file = new File([blob], 'BurkeCSF-Results.png', { type: 'image/png' });
+
+        // Try native share first (iOS/Android)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ title: 'BurkeCSF Results', files: [file] });
+            return;
+        }
+    } catch (e) { /* fall through to download */ }
+
+    // Fallback: download the image
+    try {
+        const dataUrl = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'BurkeCSF-Results.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } catch (e) { console.error('Share failed:', e); }
+};
+
 // ═══ Test ═══
 let mode = null, engine = null, currentStim = null;
 let testComplete = false, testStarted = false, inTutorial = false, lastInputTime = 0;
@@ -218,7 +244,9 @@ window.startTest = function() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     showScreen('scr-test');
-    document.getElementById('tutorial').style.display = 'flex';
+    const tutEl = document.getElementById('tutorial');
+    tutEl.style.display = 'flex';
+    if (isMirror) tutEl.classList.add('mirrored'); else tutEl.classList.remove('mirrored');
     renderTutStep(0);
 };
 

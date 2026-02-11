@@ -60,7 +60,7 @@
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
 </div>
 <div class="cal-em-l" id="de"></div>
-<div style="font-family:var(--m);font-size:clamp(.7rem,1.5vw,1.1rem);color:var(--t3);letter-spacing:1px;text-align:center;line-height:1.6;max-width:500px">Minimum 10 ft recommended. 20 ft+ preferred for clinical accuracy.</div>
+<div style="font-family:var(--m);font-size:clamp(1rem,2.5vw,1.8rem);color:var(--t3);letter-spacing:1px;text-align:center;line-height:1.6;max-width:600px">Minimum 10 ft required. 20 ft+ preferred for clinical accuracy.</div>
 </div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(2)">Back</button><button class="bp-l" onclick="calValidate()">Review</button></div>
 </div>
@@ -110,7 +110,10 @@
 <div class="rank-label" id="final-rank">--</div>
 <div class="result-detail" id="final-detail"></div>
 <canvas id="csf-plot"></canvas>
+<div style="display:flex;gap:14px;margin-top:16px">
 <button class="restart-btn" onclick="location.reload()">Test Again</button>
+<button class="restart-btn" id="share-plot-btn" onclick="sharePlot()" style="border-color:var(--a);color:var(--a)">Save / Share Chart</button>
+</div>
 </div></div>
 
 <div id="gear-btn" onclick="showScreen('scr-cal');calGo(0)">&#9881;</div>

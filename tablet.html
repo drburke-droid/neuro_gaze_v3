@@ -61,17 +61,32 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .ori-lbl{font-family:var(--m);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--t2)}
 .no-btn{padding:20px;border-radius:20px;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-size:1.1rem;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .1s;touch-action:manipulation;text-align:center}
 .no-btn:active{transform:scale(.97);background:rgba(255,69,58,.08);border-color:rgba(255,69,58,.3);color:var(--e)}
-.res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;overflow-y:auto}
-.res-ey{font-family:var(--m);font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.6)}
-.res-sc{font-family:var(--m);font-size:3.5rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
-.res-rk{font-size:1.05rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:4px}
-.res-dt{font-family:var(--m);font-size:.65rem;color:rgba(255,255,255,.5);margin-top:4px}
+.res{padding:16px 20px;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;overflow-y:auto}
+.res-ey{font-family:var(--m);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.res-sc{font-family:var(--m);font-size:3.2rem;font-weight:700;color:var(--a);line-height:1;text-shadow:0 0 60px var(--ag)}
+.res-rk{font-size:.95rem;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:6px}
+.res-stats{display:flex;gap:6px;width:100%;margin:6px 0}
+.res-stat{flex:1;padding:10px 6px;border-radius:12px;border:1px solid var(--b);background:rgba(255,255,255,.02);text-align:center}
+.rs-val{font-family:var(--m);font-size:1.1rem;font-weight:600;color:var(--a)}
+.rs-lbl{font-size:.55rem;color:var(--t3);margin-top:2px;letter-spacing:.5px}
+.res-section-title{font-family:var(--m);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin:8px 0 4px;width:100%;text-align:center}
+.res-lm-list{width:100%;display:flex;flex-direction:column;gap:4px}
+.res-lm{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--b);background:rgba(255,255,255,.01)}
+.lm-icon{font-size:1.1rem;width:24px;text-align:center;flex-shrink:0}
+.lm-pass .lm-icon{color:#34d399}.lm-fail .lm-icon{color:var(--e)}
+.lm-info{flex:1;min-width:0}
+.lm-name{font-size:.72rem;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lm-ctx{font-size:.52rem;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lm-score{text-align:right;flex-shrink:0}
+.lm-yours{font-family:var(--m);font-size:.85rem;font-weight:600;color:var(--t1)}
+.lm-need{font-size:.48rem;color:var(--t3)}
+.lm-pass .lm-need{color:rgba(52,211,153,.6)}.lm-fail .lm-need{color:rgba(255,69,58,.6)}
 .res-plot{width:100%;max-width:380px;border-radius:8px;margin:8px 0}
-.res-actions{display:flex;gap:10px;margin-top:8px}
-.res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+.res-actions{display:flex;gap:10px;margin-top:6px}
+.res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--f)}
 .res-btn:active{background:var(--as);border-color:var(--a);color:var(--a)}
 .res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
-.res-copied{font-family:var(--m);font-size:.55rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
+.res-copied{font-family:var(--m);font-size:.5rem;color:var(--a);opacity:0;transition:opacity .3s}.res-copied.show{opacity:1}
 </style></head><body>
 <div class="hdr"><span class="brand">BurkeCSF</span></div>
 
@@ -120,16 +135,7 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 </div></div>
 
 <div id="m-res" class="mode">
-<div class="res">
-<div class="res-ey">Area Under Log CSF</div>
-<div class="res-sc" id="rsc">--</div>
-<div class="res-rk" id="rrk"></div><div class="res-dt" id="rdt"></div>
-<img class="res-plot" id="rplot" style="display:none" alt="CSF">
-<div class="res-actions">
-<button class="res-btn primary" onclick="shareR()">Share</button>
-<button class="res-btn" onclick="copyR()">Copy</button>
-</div>
-<div class="res-copied" id="rcp">Copied</div>
+<div class="res" id="result-content">
 </div></div>
 
 <div class="sbar"><div class="stt" id="stt"><span class="sd sd-wait"></span>Connecting...</div></div>
@@ -307,14 +313,80 @@ function updateRing(t,mx){
 // ═══ Results ═══
 var resultData=null;
 function showResults(d){
-    resultData={score:d.score||'--',rank:d.rank||'',detail:d.detail||'',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})};
+    resultData=d;
     setMode('m-res');
-    document.getElementById('rsc').textContent=resultData.score;
-    document.getElementById('rrk').textContent=resultData.rank;
-    document.getElementById('rdt').textContent=resultData.detail;
-    if(d.plotDataUrl){document.getElementById('rplot').src=d.plotDataUrl;document.getElementById('rplot').style.display='block'}
+    var c=document.getElementById('result-content');
+    c.innerHTML='';
+
+    // Hero score
+    c.innerHTML+='<div class="res-ey">Area Under Log CSF</div>';
+    c.innerHTML+='<div class="res-sc">'+(d.score||'--')+'</div>';
+    c.innerHTML+='<div class="res-rk">'+(d.rank||'')+'</div>';
+
+    // Snellen + Peak
+    c.innerHTML+='<div class="res-stats">'
+        +'<div class="res-stat"><div class="rs-val">'+(d.snellen||'--')+'</div><div class="rs-lbl">Predicted Acuity</div></div>'
+        +'<div class="res-stat"><div class="rs-val">'+(d.peakSens||'--')+'</div><div class="rs-lbl">Peak Sensitivity</div></div>'
+        +'<div class="res-stat"><div class="rs-val">'+(d.peakFreq||'--')+' cpd</div><div class="rs-lbl">Peak Frequency</div></div>'
+        +'</div>';
+
+    // Landmark scorecard
+    if(d.landmarks&&d.landmarks.length){
+        var passed=d.passCount||0,total=d.totalLandmarks||d.landmarks.length;
+        c.innerHTML+='<div class="res-section-title">Real-World Vision Score: '+passed+' / '+total+'</div>';
+        var html='<div class="res-lm-list">';
+        d.landmarks.forEach(function(lm){
+            var icon=lm.pass?'\u2713':'\u2717';
+            var cls=lm.pass?'lm-pass':'lm-fail';
+            html+='<div class="res-lm '+cls+'">'
+                +'<div class="lm-icon">'+icon+'</div>'
+                +'<div class="lm-info">'
+                +'<div class="lm-name">'+lm.name+'</div>'
+                +'<div class="lm-ctx">'+lm.context+'</div>'
+                +'</div>'
+                +'<div class="lm-score">'
+                +'<div class="lm-yours">'+lm.yours+'</div>'
+                +'<div class="lm-need">'+(lm.pass?lm.margin+'x margin':'need '+lm.needed)+'</div>'
+                +'</div>'
+                +'</div>';
+        });
+        html+='</div>';
+        c.innerHTML+=html;
+    }
+
+    // Plot image if available
+    if(d.plotDataUrl){
+        c.innerHTML+='<img class="res-plot" src="'+d.plotDataUrl+'" alt="CSF Plot">';
+    }
+
+    // Actions
+    c.innerHTML+='<div class="res-actions">'
+        +'<button class="res-btn primary" onclick="shareR()">Share Results</button>'
+        +'<button class="res-btn" onclick="copyR()">Copy Text</button>'
+        +'</div>'
+        +'<div class="res-copied" id="rcp">Copied</div>';
 }
-function getRText(){if(!resultData)return'';return'BurkeCSF Results\nAULCSF: '+resultData.score+'\nRating: '+resultData.rank+'\n'+resultData.detail+'\n'+resultData.date}
-function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF Results',text:getRText()}).catch(function(){});else copyR()}
-function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}).catch(function(){})}
+
+function getRText(){
+    if(!resultData)return'';
+    var t='BurkeCSF Vision Report\n';
+    t+='========================\n';
+    t+='AULCSF Score: '+resultData.score+'\n';
+    t+='Rating: '+resultData.rank+'\n';
+    t+='Predicted Acuity: '+(resultData.snellen||'--')+'\n';
+    t+='Peak Sensitivity: '+(resultData.peakSens||'--')+' @ '+(resultData.peakFreq||'--')+' cpd\n\n';
+    if(resultData.landmarks){
+        t+='Real-World Vision Assessment\n';
+        t+='----------------------------\n';
+        resultData.landmarks.forEach(function(lm){
+            t+=(lm.pass?'PASS':'FAIL')+' | '+lm.name+' (yours: '+lm.yours+', need: '+lm.needed+')\n';
+            t+='      '+lm.context+'\n';
+        });
+        t+='\nPassed: '+resultData.passCount+' / '+resultData.totalLandmarks+'\n';
+    }
+    t+='\nDate: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    return t;
+}
+function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'BurkeCSF Vision Report',text:getRText()}).catch(function(){});else copyR()}
+function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');if(e){e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}}).catch(function(){})}
 </script></body></html>

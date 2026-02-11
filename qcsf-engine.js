@@ -32,6 +32,15 @@ export function logParabolaCSF(freq, g, f, b, d) {
         const truncLevel = g - d;
         if (logSens < truncLevel) logSens = truncLevel;
     }
+    // High-frequency neural/optical cutoff: steeper rolloff beyond ~1.5 octaves above peak
+    // Models the combined optical MTF and retinal sampling limit (~45-55 cpd max)
+    if (freq > f) {
+        const octAbove = Math.log2(freq / f);
+        if (octAbove > 1.5) {
+            const extra = (octAbove - 1.5);
+            logSens -= 1.2 * extra * extra; // accelerating dropoff
+        }
+    }
     return logSens;
 }
 

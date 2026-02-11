@@ -279,17 +279,53 @@ function finish() {
     let plotUrl = '';
     try { plotUrl = drawCSFPlot(document.getElementById('csf-plot'), engine, result.params); } catch (e) { console.error('Plot error:', e); }
 
+    // Build rich results with per-landmark assessments
+    const lmResults = [];
+    const landmarks = [
+        { name: 'Exit sign (day)',       freq: 10, sens: 2,   context: 'Reading highway signs at 250 ft' },
+        { name: 'Exit sign (night)',     freq: 10, sens: 80,  context: 'Worn road signs at night' },
+        { name: 'Golf ball on grass',    freq: 14, sens: 4,   context: 'Tracking ball on fairway at 75 yd' },
+        { name: 'Golf ball, cloudy sky', freq: 14, sens: 60,  context: 'Spotting ball against overcast sky' },
+        { name: 'Pedestrian (day)',      freq: 6,  sens: 2,   context: 'Seeing a person at 100 m in daylight' },
+        { name: 'Pedestrian (dusk)',     freq: 6,  sens: 70,  context: 'Detecting a person at dusk on a dark road' },
+        { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,   context: 'Vehicle ahead at 500 m in clear weather' },
+        { name: 'Tail-lights (fog)',     freq: 4,  sens: 50,  context: 'Vehicle ahead at 500 m in fog' },
+    ];
+    landmarks.forEach(lm => {
+        const yourSens = Math.pow(10, engine.evaluateCSF(lm.freq, result.params));
+        const pass = yourSens >= lm.sens;
+        const margin = yourSens / lm.sens;
+        lmResults.push({
+            name: lm.name, context: lm.context, freq: lm.freq,
+            needed: lm.sens, yours: Math.round(yourSens),
+            pass, margin: margin.toFixed(1)
+        });
+    });
+
+    // Snellen prediction
+    let snellenStr = '--';
+    const curveData = result.curve || [];
+    for (let i = 1; i < curveData.length; i++) {
+        if (curveData[i - 1].logS >= 0 && curveData[i].logS < 0) {
+            const f1 = Math.log10(curveData[i - 1].freq), f2 = Math.log10(curveData[i].freq);
+            const s1 = curveData[i - 1].logS, s2 = curveData[i].logS;
+            const cutoff = Math.pow(10, f1 + (0 - s1) / (s2 - s1) * (f2 - f1));
+            snellenStr = '20/' + Math.round(20 * 30 / cutoff);
+            break;
+        }
+    }
+
     tx({
         type: 'results',
         score: result.aulcsf.toFixed(2),
         rank: result.rank,
         detail: result.detail,
         plotDataUrl: plotUrl,
-        curve: result.curve || [],
-        history: engine.history.map(h => ({
-            stimIndex: h.stimIndex, correct: h.correct,
-            freq: engine.stimGrid[h.stimIndex].freq,
-            logContrast: engine.stimGrid[h.stimIndex].logContrast
-        }))
+        snellen: snellenStr,
+        peakSens: Math.round(Math.pow(10, result.params.peakGain)),
+        peakFreq: result.params.peakFreq.toFixed(1),
+        landmarks: lmResults,
+        passCount: lmResults.filter(l => l.pass).length,
+        totalLandmarks: lmResults.length,
     });
 }

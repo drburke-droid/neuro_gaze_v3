@@ -33,14 +33,14 @@
  */
 
 const LANDMARKS = [
-    { name: 'Exit sign (day)',       freq: 10, sens: 2,   pair: 'sign' },
-    { name: 'Exit sign (night)',     freq: 10, sens: 30,  pair: 'sign' },
-    { name: 'Golf ball on grass',    freq: 14, sens: 4,   pair: 'golf' },
-    { name: 'Golf ball, cloudy sky', freq: 14, sens: 18,  pair: 'golf' },
-    { name: 'Pedestrian (day)',      freq: 6,  sens: 2,   pair: 'ped'  },
-    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 25,  pair: 'ped'  },
-    { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,   pair: 'car'  },
-    { name: 'Tail-lights (fog)',     freq: 4,  sens: 16,  pair: 'car'  },
+    { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign' },
+    { name: 'Exit sign (night)',     freq: 10, sens: 80,   pair: 'sign' },
+    { name: 'Golf ball on grass',    freq: 14, sens: 4,    pair: 'golf' },
+    { name: 'Golf ball, cloudy sky', freq: 14, sens: 60,   pair: 'golf' },
+    { name: 'Pedestrian (day)',      freq: 6,  sens: 2,    pair: 'ped'  },
+    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 70,   pair: 'ped'  },
+    { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,    pair: 'car'  },
+    { name: 'Tail-lights (fog)',     freq: 4,  sens: 50,   pair: 'car'  },
 ];
 
 const PAIR_COLORS = {
@@ -241,12 +241,15 @@ export function drawCSFPlot(canvas, engine, params) {
         if (x >= pad.left && x <= pad.left + pW)
             ctx.fillText(String(f), x, pad.top + pH + 20);
     });
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.font = '500 12px "DM Sans", sans-serif';
-    ctx.fillText('Spatial Frequency (cpd)', W / 2, pad.top + pH + 38);
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.font = '10px "DM Sans", sans-serif';
-    ctx.fillText('Level of Detail', W / 2, pad.top + pH + 52);
+    // Primary label
+    ctx.fillStyle = 'rgba(255,255,255,0.50)';
+    ctx.font = '500 13px "DM Sans", sans-serif';
+    ctx.fillText('Level of Detail', W / 2, pad.top + pH + 38);
+    // Secondary scientific label
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillText('Spatial Frequency (cpd)', W / 2, pad.top + pH + 52);
+    // Range
     ctx.font = '500 9px "JetBrains Mono", monospace';
     ctx.fillStyle = 'rgba(255,255,255,0.18)';
     ctx.textAlign = 'left';
@@ -263,13 +266,40 @@ export function drawCSFPlot(canvas, engine, params) {
         if (y >= pad.top && y <= pad.top + pH)
             ctx.fillText(String(s), pad.left - 12, y + 4);
     });
+    // Primary label (rotated)
     ctx.save();
     ctx.translate(20, H / 2 - 10);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.font = '500 12px "DM Sans", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.50)';
+    ctx.font = '500 13px "DM Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Boldness', 0, 0);
+    ctx.restore();
+    // Secondary scientific label
+    ctx.save();
+    ctx.translate(34, H / 2 - 10);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Sensitivity (1/contrast)', 0, 0);
+    ctx.restore();
+    // Range labels
+    ctx.save();
+    ctx.translate(8, pad.top + pH - 4);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.font = '500 8px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('Black on White', 0, 0);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(8, pad.top + 4);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.font = '500 8px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('Gray on Gray', 0, 0);
     ctx.restore();
 
     // ── Plot border ──

@@ -156,7 +156,8 @@ const TUT = [
     { angle: 0,   key: 'up',      arrow: '\u2191', name: 'Vertical' },
     { angle: 90,  key: 'right',   arrow: '\u2192', name: 'Horizontal' },
     { angle: 45,  key: 'upright', arrow: '\u2197', name: 'Right Tilt' },
-    { angle: 135, key: 'upleft',  arrow: '\u2196', name: 'Left Tilt' } 
+    { angle: 135, key: 'upleft',  arrow: '\u2196', name: 'Left Tilt' },
+    { angle: -1,  key: 'none',    arrow: 'Ø',       name: 'No Target' } 
 ];
 let tutStep = 0;
 

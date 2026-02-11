@@ -112,6 +112,7 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 <div class="tut-row">
 <div class="tut-btn dim" id="tb-right" onclick="tutTap('right')" style="max-width:45%;margin:0 auto"><span class="arrow">&#8594;</span><span class="lbl">Horiz</span></div>
 </div>
+<div class="tut-no dim" id="tb-none" onclick="tutTap('none')">No Target</div>
 </div>
 <div class="tut-dots" id="tdots"></div>
 <div class="tut-inst" id="tinst">Look at the display</div>
@@ -289,13 +290,13 @@ function renderTutStep(d){
     document.getElementById('ttl').textContent='Demo '+(d.stepIdx+1)+' of '+d.total;
     document.getElementById('tsub').textContent=d.stepIdx<d.total-1?'Press '+d.arrow+' '+d.name:'Complete this step to begin';
 
-    var allIds=['tb-upleft','tb-up','tb-upright','tb-right'];
+    var allIds=['tb-upleft','tb-up','tb-upright','tb-right','tb-none'];
     allIds.forEach(function(id){
         var el=document.getElementById(id);
         el.classList.remove('hl');
         el.classList.add('dim');
     });
-    var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right'};
+    var map={upleft:'tb-upleft',up:'tb-up',upright:'tb-upright',right:'tb-right',none:'tb-none'};
     var t=document.getElementById(map[d.key]);
     if(t){t.classList.remove('dim');t.classList.add('hl')}
 

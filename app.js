@@ -231,7 +231,9 @@ window.startTest = function() {
     const ppm = parseFloat(ss.value) / CARD_W_MM;
     const effDist = isMirror ? distToMm() * 2 : distToMm();
     window._cal = { pxPerMm: ppm, distMm: effDist, midPoint: parseInt(gs.value), isMirror };
-    if (isMirror) document.getElementById('mirror-target').classList.add('mirror-flip');
+    const mirrorTarget = document.getElementById('mirror-target');
+    if (isMirror) mirrorTarget.classList.add('mirror-flip');
+    else mirrorTarget.classList.remove('mirror-flip');
 
     mode = createMode('gabor'); mode.generate();
     engine = new QCSFEngine({ numAFC: mode.numAFC, psychometricSlope: mode.psychometricSlope });
@@ -300,6 +302,12 @@ function finish() {
     catch (e) { result = { aulcsf: 0, rank: 'ERROR', detail: '', params: null, curve: [] }; }
 
     showScreen('scr-results');
+    const resultScreen = document.getElementById('scr-results');
+    const resultContent = document.getElementById('result-content');
+    resultScreen.classList.add('results-boost');
+    if (isMirror) resultContent.classList.add('mirrored');
+    else resultContent.classList.remove('mirrored');
+
     document.getElementById('final-auc').innerText = result.aulcsf.toFixed(2);
     document.getElementById('final-rank').innerText = result.rank;
     document.getElementById('final-detail').innerText = result.detail;

@@ -55,9 +55,11 @@ const DEFAULTS = {
     peakFreqValues:     [0.8, 1.2, 1.8, 2.5, 3.5, 5, 7, 10, 14, 18],
     bandwidthValues:    [0.8, 1.05, 1.3, 1.6, 1.95],
     truncationValues:   [1.0, 1.4, 1.8, 2.2, 2.6],
-    stimFreqs:          [0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 12, 16, 24],
+    stimFreqs:          [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 8, 12, 16, 24],
     stimLogContrasts:   linspace(-3.0, 0.0, 30),
     robustLikelihoodMix: 0.03,
+    boundarySigmaLogC:  0.2,
+    lowMidFreqBoost:    1.35,
 };
 
 export class QCSFEngine {
@@ -70,6 +72,8 @@ export class QCSFEngine {
         this.lapse      = cfg.lapse;
         this.slopeParam = cfg.psychometricSlope;
         this.robustLikelihoodMix = cfg.robustLikelihoodMix;
+        this.boundarySigmaLogC = cfg.boundarySigmaLogC;
+        this.lowMidFreqBoost = cfg.lowMidFreqBoost;
 
         // Parameter grid
         this.paramGrid = [];
@@ -122,6 +126,7 @@ export class QCSFEngine {
     }
 
     selectStimulus() {
+        const pHat = this.getExpectedEstimate();
         const ee = new Float64Array(this.nStim);
         for (let s = 0; s < this.nStim; s++) {
             let pCorr = 0;
@@ -143,7 +148,15 @@ export class QCSFEngine {
                     if (n > 1e-30) hI -= n * Math.log2(n);
                 }
             }
-            ee[s] = pCorr * hC + pInc * hI;
+            // Prefer stimuli close to the posterior-predicted threshold boundary.
+            // This keeps testing near the expected contour while still maximizing
+            // information gain over the full posterior.
+            const stim = this.stimGrid[s];
+            const predictedBoundaryLogC = -this.evaluateCSF(stim.freq, pHat);
+            const boundaryDelta = stim.logContrast - predictedBoundaryLogC;
+            const boundaryWeight = Math.exp(-0.5 * Math.pow(boundaryDelta / this.boundarySigmaLogC, 2));
+            const midFreqWeight = (stim.freq >= 1 && stim.freq <= 5) ? this.lowMidFreqBoost : 1.0;
+            ee[s] = (pCorr * hC + pInc * hI) * (1 + boundaryWeight) * midFreqWeight;
         }
 
         const sorted = Array.from(ee).map((e, i) => ({ e, i })).sort((a, b) => a.e - b.e);

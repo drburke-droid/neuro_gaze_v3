@@ -28,8 +28,8 @@ let host = null, phoneConnected = false, isMirror = false;
 // Auto-advance: two-phase intro — text cross-fade, then dot morphs to QR
 setTimeout(() => {
     document.getElementById('scr-qr').classList.add('phase-ready');
-    setTimeout(() => document.getElementById('scr-qr').classList.add('phase-qr'), 1400);
-}, 6200);
+    setTimeout(() => document.getElementById('scr-qr').classList.add('phase-qr'), 5000);
+}, 5000);
 
 function initPeer() {
     if (typeof Peer === 'undefined') {

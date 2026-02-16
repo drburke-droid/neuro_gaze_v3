@@ -24,16 +24,9 @@ function showScreen(id) {
 window.showScreen = showScreen;
 
 let host = null, phoneConnected = false, isMirror = false;
-const pageLoadTime = performance.now();
 
-// Switch QR dot from fade-in to breathing after initial animation
-setTimeout(() => {
-    const qrEl = document.getElementById('qrcode');
-    if (qrEl && qrEl.classList.contains('phase-dot')) {
-        qrEl.classList.remove('phase-dot');
-        qrEl.classList.add('phase-breathe');
-    }
-}, 900);
+// Auto-advance from welcome splash to QR screen
+setTimeout(() => showScreen('scr-qr'), 3500);
 
 function initPeer() {
     if (typeof Peer === 'undefined') {
@@ -45,23 +38,13 @@ function initPeer() {
             const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
             const url = `${location.origin}${dir}/tablet.html?id=${id}`;
             document.getElementById('qr-debug').textContent = id;
-
-            // Phased QR reveal: wait at least 2500ms from page load for breathing dot
-            const elapsed = performance.now() - pageLoadTime;
-            const delay = Math.max(0, 2500 - elapsed);
-            setTimeout(() => {
-                const qrEl = document.getElementById('qrcode');
-                qrEl.style.opacity = '0';
-                qrEl.classList.remove('phase-dot', 'phase-breathe');
-                qrEl.innerHTML = '';
-                qrEl.classList.add('phase-qr');
-                if (typeof QRCode !== 'undefined') {
-                    new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
-                } else {
-                    qrEl.innerHTML = `<a href="${url}" style="font-size:.5rem;word-break:break-all;max-width:260px;color:#00ffcc">${url}</a>`;
-                }
-                requestAnimationFrame(() => { qrEl.style.opacity = '1'; });
-            }, delay);
+            const qrEl = document.getElementById('qrcode');
+            qrEl.innerHTML = '';
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
+            } else {
+                qrEl.innerHTML = `<a href="${url}" style="font-size:.5rem;word-break:break-all;max-width:260px;color:#00ffcc">${url}</a>`;
+            }
         },
         () => {
             phoneConnected = true;
@@ -97,6 +80,7 @@ function handlePhoneMessage(d) {
 }
 
 window.skipPhone = function() {
+    document.getElementById('scr-welcome').classList.remove('active');
     document.getElementById('card-local').style.display = 'block';
     document.getElementById('card-remote').style.display = 'none';
     document.getElementById('gamma-local').style.display = 'block';

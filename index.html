@@ -6,10 +6,16 @@
 <title>Burke Vision Lab</title><link rel="stylesheet" href="main.css">
 </head><body>
 
-<div id="scr-qr" class="screen active">
+<div id="scr-welcome" class="screen active">
+<div class="welcome-greeting">Welcome.</div>
+<div class="welcome-prompt">Have your phone nearby and get comfortable.</div>
+<div class="welcome-dot"></div>
+</div>
+
+<div id="scr-qr" class="screen">
 <div class="welcome-title">Ready to test<br>your vision?</div>
-<div class="welcome-sub">Scan with your phone to get started</div>
-<div id="qrcode" class="phase-dot"></div>
+<div class="welcome-sub">This screen displays the test. Your phone is the response pad.</div>
+<div id="qrcode"></div>
 <button class="qr-skip" onclick="skipPhone()">Use Keyboard Instead</button>
 <div class="qr-debug" id="qr-debug"></div>
 </div>

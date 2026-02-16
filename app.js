@@ -25,28 +25,8 @@ window.showScreen = showScreen;
 
 let host = null, phoneConnected = false, isMirror = false;
 
-// Auto-advance: content fades out, then instant swap (no screen crossfade = no flash)
-setTimeout(() => document.getElementById('scr-welcome').classList.add('fading'), 6200);
-setTimeout(() => {
-    const welcome = document.getElementById('scr-welcome');
-    const qr = document.getElementById('scr-qr');
-    // Instant swap — both screens share the same dark bg, so no flash
-    welcome.style.transition = 'none';
-    qr.style.transition = 'none';
-    welcome.classList.remove('active');
-    qr.classList.add('active');
-    // Re-trigger QR content animations for staggered reveal
-    qr.querySelectorAll('.welcome-title,.welcome-sub,#qrcode,.qr-skip').forEach(el => {
-        el.style.animation = 'none';
-    });
-    requestAnimationFrame(() => {
-        welcome.style.transition = '';
-        qr.style.transition = '';
-        qr.querySelectorAll('.welcome-title,.welcome-sub,#qrcode,.qr-skip').forEach(el => {
-            el.style.animation = '';
-        });
-    });
-}, 7000);
+// Auto-advance: swap welcome content for QR content (same screen, no flash)
+setTimeout(() => document.getElementById('scr-qr').classList.add('phase-ready'), 6200);
 
 function initPeer() {
     if (typeof Peer === 'undefined') {
@@ -100,7 +80,6 @@ function handlePhoneMessage(d) {
 }
 
 window.skipPhone = function() {
-    document.getElementById('scr-welcome').classList.remove('active');
     document.getElementById('card-local').style.display = 'block';
     document.getElementById('card-remote').style.display = 'none';
     document.getElementById('gamma-local').style.display = 'block';

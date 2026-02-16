@@ -28,7 +28,7 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 .welcome-greeting{font-size:clamp(4rem,10vw,7rem);font-weight:200;line-height:1.1;letter-spacing:-.02em;opacity:0;animation:fadeOnly var(--settle) var(--ez) .15s forwards}
 .welcome-prompt{font-size:clamp(.8rem,1.4vw,1.1rem);color:var(--t2);max-width:400px;line-height:1.5;font-weight:300;letter-spacing:.5px;margin-top:16px;opacity:0;animation:fadeOnly var(--settle) var(--ez) .6s forwards}
 .welcome-dot{width:48px;height:48px;border-radius:50%;background:#fff;margin-top:32px;opacity:0;animation:fadeOnly .5s var(--ez-out) 1s forwards,breathe 1.6s ease-in-out 1s infinite}
-.welcome-title{font-size:clamp(2.8rem,7vw,5rem);font-weight:200;line-height:1.15;max-width:700px;letter-spacing:-.02em;margin-bottom:12px;opacity:0}
+.welcome-title{font-size:clamp(2.8rem,7vw,5rem);font-weight:200;line-height:1.15;letter-spacing:-.02em;margin-bottom:12px;opacity:0;white-space:nowrap}
 .welcome-sub{font-size:clamp(.75rem,1.2vw,.95rem);color:var(--t2);max-width:360px;line-height:1.5;font-weight:300;letter-spacing:.5px;margin-bottom:24px;opacity:0}
 #qrcode{background:#fff;padding:18px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);margin-bottom:20px;opacity:0}
 .qr-skip{background:transparent;color:var(--t3);border:1px solid var(--b);padding:10px 28px;border-radius:100px;cursor:pointer;font-family:var(--f);font-size:.7rem;letter-spacing:.5px;opacity:0;transition:border-color .3s var(--ez),color .3s var(--ez),background .3s var(--ez),transform .15s var(--ez-spring)}

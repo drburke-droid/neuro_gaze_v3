@@ -24,6 +24,8 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 .welcome-greeting{font-size:clamp(4rem,10vw,7rem);font-weight:200;line-height:1.1;letter-spacing:-.02em;position:relative;z-index:1;opacity:0;animation:fadeOnly var(--settle) var(--ez) .15s forwards}
 .welcome-prompt{font-size:clamp(.8rem,1.4vw,1.1rem);color:var(--t2);max-width:400px;line-height:1.5;font-weight:300;letter-spacing:.5px;position:relative;z-index:1;margin-top:16px;opacity:0;animation:fadeOnly var(--settle) var(--ez) .6s forwards}
 .welcome-dot{width:48px;height:48px;border-radius:50%;background:#fff;position:relative;z-index:1;margin-top:32px;opacity:0;animation:fadeOnly .5s var(--ez-out) 1s forwards,breathe 1.6s ease-in-out 1s infinite}
+#scr-welcome:not(.active){transition:opacity 1s var(--ez-out),visibility 0s 1s,transform 1s var(--ez)}
+#scr-welcome.fading .welcome-greeting,#scr-welcome.fading .welcome-prompt,#scr-welcome.fading .welcome-dot{animation:fadeOut .8s var(--ez-out) forwards}
 
 /* ═══ Welcome / QR — Hero Layout ═══ */
 #scr-qr{background:linear-gradient(170deg,#0c0c10 0%,#080810 50%,#0a0a12 100%);z-index:100;gap:0;text-align:center;padding:40px 30px;overflow:hidden}

@@ -25,7 +25,8 @@ window.showScreen = showScreen;
 
 let host = null, phoneConnected = false, isMirror = false;
 
-// Auto-advance from welcome splash to QR screen
+// Auto-advance: fade out welcome content, then crossfade to QR screen
+setTimeout(() => document.getElementById('scr-welcome').classList.add('fading'), 6200);
 setTimeout(() => showScreen('scr-qr'), 7000);
 
 function initPeer() {

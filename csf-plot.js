@@ -2,31 +2,40 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
 
 /**
  * Burke Vision Lab — CSF Plot (v7 — AAA Quality)
- * 
+ *
  * Accurate real-world landmark pairs + predicted Snellen acuity.
- * 
+ *
  * LANDMARK CALCULATIONS (all long-distance scenarios):
  *
- * 1. Highway Exit Sign — FHWA Series E(Modified) 16" uppercase
+ * 1. Vehicle (whole car) at 400 m — body width ~1.8 m
+ *    Angle = atan(1.8/400) = 0.258 deg → cpd = 0.5/0.258 = ~2 cpd
+ *    CLEAR DAY: dark car on light road, Michelson ~0.50 → sens ~2
+ *    FOG (visibility ~500 m, Koschmieder): contrast × exp(-3×400/500) ≈ 0.05 → sens ~20
+ *
+ * 2. Pedestrian at 100 m — limb feature ~15 cm
+ *    Feature angle = atan(0.15/100) = 0.086 deg → cpd = 0.5/0.086 = ~6 cpd
+ *    DAYLIGHT: dark clothing on light pavement, Michelson ~0.50 → sens ~2
+ *    DUSK/RAIN: dark on dark road, Michelson ~0.03 → sens ~33
+ *    (Sullivan & Flannagan 2002; Tyrrell et al. 2004)
+ *
+ * 3. Highway Exit Sign — FHWA Series E(Modified) 16" uppercase
  *    Reading at 250 ft (76 m): letter angle = atan(0.406/76) = 0.306 deg
  *    Critical SF for letter ID = 3 cycles/letter / 0.306 = ~10 cpd
- *    DAY: White on retroreflective green, Michelson ~0.85 → sens ~1.2 → plot 2
- *     NIGHT (worn sheeting): contrast ~0.03 → sens ~140
+ *    (Solomon & Pelli 1994, Nature 369: ~3 cycles/letter for identification)
+ *    DAY: White on retroreflective green, Michelson ~0.85 → sens ~2
+ *    NIGHT (worn sheeting + rain): contrast ~0.03 → sens ~33
+ *    (FHWA-HRT-07-040; Carlson & Hawkins 2003)
  *
- * 2. Golf Ball at 150 yd (137 m) — diam 42.7 mm
- *    Angle = atan(0.0427/137.16) = 0.0178 deg → cpd = 0.5/0.0178 = ~28 cpd
- *    ON GRASS: moderate luminance split, contrast ~0.50 → sens ~2
- *    CLOUDY SKY: white vs overcast grey, contrast ~0.10 → sens ~10
+ * 4. License Plate at 25 m (82 ft, ~5 car lengths) — characters 70 mm tall
+ *    Letter angle = atan(0.070/25) = 0.160 deg → cpd = 3/0.160 = ~18 cpd
+ *    (AASHTO standard: 70 mm character height)
+ *    DAY: dark on white/light plate, Michelson ~0.88 → sens ~2
+ *    NIGHT/RAIN: glare + wet + dirty plate, Michelson ~0.06 → sens ~16
  *
- * 3. Pedestrian at 100 m — limb feature ~15 cm
- *    Feature angle = atan(0.15/100) = 0.086 deg → cpd = 1/(2*0.086) = ~6 cpd
- *    DAYLIGHT: dark on light pavement, contrast ~0.50 → sens ~2
- *    DUSK: dark on dark road, contrast ~0.03 → sens ~170
- *
- * 4. Vehicle Tail-lights at 500 m — pair separation ~1 m
- *    Angle = atan(1.0/500) = 0.115 deg → cpd = 1/(2*0.115) = ~4 cpd
- *    CLEAR: red lights on body color, contrast ~0.30 → sens ~3
- *    FOG: scattered, contrast ~0.03 → sens ~160
+ * 5. Golf Ball at 150 yd (137 m) — diam 42.67 mm (USGA minimum)
+ *    Angle = atan(0.04267/137.16) = 0.0178 deg → cpd = 0.5/0.0178 = ~28 cpd
+ *    ON GRASS: white on green, Michelson ~0.50 → sens ~2
+ *    CLOUDY SKY: white vs overcast grey, Michelson ~0.10 → sens ~10
  *
  * SNELLEN ACUITY:
  *    20/20 letter = 5 arcmin, stroke = 1 arcmin → critical SF ~30 cpd
@@ -35,21 +44,24 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
  */
 
 const LANDMARKS = [
-    { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign' },
-    { name: 'Exit sign (night)',     freq: 10, sens: 140,   pair: 'sign' },
-    { name: 'Golf ball on grass',    freq: 28, sens: 2,    pair: 'golf' },
-    { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,   pair: 'golf' },
-    { name: 'Pedestrian (day)',      freq: 6,  sens: 2,    pair: 'ped'  },
-    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 170,   pair: 'ped'  },
-    { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,    pair: 'car'  },
-    { name: 'Tail-lights (fog)',     freq: 4,  sens: 160,   pair: 'car'  },
+    { name: 'Car (clear)',           freq: 2,  sens: 2,    pair: 'car'   },
+    { name: 'Car (fog)',             freq: 2,  sens: 20,   pair: 'car'   },
+    { name: 'Pedestrian (day)',      freq: 6,  sens: 2,    pair: 'ped'   },
+    { name: 'Pedestrian (dusk)',     freq: 6,  sens: 33,   pair: 'ped'   },
+    { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign'  },
+    { name: 'Exit sign (night)',     freq: 10, sens: 33,   pair: 'sign'  },
+    { name: 'Plate (day)',           freq: 18, sens: 2,    pair: 'plate' },
+    { name: 'Plate (night)',         freq: 18, sens: 16,   pair: 'plate' },
+    { name: 'Golf ball on grass',    freq: 28, sens: 2,    pair: 'golf'  },
+    { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,   pair: 'golf'  },
 ];
 
 const PAIR_COLORS = {
-    sign: '#5B9CF5',
-    golf: '#F5A623',
-    ped:  '#FF6B6B',
-    car:  '#A78BFA',
+    car:   '#A78BFA',
+    ped:   '#FF6B6B',
+    sign:  '#5B9CF5',
+    plate: '#F59E0B',
+    golf:  '#F5A623',
 };
 
 export function drawCSFPlot(canvas, engine, params) {
@@ -373,7 +385,7 @@ export function drawCSFPlot(canvas, engine, params) {
     ctx.textAlign = 'left';
     let row = 0;
     Object.entries(PAIR_COLORS).forEach(([key, col]) => {
-        const labels = { sign: 'Exit Sign', golf: 'Golf Ball', ped: 'Pedestrian', car: 'Tail-lights' };
+        const labels = { car: 'Vehicle', ped: 'Pedestrian', sign: 'Exit Sign', plate: 'License Plate', golf: 'Golf Ball' };
         ctx.fillStyle = col;
         ctx.globalAlpha = 0.5;
         ctx.fillRect(legX, legY + row * 13, 8, 8);

@@ -337,14 +337,16 @@ function finish() {
     // Build rich results with per-landmark assessments
     const lmResults = [];
     const landmarks = [
+        { name: 'Car (clear)',           freq: 2,  sens: 2,   context: 'Detecting a vehicle at 400 m on a clear day' },
+        { name: 'Car (fog)',             freq: 2,  sens: 20,  context: 'Detecting a vehicle at 400 m in fog' },
+        { name: 'Pedestrian (day)',      freq: 6,  sens: 2,   context: 'Seeing a person at 100 m in daylight' },
+        { name: 'Pedestrian (dusk)',     freq: 6,  sens: 33,  context: 'Detecting a person at dusk on a dark road' },
         { name: 'Exit sign (day)',       freq: 10, sens: 2,   context: 'Reading highway signs at 250 ft' },
-       { name: 'Exit sign (night)',     freq: 10, sens: 33,  context: 'Worn road signs at night' },
+        { name: 'Exit sign (night)',     freq: 10, sens: 33,  context: 'Reading worn road signs at night in rain' },
+        { name: 'Plate (day)',           freq: 18, sens: 2,   context: 'Reading a license plate at 25 m in daylight' },
+        { name: 'Plate (night)',         freq: 18, sens: 16,  context: 'Reading a license plate at 25 m in rain at night' },
         { name: 'Golf ball on grass',    freq: 28, sens: 2,   context: 'Tracking ball on fairway at 150 yd' },
         { name: 'Golf ball, cloudy sky', freq: 28, sens: 10,  context: 'Spotting ball against overcast sky at 150 yd' },
-        { name: 'Pedestrian (day)',      freq: 6,  sens: 2,   context: 'Seeing a person at 100 m in daylight' },
-        { name: 'Pedestrian (dusk)',     freq: 6,  sens: 34,  context: 'Detecting a person at dusk on a dark road' },
-        { name: 'Tail-lights (clear)',   freq: 4,  sens: 3,   context: 'Vehicle ahead at 500 m in clear weather' },
-        { name: 'Tail-lights (fog)',     freq: 4,  sens: 30,  context: 'Vehicle ahead at 500 m in fog' },
     ];
     landmarks.forEach(lm => {
         const yourSens = Math.pow(10, engine.evaluateCSF(lm.freq, result.params));

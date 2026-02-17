@@ -113,18 +113,23 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .res-stat{flex:1;padding:clamp(8px,2vw,14px) clamp(4px,1.5vw,8px);border-radius:12px;border:1px solid var(--b);background:rgba(255,255,255,.02);text-align:center;transition:border-color .3s}
 .rs-val{font-family:var(--m);font-size:clamp(.85rem,3vw,1.2rem);font-weight:600;color:var(--a)}
 .rs-lbl{font-size:.55rem;color:var(--t3);margin-top:2px;letter-spacing:.5px}
-.res-section-title{font-family:var(--m);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--t2);margin:8px 0 4px;width:100%;text-align:center;opacity:0;animation:settleUp var(--settle) var(--ez) .6s forwards}
-.res-lm-list{width:100%;display:flex;flex-direction:column;gap:4px}
-.res-lm{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--b);background:rgba(255,255,255,.01);opacity:0;animation:settleUp .45s var(--ez) forwards}
-.lm-icon{font-size:clamp(.9rem,3vw,1.2rem);width:clamp(20px,6vw,28px);text-align:center;flex-shrink:0}
-.lm-pass .lm-icon{color:#34d399}.lm-fail .lm-icon{color:var(--e)}
+.res-vision-sections{width:100%;display:flex;flex-direction:column;gap:10px;opacity:0;animation:settleUp var(--settle) var(--ez) .6s forwards}
+.res-section{width:100%;border-radius:12px;border:1px solid var(--b);overflow:hidden}
+.res-section.can-see{border-color:rgba(52,211,153,.15);background:rgba(52,211,153,.03)}
+.res-section.difficult{border-color:rgba(255,69,58,.15);background:rgba(255,69,58,.03)}
+.res-section-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px 6px;font-family:var(--m);font-size:.6rem;letter-spacing:2px;text-transform:uppercase}
+.can-see .res-section-hdr{color:#34d399}
+.difficult .res-section-hdr{color:var(--e)}
+.res-section-hdr .sec-icon{font-size:.85rem}
+.res-section-hdr .sec-count{margin-left:auto;font-size:.55rem;opacity:.6}
+.res-lm-list{display:flex;flex-direction:column;gap:0}
+.res-lm{display:flex;align-items:center;gap:10px;padding:7px 12px;border-top:1px solid rgba(255,255,255,.04);opacity:0;animation:settleUp .4s var(--ez) forwards}
+.lm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.can-see .lm-dot{background:#34d399}
+.difficult .lm-dot{background:var(--e)}
 .lm-info{flex:1;min-width:0}
-.lm-name{font-size:clamp(.62rem,2vw,.78rem);font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lm-ctx{font-size:.52rem;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lm-score{text-align:right;flex-shrink:0}
-.lm-yours{font-family:var(--m);font-size:clamp(.7rem,2.5vw,.92rem);font-weight:600;color:var(--t1)}
-.lm-need{font-size:.48rem;color:var(--t3)}
-.lm-pass .lm-need{color:rgba(52,211,153,.6)}.lm-fail .lm-need{color:rgba(255,69,58,.6)}
+.lm-name{font-size:clamp(.62rem,2vw,.76rem);font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lm-ctx{font-size:.5rem;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .res-plot{width:100%;max-width:380px;border-radius:8px;margin:8px 0;opacity:0;animation:settleUp var(--settle) var(--ez) .8s forwards}
 .res-actions{display:flex;gap:10px;margin-top:6px;opacity:0;animation:settleUp var(--settle) var(--ez) .9s forwards}
 .res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--f);-webkit-tap-highlight-color:transparent;touch-action:manipulation;will-change:transform;transition:transform .12s var(--ez-spring),background .2s,border-color .2s,color .2s,box-shadow .2s}
@@ -401,27 +406,42 @@ function showResults(d){
         +'<div class="res-stat"><div class="rs-val">'+(d.peakFreq||'--')+' cpd</div><div class="rs-lbl">Peak Frequency</div></div>'
         +'</div>';
 
-    // Landmark scorecard
+    // Vision sections — "You Can See" and "Would Be Difficult"
     if(d.landmarks&&d.landmarks.length){
-        var passed=d.passCount||0,total=d.totalLandmarks||d.landmarks.length;
-        c.innerHTML+='<div class="res-section-title">Real-World Vision Score: '+passed+' / '+total+'</div>';
-        var html='<div class="res-lm-list">';
-        d.landmarks.forEach(function(lm,idx){
-            var icon=lm.pass?'\u2713':'\u2717';
-            var cls=lm.pass?'lm-pass':'lm-fail';
-            var delay=(.65+idx*.06).toFixed(2);
-            html+='<div class="res-lm '+cls+'" style="animation-delay:'+delay+'s">'
-                +'<div class="lm-icon">'+icon+'</div>'
-                +'<div class="lm-info">'
-                +'<div class="lm-name">'+lm.name+'</div>'
-                +'<div class="lm-ctx">'+lm.context+'</div>'
-                +'</div>'
-                +'<div class="lm-score">'
-                +'<div class="lm-yours">'+lm.yours+'</div>'
-                +'<div class="lm-need">'+(lm.pass?lm.margin+'x margin':'need '+lm.needed)+'</div>'
-                +'</div>'
-                +'</div>';
-        });
+        var canSee=d.landmarks.filter(function(l){return l.pass});
+        var hard=d.landmarks.filter(function(l){return !l.pass});
+        var html='<div class="res-vision-sections">';
+        if(canSee.length){
+            html+='<div class="res-section can-see">'
+                +'<div class="res-section-hdr"><span class="sec-icon">\u2713</span>You Can See<span class="sec-count">'+canSee.length+'</span></div>'
+                +'<div class="res-lm-list">';
+            canSee.forEach(function(lm,idx){
+                var delay=(.65+idx*.04).toFixed(2);
+                html+='<div class="res-lm" style="animation-delay:'+delay+'s">'
+                    +'<div class="lm-dot"></div>'
+                    +'<div class="lm-info">'
+                    +'<div class="lm-name">'+lm.name+'</div>'
+                    +'<div class="lm-ctx">'+lm.context+'</div>'
+                    +'</div></div>';
+            });
+            html+='</div></div>';
+        }
+        if(hard.length){
+            var hardDelay=canSee.length*.04+.65;
+            html+='<div class="res-section difficult">'
+                +'<div class="res-section-hdr"><span class="sec-icon">\u2717</span>Would Be Difficult<span class="sec-count">'+hard.length+'</span></div>'
+                +'<div class="res-lm-list">';
+            hard.forEach(function(lm,idx){
+                var delay=(hardDelay+idx*.04).toFixed(2);
+                html+='<div class="res-lm" style="animation-delay:'+delay+'s">'
+                    +'<div class="lm-dot"></div>'
+                    +'<div class="lm-info">'
+                    +'<div class="lm-name">'+lm.name+'</div>'
+                    +'<div class="lm-ctx">'+lm.context+'</div>'
+                    +'</div></div>';
+            });
+            html+='</div></div>';
+        }
         html+='</div>';
         c.innerHTML+=html;
     }
@@ -446,13 +466,20 @@ function getRText(){
     t+='Predicted Acuity: '+(resultData.snellen||'--')+'\n';
     t+='Peak Sensitivity: '+(resultData.peakSens||'--')+' @ '+(resultData.peakFreq||'--')+' cpd\n\n';
     if(resultData.landmarks){
-        t+='Real-World Vision Assessment\n';
-        t+='----------------------------\n';
-        resultData.landmarks.forEach(function(lm){
-            t+=(lm.pass?'PASS':'FAIL')+' | '+lm.name+' (yours: '+lm.yours+', need: '+lm.needed+')\n';
-            t+='      '+lm.context+'\n';
-        });
-        t+='\nPassed: '+resultData.passCount+' / '+resultData.totalLandmarks+'\n';
+        var canSee=resultData.landmarks.filter(function(l){return l.pass});
+        var hard=resultData.landmarks.filter(function(l){return !l.pass});
+        if(canSee.length){
+            t+='You Can See ('+canSee.length+')\n';
+            t+='----------------------------\n';
+            canSee.forEach(function(lm){t+='  '+lm.name+' — '+lm.context+'\n'});
+            t+='\n';
+        }
+        if(hard.length){
+            t+='Would Be Difficult ('+hard.length+')\n';
+            t+='----------------------------\n';
+            hard.forEach(function(lm){t+='  '+lm.name+' — '+lm.context+'\n'});
+            t+='\n';
+        }
     }
     t+='\nDate: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
     return t;

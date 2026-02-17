@@ -26,14 +26,25 @@ import { MAX_HUMAN_CUTOFF_CPD } from './qcsf-engine.js';
  *    NIGHT (worn sheeting + rain): contrast ~0.03 → sens ~33
  *    (FHWA-HRT-07-040; Carlson & Hawkins 2003)
  *
- * 4. Golf Ball at 100 yd (91.4 m) — diam 42.67 mm (USGA minimum)
- *    Angle = atan(0.04267/91.44) = 0.0267 deg → cpd = 0.5/0.0267 = ~18 cpd
+ * 4. Golf Ball at 150 yd (137 m) — diam 42.67 mm (USGA minimum)
+ *    Grating-equivalent: atan(0.04267/137.16) = 0.0178 deg → 0.5/0.0178 = 28 cpd
+ *    BUT detection ≠ resolution. The ball is a broadband target — its Fourier
+ *    energy is nearly flat up to ~56 cpd. The visual system detects it through
+ *    peak-sensitivity channels, not at the grating-equivalent frequency.
+ *    Retinal image (convolved with eye's PSF): σ ≈ 0.011 deg → spectral
+ *    energy 1/e at ~15 cpd. Optimal detection channel (max of CSF × target
+ *    energy) ≈ 8 cpd — near the CSF peak where sensitivity is highest.
+ *    This is why bright isolated objects are visible far beyond the resolution
+ *    limit: detection acuity >> resolution acuity.
+ *    EFFECTIVE DETECTION FREQ: ~8 cpd
  *    ON GRASS: white on green, Michelson ~0.50 → sens ~2
  *    CLOUDY SKY: white vs overcast grey, Michelson ~0.10 → sens ~10
  *
  * 5. License Plate at 35 m (115 ft, ~7 car lengths) — characters 70 mm tall
  *    Letter angle = atan(0.070/35) = 0.115 deg → cpd = 3/0.115 = ~26 cpd
  *    (AASHTO standard: 70 mm character height)
+ *    This IS an identification task (reading characters), so 3 cycles/letter
+ *    from Solomon & Pelli applies directly — no detection correction needed.
  *    DAY: dark on white/light plate, Michelson ~0.88 → sens ~2
  *    NIGHT/RAIN: glare + wet + dirty plate, Michelson ~0.04 → sens ~25
  *
@@ -50,8 +61,8 @@ const LANDMARKS = [
     { name: 'Pedestrian (dusk)',     freq: 6,  sens: 33,   pair: 'ped'   },
     { name: 'Exit sign (day)',       freq: 10, sens: 2,    pair: 'sign'  },
     { name: 'Exit sign (night)',     freq: 10, sens: 33,   pair: 'sign'  },
-    { name: 'Golf ball on grass',    freq: 18, sens: 2,    pair: 'golf'  },
-    { name: 'Golf ball, cloudy sky', freq: 18, sens: 10,   pair: 'golf'  },
+    { name: 'Golf ball on grass',    freq: 8,  sens: 2,    pair: 'golf'  },
+    { name: 'Golf ball, cloudy sky', freq: 8,  sens: 10,   pair: 'golf'  },
     { name: 'Plate (day)',           freq: 26, sens: 2,    pair: 'plate' },
     { name: 'Plate (night)',         freq: 26, sens: 25,   pair: 'plate' },
 ];

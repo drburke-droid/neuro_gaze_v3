@@ -123,13 +123,25 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .res-section-hdr .sec-icon{font-size:.85rem}
 .res-section-hdr .sec-count{margin-left:auto;font-size:.55rem;opacity:.6}
 .res-lm-list{display:flex;flex-direction:column;gap:0}
-.res-lm{display:flex;align-items:center;gap:10px;padding:7px 12px;border-top:1px solid rgba(255,255,255,.04);opacity:0;animation:settleUp .4s var(--ez) forwards}
+.res-lm{border-top:1px solid rgba(255,255,255,.04);opacity:0;animation:settleUp .4s var(--ez) forwards;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lm-row{display:flex;align-items:center;gap:10px;padding:7px 12px}
 .lm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .can-see .lm-dot{background:#34d399}
 .difficult .lm-dot{background:var(--e)}
 .lm-info{flex:1;min-width:0}
 .lm-name{font-size:clamp(.62rem,2vw,.76rem);font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lm-ctx{font-size:.5rem;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lm-chevron{color:var(--t3);font-size:.6rem;flex-shrink:0;transition:transform .25s var(--ez)}
+.res-lm.open .lm-chevron{transform:rotate(90deg)}
+.lm-detail{max-height:0;overflow:hidden;transition:max-height .35s var(--ez),padding .35s var(--ez)}
+.res-lm.open .lm-detail{max-height:600px}
+.lm-detail-inner{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.lm-detail-section{display:flex;flex-direction:column;gap:2px}
+.lm-detail-label{font-family:var(--m);font-size:.42rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.lm-detail-text{font-size:.52rem;color:var(--t2);line-height:1.5}
+.lm-verdict{padding:8px 10px;border-radius:8px;font-size:.55rem;font-weight:500;line-height:1.4}
+.can-see .lm-verdict{background:rgba(52,211,153,.08);color:#34d399;border:1px solid rgba(52,211,153,.15)}
+.difficult .lm-verdict{background:rgba(255,69,58,.08);color:var(--e);border:1px solid rgba(255,69,58,.15)}
 .res-plot{width:100%;max-width:380px;border-radius:8px;margin:8px 0;opacity:0;animation:settleUp var(--settle) var(--ez) .8s forwards}
 .res-actions{display:flex;gap:10px;margin-top:6px;opacity:0;animation:settleUp var(--settle) var(--ez) .9s forwards}
 .res-btn{padding:12px 24px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--f);-webkit-tap-highlight-color:transparent;touch-action:manipulation;will-change:transform;transition:transform .12s var(--ez-spring),background .2s,border-color .2s,color .2s,box-shadow .2s}
@@ -411,19 +423,33 @@ function showResults(d){
         var canSee=d.landmarks.filter(function(l){return l.pass});
         var hard=d.landmarks.filter(function(l){return !l.pass});
         var html='<div class="res-vision-sections">';
+        function lmCard(lm,idx,baseDelay,section){
+            var delay=(baseDelay+idx*.04).toFixed(2);
+            var verdict=lm.pass
+                ?'Your visual system appears capable of this task.'
+                :'This task appears to fall outside your visual system\u2019s current capabilities.';
+            return '<div class="res-lm" style="animation-delay:'+delay+'s" onclick="this.classList.toggle(\'open\')">'
+                +'<div class="lm-row">'
+                +'<div class="lm-dot"></div>'
+                +'<div class="lm-info">'
+                +'<div class="lm-name">'+lm.name+'</div>'
+                +'<div class="lm-ctx">'+lm.context+'</div>'
+                +'</div>'
+                +'<div class="lm-chevron">\u203A</div>'
+                +'</div>'
+                +'<div class="lm-detail"><div class="lm-detail-inner">'
+                +(lm.what?'<div class="lm-detail-section"><div class="lm-detail-label">What\'s Being Tested</div><div class="lm-detail-text">'+lm.what+'</div></div>':'')
+                +(lm.science?'<div class="lm-detail-section"><div class="lm-detail-label">The Science</div><div class="lm-detail-text">'+lm.science+'</div></div>':'')
+                +(lm.perception?'<div class="lm-detail-section"><div class="lm-detail-label">How Your Vision Works</div><div class="lm-detail-text">'+lm.perception+'</div></div>':'')
+                +'<div class="lm-verdict">'+verdict+'</div>'
+                +'</div></div>'
+                +'</div>';
+        }
         if(canSee.length){
             html+='<div class="res-section can-see">'
                 +'<div class="res-section-hdr"><span class="sec-icon">\u2713</span>You Can See<span class="sec-count">'+canSee.length+'</span></div>'
                 +'<div class="res-lm-list">';
-            canSee.forEach(function(lm,idx){
-                var delay=(.65+idx*.04).toFixed(2);
-                html+='<div class="res-lm" style="animation-delay:'+delay+'s">'
-                    +'<div class="lm-dot"></div>'
-                    +'<div class="lm-info">'
-                    +'<div class="lm-name">'+lm.name+'</div>'
-                    +'<div class="lm-ctx">'+lm.context+'</div>'
-                    +'</div></div>';
-            });
+            canSee.forEach(function(lm,idx){html+=lmCard(lm,idx,.65,'can-see')});
             html+='</div></div>';
         }
         if(hard.length){
@@ -431,15 +457,7 @@ function showResults(d){
             html+='<div class="res-section difficult">'
                 +'<div class="res-section-hdr"><span class="sec-icon">\u2717</span>Would Be Difficult<span class="sec-count">'+hard.length+'</span></div>'
                 +'<div class="res-lm-list">';
-            hard.forEach(function(lm,idx){
-                var delay=(hardDelay+idx*.04).toFixed(2);
-                html+='<div class="res-lm" style="animation-delay:'+delay+'s">'
-                    +'<div class="lm-dot"></div>'
-                    +'<div class="lm-info">'
-                    +'<div class="lm-name">'+lm.name+'</div>'
-                    +'<div class="lm-ctx">'+lm.context+'</div>'
-                    +'</div></div>';
-            });
+            hard.forEach(function(lm,idx){html+=lmCard(lm,idx,hardDelay,'difficult')});
             html+='</div></div>';
         }
         html+='</div>';

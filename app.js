@@ -82,7 +82,7 @@ function isMobileDevice() {
 
 function siteBaseUrl() {
     const dir = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
-    return `${location.origin}${dir}/`;
+    return `${location.host}${dir}/`;
 }
 
 window.goToWelcome = function() {

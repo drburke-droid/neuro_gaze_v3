@@ -267,7 +267,7 @@ function setMode(id){
 }
 
 // Destroy any stale peer from previous session (Safari caches WebRTC state)
-if(window._stalePeer){try{window._stalePeer.destroy()}catch(e){}}
+try{if(window._stalePeer&&!window._stalePeer.destroyed)window._stalePeer.destroy()}catch(e){}
 
 var P=new URLSearchParams(location.search),targetID=P.get('id');
 // Support ?code=XXXX shorthand (converts to bvl-xxxx PeerJS ID)
@@ -283,25 +283,29 @@ function waitForPeer(){
     var iv=setInterval(function(){
         tries++;
         if(typeof Peer!=='undefined'){clearInterval(iv);doConnect()}
-        else if(tries>30){clearInterval(iv);setSt('sd-er','PeerJS failed to load');dlog('PeerJS never loaded')}
+        else if(tries>50){clearInterval(iv);setSt('sd-er','PeerJS failed to load');dlog('PeerJS never loaded')}
     },200);
 }
 
+var reconnAttempts=0;
+var MAX_RETRIES=8;
+
 function doConnect(){
-    if(peer&&!peer.destroyed){peer.destroy()}
-    setSt('sd-wait','Connecting...');
+    if(peer&&!peer.destroyed){try{peer.destroy()}catch(e){}}
+    setSt('sd-wait','Connecting'+(reconnAttempts>0?' (attempt '+(reconnAttempts+1)+')':'')+'...');
     var myId='csf'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     peer=new Peer(myId,{debug:0,config:{iceServers:ICE}});
     window._stalePeer=peer;
+
     var timeout=setTimeout(function(){
-        if(!isConn){setSt('sd-er','Timed out');dlog('30s timeout');tryReconnect()}
-    },30000);
+        if(!isConn){dlog('15s timeout');tryReconnect()}
+    },15000);
 
     peer.on('open',function(id){
         dlog('My ID: '+id.substring(0,10));
         conn=peer.connect(targetID,{reliable:true,serialization:'json'});
         conn.on('open',function(){
-            clearTimeout(timeout);isConn=true;
+            clearTimeout(timeout);isConn=true;reconnAttempts=0;
             dlog('CONNECTED');setSt('sd-ok','Linked');
         });
         conn.on('data',onMsg);
@@ -311,21 +315,36 @@ function doConnect(){
     peer.on('error',function(e){
         clearTimeout(timeout);
         dlog('Peer err: '+e.type);
-        if(e.type==='peer-unavailable'){setSt('sd-er','Display not found - check QR code');dlog('Target peer not found')}
-        else{setSt('sd-er','Error: '+e.type)}
+        if(e.type==='peer-unavailable'){
+            // Display may not be registered yet — retry after a delay
+            dlog('Display not found, will retry...');
+            tryReconnect()
+        }
+        else if(e.type==='unavailable-id'){
+            // Our own ID collided — retry immediately with new ID
+            dlog('ID collision, retrying...');
+            doConnect()
+        }
+        else{setSt('sd-er','Error: '+e.type);tryReconnect()}
     });
     peer.on('disconnected',function(){if(!peer.destroyed)peer.reconnect()});
 }
 
-var reconnAttempts=0;
 function tryReconnect(){
-    if(reconnAttempts>=3){setSt('sd-er','Could not connect. Reload page.');return}
+    if(reconnAttempts>=MAX_RETRIES){setSt('sd-er','Could not connect. Reload page to try again.');return}
     reconnAttempts++;
-    dlog('Retry #'+reconnAttempts);
-    setSt('sd-wait','Retrying...');
-    if(peer&&!peer.destroyed)peer.destroy();
-    setTimeout(doConnect,2000);
+    dlog('Retry #'+reconnAttempts+'/'+MAX_RETRIES);
+    setSt('sd-wait','Retrying ('+reconnAttempts+'/'+MAX_RETRIES+')...');
+    if(peer&&!peer.destroyed){try{peer.destroy()}catch(e){}}
+    // Exponential backoff: 1s, 2s, 3s, 4s... capped at 5s
+    var delay=Math.min(reconnAttempts*1000,5000);
+    setTimeout(doConnect,delay);
 }
+
+// Clean up on page hide/unload to avoid stale broker entries
+window.addEventListener('pagehide',function(){
+    if(peer&&!peer.destroyed){try{peer.destroy()}catch(e){}}
+});
 
 function tx(m){if(conn&&isConn)conn.send(m);else dlog('tx fail: not connected')}
 

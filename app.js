@@ -27,6 +27,12 @@ window.showScreen = showScreen;
 let host = null, phoneConnected = false, isMirror = false;
 let tempHost = null; // temporary PeerJS host for phone-first flow
 
+// Clean up peer connections on page hide/unload to avoid stale broker entries
+window.addEventListener('pagehide', () => {
+    if (host) { try { host.destroy(); } catch(e) {} }
+    if (tempHost) { try { tempHost.destroy(); } catch(e) {} }
+});
+
 function tx(msg) { if (host && host.connected) host.send(msg); }
 
 function handlePhoneMessage(d) {
@@ -214,6 +220,8 @@ window.displayEnterCode = function() {
 // Secondary: Display generates its own code (PC-first flow)
 window.displayGenerateCode = function() {
     if (typeof Peer === 'undefined') { setStatus('display-wait-status', 'sd-er', 'PeerJS unavailable'); return; }
+    // Destroy any prior host to avoid stale broker entries
+    if (host) { try { host.destroy(); } catch(e) {} host = null; }
 
     const code = shortCode();
     const peerId = codeToId(code);

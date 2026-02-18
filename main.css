@@ -73,6 +73,7 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 
 /* Pairing screens */
 #scr-pair-display .landing-stack,#scr-pair-remote .landing-stack{padding-top:clamp(14px,3vh,40px);gap:clamp(10px,2vh,20px)}
+.pair-code-entry{margin-top:clamp(20px,6vh,60px)}
 .pair-section{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 .pair-secondary{opacity:1}
 .pair-label{font-family:var(--m);font-size:clamp(.6rem,1.2vw,.85rem);letter-spacing:3px;text-transform:uppercase;color:var(--t3)}
@@ -91,6 +92,11 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 .pair-input{padding:clamp(10px,2vw,16px) clamp(14px,3vw,24px);border-radius:14px;border:2px solid var(--b2);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:clamp(.9rem,2.5vw,1.4rem);letter-spacing:4px;text-transform:uppercase;text-align:center;width:clamp(100px,28vw,170px);outline:0;transition:border-color .3s var(--ez),box-shadow .3s var(--ez)}
 .pair-input:focus{border-color:var(--a);box-shadow:0 0 20px rgba(0,255,204,.08)}
 .pair-input-lg{font-size:clamp(1.3rem,4vw,2.2rem);padding:clamp(12px,2.5vw,20px);width:clamp(140px,35vw,220px);letter-spacing:8px}
+.code-boxes{display:flex;gap:clamp(8px,1.5vw,14px);justify-content:center}
+.code-box{width:clamp(48px,10vw,72px);height:clamp(56px,12vw,84px);border-radius:16px;border:2px solid var(--b2);background:rgba(0,0,0,.3);color:var(--t1);font-family:var(--m);font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;text-align:center;text-transform:uppercase;outline:0;caret-color:var(--a);transition:border-color .3s var(--ez),box-shadow .3s var(--ez),background .3s var(--ez)}
+.code-box:focus{border-color:var(--a);box-shadow:0 0 24px rgba(0,255,204,.12);background:rgba(0,255,204,.04)}
+.code-box.filled{border-color:rgba(255,255,255,.2);color:var(--a)}
+.code-box.err{border-color:var(--e);box-shadow:0 0 12px rgba(255,69,58,.15)}
 .pair-connect-btn{padding:clamp(10px,2vw,16px) clamp(20px,4vw,32px);border-radius:100px;border:none;background:#fff;color:#0a0a0c;font-family:var(--f);font-size:clamp(.7rem,1.3vw,.95rem);font-weight:500;cursor:pointer;white-space:nowrap;transition:transform .15s var(--ez-spring),background .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .pair-connect-btn:active{transform:scale(.94);background:var(--a);box-shadow:0 0 16px var(--ag)}
 .pair-gen-btn{padding:12px 32px;border-radius:100px;border:1px solid var(--b2);background:transparent;color:var(--t1);font-family:var(--f);font-size:clamp(.75rem,1.3vw,.95rem);cursor:pointer;transition:border-color .3s,color .3s,background .3s,transform .15s var(--ez-spring);-webkit-tap-highlight-color:transparent;touch-action:manipulation}

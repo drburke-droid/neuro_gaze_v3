@@ -150,12 +150,46 @@ window.remoteEnterCode = function() {
     location.href = `${location.origin}${dir}/tablet.html?id=${codeToId(code)}`;
 };
 
+// ── Code box auto-advance logic ──
+document.querySelectorAll('.code-box').forEach(box => {
+    box.addEventListener('input', e => {
+        const v = box.value.replace(/[^A-Za-z2-9]/g, '').toUpperCase();
+        box.value = v.charAt(0) || '';
+        box.classList.toggle('filled', !!box.value);
+        box.classList.remove('err');
+        if (box.value && box.dataset.idx < 3) {
+            document.getElementById('cb' + (parseInt(box.dataset.idx) + 1)).focus();
+        }
+    });
+    box.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !box.value && box.dataset.idx > 0) {
+            const prev = document.getElementById('cb' + (parseInt(box.dataset.idx) - 1));
+            prev.value = ''; prev.classList.remove('filled');
+            prev.focus();
+            e.preventDefault();
+        }
+        if (e.key === 'Enter') displayEnterCode();
+    });
+    box.addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().replace(/[^A-Z2-9]/g, '');
+        for (let i = 0; i < 4; i++) {
+            const b = document.getElementById('cb' + i);
+            b.value = text.charAt(i) || '';
+            b.classList.toggle('filled', !!b.value);
+        }
+        if (text.length >= 4) document.getElementById('cb3').focus();
+    });
+});
+
 // ── Display Pairing (PC enters phone's code → handoff) ──
 window.displayEnterCode = function() {
-    const input = document.getElementById('display-code-input');
-    const code = input.value.trim().toUpperCase().replace(/[^A-Z2-9]/g, '');
-    if (code.length !== 4) { input.style.borderColor = 'var(--e)'; return; }
-    input.style.borderColor = '';
+    const code = [0,1,2,3].map(i => document.getElementById('cb'+i).value).join('').toUpperCase().replace(/[^A-Z2-9]/g, '');
+    if (code.length !== 4) {
+        document.querySelectorAll('.code-box').forEach(b => { if (!b.value) b.classList.add('err'); });
+        return;
+    }
+    document.querySelectorAll('.code-box').forEach(b => b.classList.remove('err'));
 
     if (typeof Peer === 'undefined') { setStatus('display-status', 'sd-er', 'PeerJS unavailable'); return; }
 

@@ -72,12 +72,15 @@
 <div id="scr-pair-display" class="screen">
 <div class="moire-bg"><div class="moire-layer"></div><div class="moire-layer"></div><div class="moire-vignette"></div></div>
 <div class="landing-stack">
-<div class="pair-section">
+<div class="pair-section pair-code-entry">
 <div class="pair-label">Enter code from your phone</div>
-<div class="pair-input-row">
-<input class="pair-input pair-input-lg" id="display-code-input" maxlength="4" placeholder="CODE" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
-<button class="pair-connect-btn" onclick="displayEnterCode()">Connect</button>
+<div class="code-boxes">
+<input class="code-box" id="cb0" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text" data-idx="0">
+<input class="code-box" id="cb1" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text" data-idx="1">
+<input class="code-box" id="cb2" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text" data-idx="2">
+<input class="code-box" id="cb3" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text" data-idx="3">
 </div>
+<button class="pair-connect-btn" onclick="displayEnterCode()">Connect</button>
 <div class="pair-status" id="display-status"></div>
 </div>
 <div class="pair-divider"><span>or</span></div>

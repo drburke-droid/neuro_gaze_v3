@@ -125,6 +125,7 @@
 <button class="mirror-btn" onclick="setMirror(false)">Direct View</button>
 <button class="mirror-btn" onclick="setMirror(true)">Mirror View</button>
 </div></div>
+<div class="phone-hint-l phone-hint-far" style="display:none">Use your phone</div>
 <div class="cal-fn"><button class="bb-n" onclick="calGo(0)">Back</button></div>
 </div>
 
@@ -136,7 +137,7 @@
 <div style="width:clamp(140px,20vw,200px);height:clamp(140px,20vw,200px);border-radius:50%;background-image:conic-gradient(#000 .25turn,#fff .25turn .5turn,#000 .5turn .75turn,#fff .75turn);background-size:2px 2px;display:flex;align-items:center;justify-content:center">
 <div id="ic" style="width:clamp(60px,9vw,90px);height:clamp(60px,9vw,90px);border-radius:50%;background:rgb(128,128,128)"></div></div></div>
 <div id="gamma-local"><input type="range" id="gs" min="60" max="220" value="128"><div class="sl"><span>Darker</span><span class="v" id="gv">128</span><span>Brighter</span></div></div>
-<div id="gamma-remote" class="phone-hint-l" style="display:none">Adjust on your phone</div>
+<div id="gamma-remote" class="phone-hint-l phone-hint-far" style="display:none">Use your phone</div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(1)">Back</button><button class="bp-l" onclick="calGo(3)">Next</button></div>
 </div>
 
@@ -152,6 +153,7 @@
 <div class="cal-em-l" id="de"></div>
 <div class="dist-hint" style="font-family:var(--m);font-size:clamp(1rem,2.5vw,1.8rem);color:var(--t3);letter-spacing:1px;text-align:center;line-height:1.6;max-width:600px">Minimum 15 ft required. 20 ft+ preferred for clinical accuracy.</div>
 </div>
+<div class="phone-hint-l phone-hint-far" style="display:none">Use your phone</div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(2)">Back</button><button class="bp-l" onclick="calValidate()">Review</button></div>
 </div>
 
@@ -167,11 +169,10 @@
 <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b)"><span class="l">Resolution</span><span class="v" id="spp">-</span></div>
 <div id="ppd-warn" class="ppd-warn" style="display:none">PPD outside typical range (50–800) — double-check card scale and distance</div>
 </div>
-<div class="cal-phone-review phone-hint-l">Review setup on your phone</div>
+<div class="cal-phone-review phone-hint-l phone-hint-far">Check your phone</div>
 </div>
 <div class="cal-fn"><button class="bb-l" onclick="calGo(3)">Back</button><button class="bs-l" onclick="startTest()">Start Test</button></div>
 </div>
-<div class="cal-phone-hint">Follow instructions on your phone</div>
 </div></div>
 
 <div id="scr-test" class="screen">

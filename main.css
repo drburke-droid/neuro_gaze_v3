@@ -35,6 +35,7 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 .moire-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(10,10,12,.85) 70%,rgba(10,10,12,1) 100%);z-index:1}
 @keyframes moireDrift1{from{transform:translate(0,0) rotate(0deg)}to{transform:translate(-3%,2%) rotate(4deg)}}
 @keyframes moireDrift2{from{transform:translate(0,0) rotate(0deg)}to{transform:translate(2%,-3%) rotate(-5deg)}}
+.landing-logo{width:clamp(80px,10vw,130px);height:clamp(50px,6vw,80px);object-fit:cover;object-position:center 30%;filter:invert(1);margin-bottom:calc(-1 * clamp(6px,1.5vh,14px));opacity:0;animation:settleUp var(--settle) var(--ez) .05s forwards}
 .landing-brand{font-family:var(--m);font-size:clamp(.55rem,1.2vw,.85rem);letter-spacing:4px;text-transform:uppercase;color:var(--t3);opacity:0;animation:settleUp var(--settle) var(--ez) .1s forwards}
 .landing-title{font-size:clamp(2rem,6vw,4.2rem);font-weight:200;line-height:1.15;letter-spacing:-.02em;opacity:0;animation:settleUp var(--settle) var(--ez) .2s forwards}
 .landing-desc{font-size:clamp(.65rem,1.2vw,.9rem);color:var(--t2);max-width:440px;line-height:1.65;font-weight:300;opacity:0;animation:settleUp var(--settle) var(--ez) .35s forwards}

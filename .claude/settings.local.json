@@ -3,7 +3,16 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(Difficult\"\\) instead of flat pass/fail list with margin scores. Reconciled\nsensitivity values between graph and phone data.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(git -C /c/Users/drbur/Documents/GitHub/neuro_gaze_v3 remote:*)",
+      "Bash(git -C /c/Users/drbur/Documents/GitHub/neuro_gaze_v3 log --oneline)",
+      "Bash(git -C /c/Users/drbur/Documents/GitHub/neuro_gaze_v3 config --list)",
+      "WebFetch(domain:codepen.io)",
+      "WebSearch",
+      "WebFetch(domain:cdpn.io)",
+      "Bash(start index.html)"
     ]
   }
 }

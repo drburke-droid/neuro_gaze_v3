@@ -404,9 +404,32 @@ function showPreTest() {
     const ptEl = document.getElementById('pretest');
     ptEl.style.display = 'flex';
     if (isMirror) ptEl.classList.add('mirror-flip'); else ptEl.classList.remove('mirror-flip');
-    // Reset button states
-    ptEl.querySelectorAll('.pretest-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('pt-go').disabled = true;
+
+    if (phoneConnected) {
+        // Hide questionnaire on display, show simple phone prompt
+        ptEl.querySelectorAll('.pretest-group').forEach(g => g.style.display = 'none');
+        document.getElementById('pt-go').style.display = 'none';
+        document.getElementById('pretest-label').textContent = 'Almost ready';
+        let prompt = document.getElementById('pretest-phone-prompt');
+        if (!prompt) {
+            prompt = document.createElement('div');
+            prompt.id = 'pretest-phone-prompt';
+            prompt.className = 'pretest-phone-prompt';
+            prompt.textContent = 'Answer a few questions on your phone to begin';
+            ptEl.appendChild(prompt);
+        }
+        prompt.style.display = '';
+    } else {
+        // Keyboard mode: show full questionnaire
+        ptEl.querySelectorAll('.pretest-group').forEach(g => g.style.display = '');
+        document.getElementById('pt-go').style.display = '';
+        document.getElementById('pretest-label').textContent = 'Before we begin';
+        const prompt = document.getElementById('pretest-phone-prompt');
+        if (prompt) prompt.style.display = 'none';
+        ptEl.querySelectorAll('.pretest-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('pt-go').disabled = true;
+    }
+
     tx({ type: 'preTest' });
 }
 
@@ -470,9 +493,32 @@ window.sharePlot = async function() {
     } catch (e) { console.error('Share failed:', e); }
 };
 
+// ═══ Copy CSF Data (debug) ═══
+window.copyCsfData = function() {
+    if (!engine || !lastResultParams) { alert('No results yet.'); return; }
+    const cpds = [0.5, 1, 1.5, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36];
+    const lines = ['CPD\tLog Sensitivity\tSensitivity'];
+    for (const f of cpds) {
+        const logS = engine.evaluateCSF(f, lastResultParams);
+        lines.push(`${f}\t${logS.toFixed(4)}\t${Math.pow(10, logS).toFixed(2)}`);
+    }
+    const text = lines.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-csf-btn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = orig, 2000);
+    }).catch(() => {
+        // Fallback: prompt with text
+        prompt('Copy this data:', text);
+    });
+    console.log(text);
+};
+
 // ═══ Test ═══
 let mode = null, engine = null, currentStim = null;
 let testComplete = false, testStarted = false, inTutorial = false, inPreTest = false, lastInputTime = 0;
+let lastResultParams = null;
 let preTestData = { eye: null, correction: null };
 
 window.startTest = function() {
@@ -549,6 +595,7 @@ function finish() {
     let result;
     try { result = computeResult(engine); }
     catch (e) { result = { aulcsf: 0, rank: 'ERROR', detail: '', params: null, curve: [] }; }
+    lastResultParams = result.params;
 
     showScreen('scr-results');
     const resultScreen = document.getElementById('scr-results');

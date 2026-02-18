@@ -112,7 +112,7 @@
 <div id="card-sandbox"><div id="card-shape"></div></div>
 <div id="card-local"><input type="range" id="ss" min="150" max="750" step="0.1" value="300">
 <div class="sl"><span>Smaller</span><span class="v"><span id="sv">300</span> px</span><span>Larger</span></div></div>
-<div id="card-remote" class="phone-hint-l" style="display:none;font-size:.65rem">Adjust on your phone</div>
+<div id="card-remote" class="phone-hint-l" style="display:none">Adjust on your phone</div>
 <div class="cal-fn"><button class="bp-n" onclick="calGo(1)">Next</button></div>
 </div>
 
@@ -146,7 +146,7 @@
 <p class="sd-l">Enter distance from eyes to screen</p>
 <div class="dist-wrap" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;align-items:center">
 <div style="display:flex;gap:14px;align-items:center">
-<input type="number" class="dist-input" id="dv" placeholder="15" min="0.1" step="0.1">
+<input type="number" class="dist-input" id="dv" placeholder="" min="0.1" step="0.1">
 <select class="dist-select" id="du"><option value="ft">feet</option><option value="m">meters</option><option value="cm">cm</option><option value="in">inches</option></select>
 </div>
 <div class="cal-em-l" id="de"></div>
@@ -199,7 +199,7 @@
 
 <!-- Pre-test questionnaire overlay -->
 <div class="pretest-overlay" id="pretest" style="display:none">
-<div class="pretest-label">Before we begin</div>
+<div class="pretest-label" id="pretest-label">Before we begin</div>
 <div class="pretest-group">
 <div class="pretest-q">Which eye(s) are being tested?</div>
 <div class="pretest-opts" id="pt-eye">
@@ -229,6 +229,7 @@
 <div style="display:flex;gap:14px;margin-top:16px;opacity:0;animation:settleUp .5s var(--ez) .95s forwards">
 <button class="restart-btn" onclick="location.reload()">Test Again</button>
 <button class="restart-btn" id="share-plot-btn" onclick="sharePlot()" style="border-color:var(--a);color:var(--a)">Save / Share Chart</button>
+<button class="restart-btn" id="copy-csf-btn" onclick="copyCsfData()" style="border-color:#F59E0B;color:#F59E0B">Copy CSF Data</button>
 </div>
 </div></div>
 

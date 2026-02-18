@@ -227,7 +227,7 @@ window.displayGenerateCode = function() {
     const peerId = codeToId(code);
 
     document.getElementById('display-code-area').style.display = '';
-    document.getElementById('display-code-area').style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px';
+    document.getElementById('display-code-area').style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px';
     document.getElementById('display-my-code').textContent = formatCode(code);
     document.getElementById('display-pair-url').textContent = siteBaseUrl();
     document.getElementById('gen-code-btn').style.display = 'none';
@@ -238,7 +238,7 @@ window.displayGenerateCode = function() {
     const qrEl = document.getElementById('display-qrcode');
     qrEl.innerHTML = '';
     if (typeof QRCode !== 'undefined') {
-        new QRCode(qrEl, { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
+        new QRCode(qrEl, { text: url, width: 140, height: 140, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.L });
     }
 
     setStatus('display-wait-status', 'sd-wait', 'Waiting for phone\u2026');

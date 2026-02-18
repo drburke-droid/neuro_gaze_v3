@@ -40,6 +40,10 @@ function handlePhoneMessage(d) {
         else if (d.to === 'start') startTest();
     }
     if (d.type === 'input') handleInput(d.value);
+    if (d.type === 'preTestAnswer') {
+        preTestData = { eye: d.eye, correction: d.correction };
+        beginTestAfterPreTest();
+    }
 }
 
 function onPhoneConnect() {
@@ -183,6 +187,7 @@ window.displayGenerateCode = function() {
     document.getElementById('display-code-area').style.display = '';
     document.getElementById('display-code-area').style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px';
     document.getElementById('display-my-code').textContent = formatCode(code);
+    document.getElementById('display-pair-url').textContent = siteBaseUrl();
     document.getElementById('gen-code-btn').style.display = 'none';
 
     // Generate QR code
@@ -290,7 +295,16 @@ window.calValidate = function() {
    document.getElementById('sdi').textContent = `${val} ${u} = ${(effMm / 1000).toFixed(2)} m`;
     document.getElementById('spp').textContent = effPpd.toFixed(1) + ' px/deg';
     document.getElementById('spp').style.color = effPpd < 10 ? 'var(--e)' : 'var(--a)';
+
+    const ppdWarn = effPpd < 50 || effPpd > 800;
+    const warnEl = document.getElementById('ppd-warn');
+    if (warnEl) { warnEl.style.display = ppdWarn ? 'block' : 'none'; }
+
     calGo(4);
+    tx({ type: 'calSummary', mirror: isMirror, gamma: gs.value,
+         ppm: ppm.toFixed(3), distance: `${val} ${u}`,
+         distM: (effMm / 1000).toFixed(2), ppd: effPpd.toFixed(1),
+         ppdWarning: ppdWarn });
 };
 
 // ═══ Tutorial ═══
@@ -338,11 +352,54 @@ function advanceTut(key) {
         const tutEl = document.getElementById('tutorial');
         tutEl.classList.add('hiding');
         setTimeout(() => { tutEl.style.display = 'none'; tutEl.classList.remove('hiding'); }, 350);
-        testStarted = true;
-        nextTrial();
-        tx({ type: 'testStart', maxTrials: MAX_TRIALS });
+        showPreTest();
     }
 }
+
+function showPreTest() {
+    inPreTest = true;
+    preTestData = { eye: null, correction: null };
+    const ptEl = document.getElementById('pretest');
+    ptEl.style.display = 'flex';
+    // Reset button states
+    ptEl.querySelectorAll('.pretest-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('pt-go').disabled = true;
+    tx({ type: 'preTest' });
+}
+
+function beginTestAfterPreTest() {
+    const ptEl = document.getElementById('pretest');
+    ptEl.classList.add('hiding');
+    setTimeout(() => { ptEl.style.display = 'none'; ptEl.classList.remove('hiding'); }, 350);
+    if (window._cal) {
+        window._cal.eye = preTestData.eye;
+        window._cal.correction = preTestData.correction;
+    }
+    inPreTest = false;
+    testStarted = true;
+    inTutorial = false;
+    nextTrial();
+    tx({ type: 'testStart', maxTrials: MAX_TRIALS });
+}
+
+window.pickEye = function(btn, val) {
+    preTestData.eye = val;
+    document.getElementById('pt-eye').querySelectorAll('.pretest-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('pt-go').disabled = !(preTestData.eye && preTestData.correction);
+};
+
+window.pickCorr = function(btn, val) {
+    preTestData.correction = val;
+    document.getElementById('pt-corr').querySelectorAll('.pretest-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('pt-go').disabled = !(preTestData.eye && preTestData.correction);
+};
+
+window.submitPreTest = function() {
+    if (!preTestData.eye || !preTestData.correction) return;
+    beginTestAfterPreTest();
+};
 
 // ═══ Share/Save Plot ═══
 window.sharePlot = async function() {
@@ -372,7 +429,8 @@ window.sharePlot = async function() {
 
 // ═══ Test ═══
 let mode = null, engine = null, currentStim = null;
-let testComplete = false, testStarted = false, inTutorial = false, lastInputTime = 0;
+let testComplete = false, testStarted = false, inTutorial = false, inPreTest = false, lastInputTime = 0;
+let preTestData = { eye: null, correction: null };
 
 window.startTest = function() {
     const ppm = parseFloat(ss.value) / CARD_W_MM;
@@ -401,7 +459,8 @@ window.startTest = function() {
 
 function handleInput(value) {
     if (testComplete) return;
-    if (inTutorial) { advanceTut(value); if (testStarted) inTutorial = false; return; }
+    if (inTutorial) { advanceTut(value); if (testStarted || inPreTest) inTutorial = false; return; }
+    if (inPreTest) return;
     if (!testStarted || !currentStim || !mode) return;
     if (!new Set(mode.keys).has(value)) return;
     const now = performance.now();

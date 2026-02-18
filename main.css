@@ -69,6 +69,7 @@ body{background:var(--bg);font-family:var(--f);color:var(--t1);-webkit-font-smoo
 .role-card-desc{font-size:clamp(.55rem,1.1vw,.78rem);color:var(--t2);line-height:1.5}
 .role-card-disabled{display:none;font-size:clamp(.5rem,1vw,.65rem);color:var(--e);margin-top:8px;font-family:var(--m);letter-spacing:.5px}
 .role-card.disabled .role-card-disabled{display:block}
+.role-hint{font-size:clamp(.6rem,1.1vw,.8rem);color:var(--t2);font-weight:300;line-height:1.5;max-width:360px;text-align:center}
 
 /* Pairing screens */
 .pair-section{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}

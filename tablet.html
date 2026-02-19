@@ -168,6 +168,18 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .res-btn:active{transform:scale(.93) translateY(1px);background:var(--as);border-color:var(--a);color:var(--a);box-shadow:0 0 12px var(--ag)}
 .res-btn.primary{background:var(--as);border-color:rgba(0,255,204,.25);color:var(--a)}
 .res-copied{font-family:var(--m);font-size:.5rem;color:var(--a);opacity:0;transition:opacity .4s var(--ez),transform .4s var(--ez);transform:translateY(4px)}.res-copied.show{opacity:1;transform:translateY(0)}
+
+/* ─── CSF Formula Card (phone) ─── */
+.csf-formula-card{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--b);background:rgba(255,255,255,.02);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.csf-formula-heading{font-family:var(--m);font-size:.52rem;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
+.csf-formula-math{font-family:var(--m);font-size:clamp(.62rem,2.2vw,.78rem);color:var(--a);line-height:1.5;word-break:break-all}
+.csf-formula-peak{font-family:var(--m);font-size:clamp(.55rem,1.8vw,.68rem);color:var(--t2)}
+.csf-formula-copy{padding:8px 20px;border-radius:100px;border:1.5px solid var(--b);background:0;color:var(--t2);font-family:var(--f);font-size:.68rem;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .12s var(--ez-spring),background .2s,border-color .2s,color .2s}
+.csf-formula-copy:active{transform:scale(.93) translateY(1px);background:var(--as);border-color:var(--a);color:var(--a)}
+.csf-formula-cta{display:flex;flex-direction:column;align-items:center;gap:6px}
+.csf-formula-cta-text{font-size:.52rem;color:var(--t3);line-height:1.5}
+.csf-formula-explore{display:inline-block;padding:10px 24px;border-radius:100px;border:1.5px solid rgba(0,255,204,.25);background:var(--as);color:var(--a);font-family:var(--f);font-size:.72rem;font-weight:500;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .12s var(--ez-spring),background .2s}
+.csf-formula-explore:active{transform:scale(.93) translateY(1px);background:rgba(0,255,204,.15)}
 </style></head><body>
 <div class="hdr"><span class="brand">Burke Vision Lab</span></div>
 
@@ -569,6 +581,22 @@ function showResults(d){
     // Plot placeholder (image arrives separately via plotImage message)
     c.innerHTML+='<img class="res-plot" style="display:none" alt="CSF Plot">';
 
+    // CSF Formula card
+    if(d.csfParams){
+        var p=d.csfParams;
+        var explorerUrl='https://burkevisionlab.com/csf-explorer?g='+p.g.toFixed(2)+'&f='+p.f.toFixed(1)+'&b='+p.b.toFixed(2)+'&d='+p.d.toFixed(2);
+        c.innerHTML+='<div class="csf-formula-card" style="opacity:0;animation:settleUp var(--settle) var(--ez) .85s forwards">'
+            +'<div class="csf-formula-heading">Your CSF</div>'
+            +'<div class="csf-formula-math">log\u2081\u2080(S) = '+p.g.toFixed(2)+' \u2212 '+p.b.toFixed(2)+'\u00B7\u0394\u00B2 \u2212 '+p.d.toFixed(2)+'\u00B7\u0394\u2074</div>'
+            +'<div class="csf-formula-peak">Peak: '+p.f.toFixed(1)+' cpd \u00A0 \u0394 = log\u2081\u2080(f / '+p.f.toFixed(1)+')</div>'
+            +'<button class="csf-formula-copy" onclick="copyExplorerUrl()">Copy Results Link</button>'
+            +'<div class="csf-formula-cta">'
+            +'<div class="csf-formula-cta-text">Explore what you can and can\'t see with your own CSF</div>'
+            +'<a class="csf-formula-explore" href="'+explorerUrl+'" target="_blank" rel="noopener">Explore Your Vision \u2192</a>'
+            +'</div></div>';
+        window._explorerUrl=explorerUrl;
+    }
+
     // Actions
     c.innerHTML+='<div class="res-actions">'
         +'<button class="res-btn primary" onclick="shareR()">Share Results</button>'
@@ -606,4 +634,5 @@ function getRText(){
 }
 function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'Burke Vision Lab Results',text:getRText()}).catch(function(){});else copyR()}
 function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');if(e){e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}}).catch(function(){})}
+function copyExplorerUrl(){if(!window._explorerUrl)return;navigator.clipboard.writeText(window._explorerUrl).then(function(){var btns=document.querySelectorAll('.csf-formula-copy');btns.forEach(function(b){var orig=b.textContent;b.textContent='Copied!';b.style.borderColor='var(--a)';b.style.color='var(--a)';setTimeout(function(){b.textContent=orig;b.style.borderColor='';b.style.color=''},2000)})}).catch(function(){prompt('Copy this link:',window._explorerUrl)})}
 </script></body></html>

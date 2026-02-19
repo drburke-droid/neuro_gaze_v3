@@ -11,6 +11,7 @@ import { createHost, createTemporaryHost, createHandoffClient,
          shortCode, codeToId, idToCode, formatCode } from './peer-sync.js';
 
 const MAX_TRIALS = 50, DEBOUNCE_MS = 250, NUM_STEPS = 5;
+const CSF_EXPLORER_URL = 'https://burkevisionlab.com/csf-explorer';
 const CARD_W_MM = 85.6, CARD_H_MM = 53.98, CARD_ASPECT = CARD_W_MM / CARD_H_MM;
 
 function showScreen(id) {
@@ -615,6 +616,30 @@ function finish() {
     let plotUrl = '';
     try { plotUrl = drawCSFPlot(document.getElementById('csf-plot'), engine, result.params); } catch (e) { console.error('Plot error:', e); }
 
+    // Populate CSF formula card
+    if (result.params) {
+        const g = result.params.peakGain, fp = result.params.peakFreq;
+        const b = result.params.bandwidth, d = result.params.truncation;
+        const card = document.getElementById('csf-formula-card');
+        card.style.display = '';
+        document.getElementById('csf-formula-math').innerHTML =
+            `log\u2081\u2080(S) = ${g.toFixed(2)} \u2212 ${b.toFixed(2)}\u00B7\u0394\u00B2 \u2212 ${d.toFixed(2)}\u00B7\u0394\u2074 &nbsp;<span style="color:var(--t3);font-size:.85em">[high-freq only]</span>`;
+        document.getElementById('csf-formula-peak').textContent =
+            `Peak: ${fp.toFixed(1)} cpd \u00A0\u00A0 \u0394 = log\u2081\u2080(f / ${fp.toFixed(1)})`;
+        const explorerUrl = `${CSF_EXPLORER_URL}?g=${g.toFixed(2)}&f=${fp.toFixed(1)}&b=${b.toFixed(2)}&d=${d.toFixed(2)}`;
+        document.getElementById('csf-formula-explore').href = explorerUrl;
+        const copyBtn = document.getElementById('csf-formula-copy-btn');
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(explorerUrl).then(() => {
+                const orig = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.borderColor = 'var(--a)';
+                copyBtn.style.color = 'var(--a)';
+                setTimeout(() => { copyBtn.textContent = orig; copyBtn.style.borderColor = ''; copyBtn.style.color = ''; }, 2000);
+            }).catch(() => { prompt('Copy this link:', explorerUrl); });
+        };
+    }
+
     // Build rich results with per-landmark assessments
     const lmResults = [];
     const landmarks = [
@@ -706,6 +731,7 @@ function finish() {
         landmarks: lmResults,
         passCount: lmResults.filter(l => l.pass).length,
         totalLandmarks: lmResults.length,
+        csfParams: result.params ? { g: result.params.peakGain, f: result.params.peakFreq, b: result.params.bandwidth, d: result.params.truncation } : null,
     });
 
     // Send downscaled plot image to phone (full PNG can be 2-4MB)

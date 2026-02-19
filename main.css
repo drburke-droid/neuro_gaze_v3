@@ -238,3 +238,17 @@ canvas#stimCanvas{width:560px;height:560px;background:var(--bg);border-radius:12
 .restart-btn:hover{border-color:var(--a);color:var(--a);box-shadow:0 0 20px var(--ag)}
 .restart-btn:active{transform:scale(.96)}
 #gear-btn{position:fixed;bottom:20px;right:20px;cursor:pointer;opacity:.08;font-size:20px;z-index:400;transition:opacity .4s var(--ez)}#gear-btn:hover{opacity:.3}
+
+/* ═══ CSF Formula Card ═══ */
+.csf-formula-card{width:100%;max-width:1440px;margin-top:20px;padding:clamp(16px,3vw,28px) clamp(20px,4vw,36px);border-radius:16px;border:1px solid var(--b2);background:rgba(255,255,255,.02);text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.csf-formula-heading{font-family:var(--m);font-size:clamp(.6rem,1.1vw,.85rem);letter-spacing:3px;text-transform:uppercase;color:var(--t3)}
+.csf-formula-math{font-family:var(--m);font-size:clamp(.85rem,1.5vw,1.15rem);color:var(--a);line-height:1.6;letter-spacing:.3px;word-break:break-all}
+.csf-formula-peak{font-family:var(--m);font-size:clamp(.7rem,1.2vw,.95rem);color:var(--t2);letter-spacing:.5px}
+.csf-formula-copy{padding:clamp(8px,1.5vw,12px) clamp(20px,3vw,32px);border-radius:100px;border:1px solid var(--b);background:transparent;color:var(--t3);font-family:var(--f);font-size:clamp(.65rem,1vw,.85rem);cursor:pointer;letter-spacing:.5px;transition:all .3s var(--ez),transform .15s var(--ez-spring)}
+.csf-formula-copy:hover{border-color:var(--a);color:var(--a);box-shadow:0 0 20px var(--ag)}
+.csf-formula-copy:active{transform:scale(.96)}
+.csf-formula-cta{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px}
+.csf-formula-cta-text{font-size:clamp(.6rem,1vw,.8rem);color:var(--t3);line-height:1.6;max-width:480px}
+.csf-formula-explore{display:inline-block;padding:clamp(10px,2vw,14px) clamp(24px,4vw,40px);border-radius:100px;border:1px solid rgba(0,255,204,.25);background:var(--as);color:var(--a);font-family:var(--f);font-size:clamp(.7rem,1.1vw,.9rem);font-weight:500;text-decoration:none;letter-spacing:.5px;transition:all .3s var(--ez),transform .15s var(--ez-spring)}
+.csf-formula-explore:hover{background:rgba(0,255,204,.12);box-shadow:0 0 24px var(--ag)}
+.csf-formula-explore:active{transform:scale(.96)}

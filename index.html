@@ -227,6 +227,16 @@
 <div class="rank-label" id="final-rank">--</div>
 <div class="result-detail" id="final-detail"></div>
 <canvas id="csf-plot"></canvas>
+<div class="csf-formula-card" id="csf-formula-card" style="display:none;opacity:0;animation:settleUp .5s var(--ez) .9s forwards">
+<div class="csf-formula-heading">Your Contrast Sensitivity Function</div>
+<div class="csf-formula-math" id="csf-formula-math"></div>
+<div class="csf-formula-peak" id="csf-formula-peak"></div>
+<button class="csf-formula-copy" id="csf-formula-copy-btn">Copy Results Link</button>
+<div class="csf-formula-cta">
+<div class="csf-formula-cta-text">Want to explore what you can and can't see?<br>Copy your results above and visit the link below to analyze your vision with real-world objects.</div>
+<a class="csf-formula-explore" id="csf-formula-explore" href="#" target="_blank" rel="noopener">Explore Your Vision &rarr;</a>
+</div>
+</div>
 <div style="display:flex;gap:14px;margin-top:16px;opacity:0;animation:settleUp .5s var(--ez) .95s forwards">
 <button class="restart-btn" onclick="location.reload()">Test Again</button>
 <button class="restart-btn" id="share-plot-btn" onclick="sharePlot()" style="border-color:var(--a);color:var(--a)">Save / Share Chart</button>

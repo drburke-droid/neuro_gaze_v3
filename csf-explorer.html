@@ -182,9 +182,11 @@ const OBJECTS = [
         name: 'Pedestrian (dark clothing)',
         distRange: [20, 500], distDefault: 100, distStep: 10, distUnit: 'm', distScale: 1,
         features: [
-            { label: 'Body',  size: 0.45,  contrast: { bright: 0.50, cloudy: 0.35, overcast: 0.15, night: 0.03 }, type: 'broadband' },
-            { label: 'Limbs', size: 0.15,  contrast: { bright: 0.40, cloudy: 0.25, overcast: 0.10, night: 0.02 }, type: 'broadband' },
-            { label: 'Face',  size: 0.025, contrast: { bright: 0.30, cloudy: 0.18, overcast: 0.06, night: 0.01 }, type: 'broadband' },
+            // Dark clothing (~5-7% reflectance) vs asphalt (~10%) = very low contrast
+            // Olson & Sivak 1983: detection ~46m low-beam; Sullivan & Flannagan 2002
+            { label: 'Body',  size: 0.45,  contrast: { bright: 0.35, cloudy: 0.22, overcast: 0.10, night: 0.03 }, type: 'broadband' },
+            { label: 'Limbs', size: 0.15,  contrast: { bright: 0.25, cloudy: 0.15, overcast: 0.06, night: 0.015 }, type: 'broadband' },
+            { label: 'Face',  size: 0.025, contrast: { bright: 0.20, cloudy: 0.12, overcast: 0.04, night: 0.01 }, type: 'broadband' },
         ],
         descriptions: {
             resolved: 'You can recognize the person\'s face at this distance.',
@@ -196,9 +198,11 @@ const OBJECTS = [
         name: 'Pedestrian (hi-vis vest)',
         distRange: [20, 500], distDefault: 100, distStep: 10, distUnit: 'm', distScale: 1,
         features: [
+            // ANSI/ISEA 107: fluorescent yellow-green ≥70% luminance factor
             { label: 'Vest',       size: 0.40, contrast: { bright: 0.85, cloudy: 0.70, overcast: 0.45, night: 0.15 }, type: 'broadband' },
-            { label: 'Reflective strips', size: 0.05, contrast: { bright: 0.75, cloudy: 0.55, overcast: 0.30, night: 0.60 }, type: 'broadband' },
-            { label: 'Face',       size: 0.025, contrast: { bright: 0.30, cloudy: 0.18, overcast: 0.06, night: 0.01 }, type: 'broadband' },
+            // ANSI 5cm (2") retroreflective tape; RA ~600 cd/lx/m² under headlights
+            { label: 'Reflective strips', size: 0.05, contrast: { bright: 0.75, cloudy: 0.55, overcast: 0.30, night: 0.85 }, type: 'broadband' },
+            { label: 'Face',       size: 0.025, contrast: { bright: 0.20, cloudy: 0.12, overcast: 0.04, night: 0.01 }, type: 'broadband' },
         ],
         descriptions: {
             resolved: 'You can recognize the person\'s face and see reflective details.',
@@ -210,9 +214,11 @@ const OBJECTS = [
         name: 'Car on highway',
         distRange: [50, 1000], distDefault: 400, distStep: 25, distUnit: 'm', distScale: 1,
         features: [
-            { label: 'Car body',    size: 1.8,   contrast: { bright: 0.50, cloudy: 0.35, overcast: 0.15, night: 0.05 }, type: 'broadband' },
-            { label: 'Windshield',  size: 0.30,  contrast: { bright: 0.40, cloudy: 0.25, overcast: 0.10, night: 0.03 }, type: 'broadband' },
-            { label: 'Plate text',  size: 0.012, contrast: { bright: 0.88, cloudy: 0.65, overcast: 0.30, night: 0.04 }, type: 'broadband' },
+            // Average sedan ~1.78m wide; contrast depends on color vs road
+            { label: 'Car body',    size: 1.8,   contrast: { bright: 0.40, cloudy: 0.28, overcast: 0.12, night: 0.04 }, type: 'broadband' },
+            { label: 'Windshield',  size: 0.40,  contrast: { bright: 0.35, cloudy: 0.22, overcast: 0.10, night: 0.03 }, type: 'broadband' },
+            // Retroreflective plate: high contrast under headlights at night
+            { label: 'Plate text',  size: 0.010, contrast: { bright: 0.88, cloudy: 0.65, overcast: 0.30, night: 0.50 }, type: 'broadband' },
         ],
         descriptions: {
             resolved: 'You can read the license plate at this distance.',
@@ -224,9 +230,13 @@ const OBJECTS = [
         name: 'Highway exit sign',
         distRange: [30, 500], distDefault: 76, distStep: 5, distUnit: 'm', distScale: 1,
         features: [
-            { label: 'Sign face',      size: 3.6,   contrast: { bright: 0.85, cloudy: 0.70, overcast: 0.45, night: 0.30 }, type: 'broadband' },
-            { label: 'Letter height',   size: 0.406, contrast: { bright: 0.85, cloudy: 0.70, overcast: 0.40, night: 0.20 }, type: 'broadband' },
-            { label: 'Letter strokes',  size: 0.065, contrast: { bright: 0.85, cloudy: 0.65, overcast: 0.30, night: 0.03 }, type: 'broadband' },
+            // MUTCD Series E(Modified) 16" uppercase; stroke = 20% of height = 8.1cm
+            // White on green retroreflective sheeting — same material contrast for all features
+            // Night: modern Type III+ sheeting maintains ≥0.78 Michelson under headlights
+            // FHWA legibility: 30-40 ft/inch → 146-195m for 16" letters
+            { label: 'Sign face',      size: 3.6,   contrast: { bright: 0.85, cloudy: 0.70, overcast: 0.55, night: 0.75 }, type: 'broadband' },
+            { label: 'Letter height',   size: 0.406, contrast: { bright: 0.85, cloudy: 0.70, overcast: 0.55, night: 0.75 }, type: 'broadband' },
+            { label: 'Letter strokes',  size: 0.081, contrast: { bright: 0.85, cloudy: 0.70, overcast: 0.55, night: 0.75 }, type: 'broadband' },
         ],
         descriptions: {
             resolved: 'You can read the exit sign text at this distance.',
@@ -238,9 +248,11 @@ const OBJECTS = [
         name: 'License plate',
         distRange: [5, 150], distDefault: 35, distStep: 5, distUnit: 'm', distScale: 1,
         features: [
-            { label: 'Plate body',   size: 0.305, contrast: { bright: 0.80, cloudy: 0.60, overcast: 0.30, night: 0.10 }, type: 'broadband' },
-            { label: 'Characters',   size: 0.070, contrast: { bright: 0.88, cloudy: 0.65, overcast: 0.30, night: 0.04 }, type: 'broadband' },
-            { label: 'Char strokes', size: 0.012, contrast: { bright: 0.88, cloudy: 0.65, overcast: 0.30, night: 0.04 }, type: 'broadband' },
+            // US plate: 305mm wide, 70mm char height, ~9-10mm stroke width
+            // Retroreflective background: bright under headlights, dark characters
+            { label: 'Plate body',   size: 0.305, contrast: { bright: 0.80, cloudy: 0.60, overcast: 0.30, night: 0.60 }, type: 'broadband' },
+            { label: 'Characters',   size: 0.070, contrast: { bright: 0.88, cloudy: 0.65, overcast: 0.30, night: 0.60 }, type: 'broadband' },
+            { label: 'Char strokes', size: 0.010, contrast: { bright: 0.88, cloudy: 0.65, overcast: 0.30, night: 0.60 }, type: 'broadband' },
         ],
         descriptions: {
             resolved: 'You can read the plate characters at this distance.',
@@ -252,7 +264,9 @@ const OBJECTS = [
         name: 'Deer at roadside',
         distRange: [20, 500], distDefault: 100, distStep: 10, distUnit: 'm', distScale: 1,
         features: [
-            { label: 'Body',    size: 1.2,  contrast: { bright: 0.35, cloudy: 0.22, overcast: 0.10, night: 0.03 }, type: 'broadband' },
+            // Whitetail shoulder height ~0.9-1.0m; fur albedo ~12% vs vegetation ~15-25%
+            // D'Angelo et al. 2023: mean detection 66m low-beam, 90m high-beam
+            { label: 'Body',    size: 1.0,  contrast: { bright: 0.35, cloudy: 0.22, overcast: 0.10, night: 0.03 }, type: 'broadband' },
             { label: 'Legs',    size: 0.08, contrast: { bright: 0.25, cloudy: 0.15, overcast: 0.06, night: 0.015 }, type: 'broadband' },
             { label: 'Eye/ear', size: 0.02, contrast: { bright: 0.20, cloudy: 0.12, overcast: 0.04, night: 0.01 }, type: 'broadband' },
         ],

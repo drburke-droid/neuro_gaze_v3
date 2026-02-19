@@ -88,7 +88,7 @@ body{background:var(--chrome);font-family:var(--f);color:var(--t1);-webkit-font-
 .pair-label-sm{font-size:clamp(.7rem,1.2vw,.9rem);color:var(--t2);font-weight:300}
 .pair-code{font-family:var(--m);font-size:clamp(2rem,7vw,3.8rem);font-weight:700;color:var(--a);letter-spacing:clamp(6px,1.5vw,14px);text-shadow:0 0 60px rgba(0,255,204,.2);animation:popIn .5s var(--ez-spring) forwards;white-space:nowrap}
 .pair-instruction{font-size:clamp(.62rem,1.1vw,.85rem);color:var(--t2);max-width:360px;line-height:1.5}
-.pair-url{color:var(--a);font-family:var(--m);font-size:.9em;word-break:break-all}
+.pair-url{color:var(--a);font-family:var(--m);font-size:.9em;white-space:nowrap}
 .pair-status{font-family:var(--m);font-size:clamp(.5rem,.9vw,.7rem);color:var(--t3);letter-spacing:1px;display:flex;align-items:center;gap:6px}
 .pair-status .sd{display:inline-block;width:6px;height:6px;border-radius:50%;vertical-align:middle}
 .pair-status .sd-wait{background:rgba(255,255,255,.4);animation:breathe 1.8s ease-in-out infinite}

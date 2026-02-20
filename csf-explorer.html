@@ -516,7 +516,8 @@ function drawAll() {
     rafId = null;
     const canvas = document.getElementById('csf-canvas');
     const dpr = window.devicePixelRatio || 1;
-    const cssW = 1100, cssH = 520;
+    const isMobile = window.innerWidth < 640;
+    const cssW = 1100, cssH = isMobile ? 560 : 520;
     canvas.width = cssW * dpr;
     canvas.height = cssH * dpr;
     canvas.style.width = '100%';
@@ -649,14 +650,14 @@ function drawAll() {
         ctx.fill();
     }
 
-    // Draw individual feature demand curves (thin dashed)
+    // Draw individual feature demand curves
     obj.features.forEach((feat, fi) => {
         const pts = featureDemandCurves[fi];
         ctx.save();
-        ctx.setLineDash([4, 4]);
+        ctx.setLineDash(isMobile ? [6, 5] : [4, 4]);
         ctx.strokeStyle = featureColors[fi];
-        ctx.globalAlpha = 0.45;
-        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = isMobile ? 0.6 : 0.45;
+        ctx.lineWidth = isMobile ? 2.5 : 1.5;
         ctx.beginPath();
         let started = false;
         for (const p of pts) {
@@ -682,15 +683,17 @@ function drawAll() {
 
         ctx.save();
         ctx.fillStyle = featureColors[fi];
-        ctx.globalAlpha = 0.7;
+        ctx.globalAlpha = isMobile ? 0.9 : 0.7;
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.arc(x, y, isMobile ? 7 : 4, 0, Math.PI * 2);
         ctx.fill();
-        // Label
-        ctx.globalAlpha = 0.6;
-        ctx.font = '500 9px "DM Sans", sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(feat.label, x + 7, y + 3);
+        if (!isMobile) {
+            // Label (desktop only)
+            ctx.globalAlpha = 0.6;
+            ctx.font = '500 9px "DM Sans", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(feat.label, x + 7, y + 3);
+        }
         ctx.restore();
     });
 
@@ -740,7 +743,7 @@ function drawAll() {
     // Main stroke
     drawSmoothCurve(pts);
     ctx.strokeStyle = '#00ffcc';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = isMobile ? 3.5 : 2.5;
     ctx.stroke();
 
     ctx.restore(); // end clip
@@ -787,29 +790,29 @@ function drawAll() {
     ctx.lineWidth = 1;
     ctx.strokeRect(pad.left, pad.top, pW, pH);
 
-    // ── Legend ──
-    const legX = pad.left + pW - 180, legY = pad.top + 10;
-    ctx.font = '500 11px "DM Sans", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.globalAlpha = 1;
-    // CSF legend
-    ctx.fillStyle = '#00ffcc';
-    ctx.globalAlpha = 0.7;
-    ctx.fillRect(legX, legY, 18, 2);
-    ctx.fillText('Your CSF', legX + 24, legY + 5);
-    // Feature legends
-    obj.features.forEach((feat, fi) => {
-        const y = legY + (fi + 1) * 20;
-        ctx.fillStyle = featureColors[fi];
-        ctx.globalAlpha = 0.5;
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = featureColors[fi];
-        ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(legX, y + 1); ctx.lineTo(legX + 18, y + 1); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillText(feat.label, legX + 24, y + 5);
-    });
-    ctx.globalAlpha = 1;
+    // ── Legend (desktop only) ──
+    if (!isMobile) {
+        const legX = pad.left + pW - 180, legY = pad.top + 10;
+        ctx.font = '500 11px "DM Sans", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#00ffcc';
+        ctx.globalAlpha = 0.7;
+        ctx.fillRect(legX, legY, 18, 2);
+        ctx.fillText('Your CSF', legX + 24, legY + 5);
+        obj.features.forEach((feat, fi) => {
+            const y = legY + (fi + 1) * 20;
+            ctx.fillStyle = featureColors[fi];
+            ctx.globalAlpha = 0.5;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = featureColors[fi];
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(legX, y + 1); ctx.lineTo(legX + 18, y + 1); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillText(feat.label, legX + 24, y + 5);
+        });
+        ctx.globalAlpha = 1;
+    }
 
     // ── Update verdict card ──
     updateVerdict(obj, distMeters);

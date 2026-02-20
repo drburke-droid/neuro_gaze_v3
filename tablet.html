@@ -149,6 +149,8 @@ body{background:var(--c);color:var(--t1);font-family:var(--f);-webkit-font-smoot
 .explorer-cta-btn{display:inline-block;padding:12px 28px;border-radius:100px;border:2px solid rgba(0,255,204,.35);background:rgba(0,255,204,.08);color:var(--a);font-family:var(--f);font-size:clamp(.72rem,2.4vw,.88rem);font-weight:600;text-decoration:none;letter-spacing:.3px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .12s var(--ez-spring),background .2s}
 .explorer-cta-btn:active{transform:scale(.93) translateY(1px);background:rgba(0,255,204,.18)}
 .explorer-cta-note{font-family:var(--m);font-size:clamp(.5rem,1.6vw,.62rem);color:var(--a);opacity:.6;letter-spacing:.3px}
+.explorer-cta-divider{width:80%;height:1px;background:rgba(255,255,255,.08);margin:4px 0}
+.email-self-btn{font-family:var(--f)}
 </style></head><body>
 <div class="hdr"><span class="brand">Burke Vision Lab</span></div>
 
@@ -504,11 +506,18 @@ function showResults(d){
     // Plot placeholder (image arrives separately via plotImage message)
     c.innerHTML+='<img class="res-plot" style="display:none" alt="CSF Plot">';
 
-    // Explorer link
+    // Explorer CTA
     if(d.csfParams){
         var p=d.csfParams;
         var explorerUrl='https://calgaryvisioncentre.com/blog/seeing-beyond-2020?g='+p.g.toFixed(2)+'&f='+p.f.toFixed(1)+'&b='+p.b.toFixed(2)+'&d='+p.d.toFixed(2);
-        c.innerHTML+='<a class="explorer-cta-btn" href="'+explorerUrl+'" target="_blank" rel="noopener" style="opacity:0;animation:settleUp var(--settle) var(--ez) .65s forwards">Analyze Your Results & Learn More \u2192</a>';
+        c.innerHTML+='<div class="explorer-cta-card" style="opacity:0;animation:settleUp var(--settle) var(--ez) .65s forwards">'
+            +'<div class="explorer-cta-label">Next: Explore What You Can See</div>'
+            +'<div class="explorer-cta-desc">The interactive analyzer lets you see how your CSF curve applies to real-world objects \u2014 golf balls, road signs, pedestrians \u2014 at different distances and lighting. It\u2019s best viewed on a larger screen.</div>'
+            +'<a class="explorer-cta-btn" href="'+explorerUrl+'" target="_blank" rel="noopener">Open on This Device \u2192</a>'
+            +'<div class="explorer-cta-divider"></div>'
+            +'<div class="explorer-cta-desc">Want to view it on a PC instead? Email yourself this link \u2014 it saves your data so you can pick up right where you left off.</div>'
+            +'<button class="explorer-cta-btn email-self-btn" onclick="emailExplorerLink()" style="border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);color:var(--t1)">Email Link to Myself</button>'
+            +'</div>';
         window._explorerUrl=explorerUrl;
     }
 
@@ -537,4 +546,5 @@ function getRText(){
 function shareR(){if(!resultData)return;if(navigator.share)navigator.share({title:'Burke Vision Lab Results',text:getRText()}).catch(function(){});else copyR()}
 function copyR(){if(!resultData)return;navigator.clipboard.writeText(getRText()).then(function(){var e=document.getElementById('rcp');if(e){e.classList.add('show');setTimeout(function(){e.classList.remove('show')},2000)}}).catch(function(){})}
 function copyExplorerUrl(){if(!window._explorerUrl)return;navigator.clipboard.writeText(window._explorerUrl).then(function(){var btns=document.querySelectorAll('.csf-formula-copy');btns.forEach(function(b){var orig=b.textContent;b.textContent='Copied!';b.style.borderColor='var(--a)';b.style.color='var(--a)';setTimeout(function(){b.textContent=orig;b.style.borderColor='';b.style.color=''},2000)})}).catch(function(){prompt('Copy this link:',window._explorerUrl)})}
+function emailExplorerLink(){if(!window._explorerUrl)return;var subj=encodeURIComponent('Your Contrast Sensitivity Results \u2014 Burke Vision Lab');var body=encodeURIComponent('Here\u2019s your personalized link to explore your contrast sensitivity results:\n\n'+window._explorerUrl+'\n\nOpen this on a PC or tablet for the best experience. Your CSF curve and all your data are saved in the link.');window.location.href='mailto:?subject='+subj+'&body='+body}
 </script></body></html>

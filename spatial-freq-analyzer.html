@@ -66,7 +66,7 @@
   .enote{text-align:center;font-size:12px;color:var(--t3);margin:-6px 0 14px;font-style:italic}
   .hcc canvas{width:100%;height:280px;display:block}
   .ab{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
-  .ba{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 24px;border-radius:8px;border:none;background:var(--ac);color:var(--bg);cursor:pointer;transition:filter .2s}
+  .ba{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;padding:14px 32px;border-radius:10px;border:none;background:var(--ac);color:var(--bg);cursor:pointer;transition:all .2s}
   .ba:hover{filter:brightness(1.15)}
   .cr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);background:var(--bg3);padding:6px 14px;border-radius:6px;border:1px solid var(--bd)}
   .fn{text-align:center;font-size:11px;color:var(--t3);padding:30px 10px;font-style:italic}
@@ -116,7 +116,7 @@
     <div class="ch"><div class="ct"><span class="dot" style="background:#e06050"></span>On Your Retina</div><div class="csub">Image inverted by the lens — analysis happens here</div></div>
     <div class="cb"><canvas id="eyeCanvas" style="height:320px;"></canvas></div>
   </div>
-  <div class="ab"><button class="ba" onclick="runDecomposition()">Break It Down</button><div class="cr" id="cpdReadout">—</div></div>
+  <div class="ab"><button class="ba" id="analyzeBtn" onclick="runDecomposition()">Analyze Image</button><div class="cr" id="cpdReadout">—</div></div>
   <div class="sa" id="sieveArea"></div>
   <div class="cd hcc hidden" id="histCard">
     <div class="ch"><div class="ct"><span class="dot" style="background:var(--amb)"></span>Spatial Frequency Spectrum</div><div class="csub">Colored bars are visible to you &middot; dim red bars are beyond your contrast sensitivity</div></div>
@@ -228,7 +228,8 @@ function rebinHistogram(){
   const histData=Object.keys(cpdBins).map(k=>({cpd:parseInt(k),energy:cpdBins[k]})).sort((a,b)=>a.cpd-b.cpd);
   drawHistogram(histData);
 }
-function updateCpd(){$('cpdReadout').textContent=`Scene ≈ ${sceneDeg().toFixed(1)}° of your vision`;drawEyeDiagram();rebinHistogram();}
+function markReanalyze(){const btn=$('analyzeBtn');if(btn&&cachedAllBins)btn.textContent='Re-analyze';}
+function updateCpd(){$('cpdReadout').textContent=`Scene ≈ ${sceneDeg().toFixed(1)}° of your vision`;drawEyeDiagram();rebinHistogram();markReanalyze();}
 function drawLine(){
   const c=$('mainCanvas').getContext('2d');c.putImageData(imgData,0,0);
   c.strokeStyle='#00d4aa';c.lineWidth=1.5;c.setLineDash([6,4]);
@@ -417,6 +418,7 @@ function recon(sRe,sIm,n,len){
 }
 
 function runDecomposition(){
+  $('analyzeBtn').textContent='Analyze Image';
   readScene();
   const row=getScanline();
   const SHOW_FIRST=4;
@@ -757,6 +759,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       pillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       if (lastHistBins) drawHistogram(lastHistBins);
+      markReanalyze();
     };
     pillsEl.appendChild(btn);
   });

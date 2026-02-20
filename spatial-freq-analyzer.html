@@ -206,6 +206,7 @@ function processImage(img){
   requestAnimationFrame(()=>drawEyeDiagram());
   $('sieveArea').innerHTML='';$('sieveArea').classList.remove('visible');
   $('histCard').classList.add('hidden');
+  setTimeout(runDecomposition,100);
 }
 function sceneDeg(){readScene();return 2*Math.atan(sceneWidthM/(2*viewDistM))*(180/Math.PI);}
 function pxToCpd(f){return f/sceneDeg();}

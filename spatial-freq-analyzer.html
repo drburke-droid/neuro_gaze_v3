@@ -776,6 +776,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     img.src=p.src;
   });
   loadPreset('stop');
+
+  // Report height to parent iframe for auto-resize
+  if (window.parent !== window) {
+    const ro = new ResizeObserver(() => {
+      window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+    });
+    ro.observe(document.body);
+  }
 });
 </script>
 </body>
